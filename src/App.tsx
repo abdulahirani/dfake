@@ -958,22 +958,26 @@ ${pages.map(page => `  <url>
             </motion.div>
           )}
 
-                        <div className="text-center mt-8">
-                          <h2 className="text-6xl font-black uppercase tracking-tighter italic">About Digital <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Integrity</span></h2>
-                        </div>
-                        <div className={`space-y-6 text-lg leading-relaxed text-justify max-w-2xl mx-auto ${theme === 'dark' ? 'text-white/70' : 'text-[#0F172A]'}`}>
-                          <p>Welcome to ScanDeepFake, a dedicated platform built to safeguard digital truth in an age of artificial synthesis. Our mission is to provide every individual with the tools needed to verify media authenticity instantly at https://scandeepfake.web.app.</p>
-                          <p>In a world where seeing is no longer necessarily believing, we use the same technology that creates AI to detect it. Our forensic engine uses local analysis to ensure your data never leaves your device.</p>
-                          <p>We are a self-funded project committed to transparency, privacy, and the preservation of authentic human expression on the internet.</p>
-                          <div className="pt-8 flex justify-center">
-                            <button 
-                              onClick={generateSitemap}
-                              className={`text-[10px] font-mono uppercase tracking-[0.3em] transition-opacity border px-6 py-3 rounded-full ${theme === 'dark' ? 'opacity-40 hover:opacity-100 border-white/10' : 'text-[#0F172A] border-black/20 hover:border-[#1E40AF] hover:text-[#1E40AF]'}`}
-                            >
-                              Generate Sitemap.xml
-                            </button>
-                          </div>
-                        </div>
+          {currentPage === 'about' && (
+            <motion.div key="about" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-4xl mx-auto space-y-12 mb-20">
+              <div className="text-center mt-8">
+                <h2 className="text-6xl font-black uppercase tracking-tighter italic">About Digital <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Integrity</span></h2>
+              </div>
+              <div className={`space-y-6 text-lg leading-relaxed text-justify max-w-2xl mx-auto ${theme === 'dark' ? 'text-white/70' : 'text-[#0F172A]'}`}>
+                <p>Welcome to ScanDeepFake, a dedicated platform built to safeguard digital truth in an age of artificial synthesis. Our mission is to provide every individual with the tools needed to verify media authenticity instantly at https://scandeepfake.web.app.</p>
+                <p>In a world where seeing is no longer necessarily believing, we use the same technology that creates AI to detect it. Our forensic engine uses local analysis to ensure your data never leaves your device.</p>
+                <p>We are a self-funded project committed to transparency, privacy, and the preservation of authentic human expression on the internet.</p>
+                <div className="pt-8 flex justify-center">
+                  <button 
+                    onClick={generateSitemap}
+                    className={`text-[10px] font-mono uppercase tracking-[0.3em] transition-opacity border px-6 py-3 rounded-full ${theme === 'dark' ? 'opacity-40 hover:opacity-100 border-white/10' : 'text-[#0F172A] border-black/20 hover:border-[#1E40AF] hover:text-[#1E40AF]'}`}
+                  >
+                    Generate Sitemap.xml
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {currentPage === 'contact' && (
             <motion.div key="contact" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-2xl mx-auto space-y-10 mt-8">
@@ -1001,7 +1005,7 @@ ${pages.map(page => `  <url>
             </motion.div>
           )}
 
-          {currentPage === 'privacy' && <LegalPage title="Privacy Policy" theme={theme} content={`Our commitment to your privacy is absolute. Our Deepfake Detector tools are designed with "Privacy by Design" principles. 
+          {currentPage === 'privacy' && <LegalPage key="privacy" title="Privacy Policy" theme={theme} content={`Our commitment to your privacy is absolute. Our Deepfake Detector tools are designed with "Privacy by Design" principles. 
           
 1. Data Integrity: We do not store, upload, or transmit your media to our permanent servers. Processing happens in secure ephemeral cloud instances that are deleted immediately after result generation.
 2. Analytics: We use anonymized usage metrics to improve our detection algorithms. No personally identifiable information (PII) is ever linked to these metrics.
@@ -1009,7 +1013,7 @@ ${pages.map(page => `  <url>
 4. Third Parties: Verified AI partners may receive transient data for processing, strictly governed by zero-retention policies.
 5. Advertising: This site uses Google AdSense. Google's use of advertising cookies enables it and its partners to serve ads based on your visit to this site and/or other sites on the Internet.`} />}
 
-          {currentPage === 'terms' && <LegalPage title="Terms of Service" theme={theme} content={`By accessing Deepfake Detector, you agree to these legal terms:
+          {currentPage === 'terms' && <LegalPage key="terms" title="Terms of Service" theme={theme} content={`By accessing Deepfake Detector, you agree to these legal terms:
 
 1. Usage: You are granted a limited license to use our scanner for personal or professional verification.
 2. Prohibitions: You may not use this tool for illegal purposes, harassing individuals, or attempting to reverse-engineer our detection model.
@@ -1017,7 +1021,7 @@ ${pages.map(page => `  <url>
 4. Ownership: The detection output belongs to you, but the detection technology remains intellectual property of Deepfake Detector.
 5. Service: We reserve the right to modify or discontinue the service at any time without prior notice.`} />}
 
-          {currentPage === 'disclaimer' && <LegalPage title="Disclaimer" theme={theme} content={`While our AI models are among the most advanced in the industry, users must acknowledge:
+          {currentPage === 'disclaimer' && <LegalPage key="disclaimer" title="Disclaimer" theme={theme} content={`While our AI models are among the most advanced in the industry, users must acknowledge:
 
 1. Probabilistic Results: Detection scores are estimates based on statistical probability. They are NOT definitive legal proof of authenticity or synthetic origin.
 2. False Positives: High-quality real images can sometimes be flagged as AI if they possess unusual lighting or camera artifacts.
