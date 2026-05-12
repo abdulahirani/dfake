@@ -479,15 +479,15 @@ ${pages.map(page => `  <url>
         theme === 'dark' ? 'border-white/10 bg-[#050608]/80' : 'border-black/5 bg-[#F8FAFC]/80'
       }`}>
         <div className="flex flex-col cursor-pointer" onClick={() => setCurrentPage('home')}>
-          <h1 className="text-[10px] font-mono tracking-[0.3em] text-[#00F3FF] uppercase mb-1 flex items-center gap-2">
+          <div className="text-[10px] font-mono tracking-[0.3em] text-[#00F3FF] uppercase mb-1 flex items-center gap-2">
             <Cpu size={12} className="animate-spin-slow" />
             ScanDeepFake Engine v4.2.1
-          </h1>
-          <div className={`text-4xl md:text-5xl font-black tracking-tighter uppercase leading-none transition-colors duration-500 ${
+          </div>
+          <h1 className={`text-4xl md:text-5xl font-black tracking-tighter uppercase leading-none transition-colors duration-500 ${
             theme === 'dark' ? 'text-white' : 'text-[#0F172A]'
           }`}>
             ScanDeepFake
-          </div>
+          </h1>
         </div>
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
           <nav className={`flex flex-wrap gap-x-6 gap-y-2 text-[10px] font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>
@@ -499,6 +499,7 @@ ${pages.map(page => `  <url>
           </nav>
           <button 
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             className={`p-2.5 rounded-xl border transition-all ${
               theme === 'dark' ? 'bg-white/5 border-white/10 text-white hover:bg-white/10' : 'bg-black/5 border-black/10 text-black hover:bg-black/10'
             }`}
@@ -548,9 +549,9 @@ ${pages.map(page => `  <url>
                           <h2 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">
                             ScanDeepFake: The World's Most <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Accurate AI Forensic Engine</span>
                           </h2>
-                          <p className={`text-lg max-w-2xl mx-auto font-medium transition-opacity ${theme === 'dark' ? 'opacity-40' : 'text-[#0F172A] opacity-90'}`}>
+                          <h3 className={`text-lg max-w-2xl mx-auto font-medium transition-opacity ${theme === 'dark' ? 'opacity-40' : 'text-[#0F172A] opacity-90'}`}>
                             Detect <strong>Deepfake Detection Online</strong>, verify <strong>AI Face Swap Checker</strong>, and ensure <strong>Video Authenticity Verification</strong> with our <strong>Free AI Forensic Tool</strong>.
-                          </p>
+                          </h3>
                         </div>
 
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">

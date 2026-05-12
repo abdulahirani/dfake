@@ -22,6 +22,7 @@ def generate_seo_files():
     sitemap += '</urlset>'
     
     ads_txt = "google.com, pub-6085334458485233, DIRECT, f08c47fec0942fa0"
+    robots_txt = f"User-agent: *\nAllow: /\nSitemap: {domain}/sitemap.xml"
     
     # Try to write to common static paths
     for folder in ['public', 'dist', '.']:
@@ -29,6 +30,7 @@ def generate_seo_files():
             try:
                 with open(os.path.join(folder, 'sitemap.xml'), 'w') as f: f.write(sitemap)
                 with open(os.path.join(folder, 'ads.txt'), 'w') as f: f.write(ads_txt)
+                with open(os.path.join(folder, 'robots.txt'), 'w') as f: f.write(robots_txt)
             except: pass
 
 generate_seo_files()
