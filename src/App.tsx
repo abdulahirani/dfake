@@ -337,7 +337,7 @@ ${pages.map(page => `  <url>
         <div className="flex flex-col cursor-pointer" onClick={() => setCurrentPage('home')}>
           <h1 className="text-[10px] font-mono tracking-[0.3em] text-[#00F3FF] uppercase mb-1 flex items-center gap-2">
             <Cpu size={12} className="animate-spin-slow" />
-            AI Scanner v4.2
+            ScanDeepFake Engine v4.2.1
           </h1>
           <div className={`text-4xl md:text-5xl font-black tracking-tighter uppercase leading-none transition-colors duration-500 ${
             theme === 'dark' ? 'text-white' : 'text-[#0F172A]'
@@ -723,7 +723,7 @@ ${pages.map(page => `  <url>
                           Safe & Secure <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Deepfake Analysis</span>
                         </h2>
                         <p className="text-lg text-white/60 leading-relaxed">
-                          Our Deepfake Detector uses military-grade neural forensics to protect you from misinformation. Every pixel is scanned for minute irregularities introduced during AI training.
+                          ScanDeepFake uses military-grade neural forensics to protect you from misinformation. Every pixel is scanned for minute irregularities introduced during AI training.
                         </p>
                         <div className="grid grid-cols-2 gap-4">
                           <BenefitCard title="Privacy First" desc="No storage policy. No tracking." theme={theme} />

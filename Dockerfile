@@ -1,4 +1,4 @@
-# ScanDeepFake Pro Deployment Module
+# ScanDeepFake Deployment Module
 FROM python:3.9-slim
 
 WORKDIR /app
