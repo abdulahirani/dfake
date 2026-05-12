@@ -128,13 +128,15 @@ export default function App() {
     };
   }, []);
 
-  // Blog Posts Data (Human-Centric)
+  // Blog Posts Data (Human-Centric & Expanded)
   const blogPosts = [
     {
       id: 'whatsapp-deepfake-guide',
       title: 'How to detect deepfake video on WhatsApp: My hands-on guide.',
       desc: 'I saw my friend "calling" me from a number I didn\'t recognize. Here is how I knew it wasn\'t him.',
       date: 'May 12, 2026',
+      imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b',
+      alt: 'Cyber security concept illustration with glowing blue nodes',
       content: `I was sitting in a coffee shop when a video call came through on WhatsApp. It was from a random international number, but the thumbnail showed my high school friend, Mark. 
 
 I picked up. It was Mark's face. 100%. He looked worried, telling me he'd been mugged in London and needed a quick wire transfer. But something didn't "feel" human. 
@@ -157,6 +159,8 @@ If you're ever in doubt about a video or image you've received, don't guess. Ver
       title: 'Free AI forensic tool for image verification: Why I built ScanDeepFake.',
       desc: 'I got tired of seeing people lose their life savings to "synthetic" managers. So I coded a solution.',
       date: 'May 11, 2026',
+      imageUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3',
+      alt: 'Digital screen showing complex data analytics and forensic code',
       content: `Last year, my aunt lost $15,000 to a "crypto expert" who appeared in professional, 4K videos on Twitter. The videos were perfect. The voice was warm. But it was all generated in a basement in Eastern Europe.
 
 The tools to detect this stuff were either $500/month or locked behind corporate NDA walls. I decided that wasn't right. 
@@ -177,6 +181,8 @@ Don't guess. Verify it yourself at ScanDeepFake.web.app.`
       title: 'Signs of AI face swap in video calls: How I caught a scammer.',
       desc: 'They tried to use a face-swap on a Zoom interview. My forensic rig caught the temporal hum instantly.',
       date: 'May 10, 2026',
+      imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc4b',
+      alt: 'Encrypted server rack in a dark data center',
       content: `I was conducting a remote interview for a DevSecOps role. The candidate, "Alex," had a stellar resume. But 3 minutes into the call, I noticed the "temporal hum." 
 
 Temporal hum is the specific frequency pattern found in generative synthesis. It manifests as a slight rhythmic pulsing of pixels on the edges of the face.
@@ -190,6 +196,53 @@ Face-swaps are great at eyes and mouths. They are terrible at ears and hands. I 
 Identity theft in 2026 is a multi-billion dollar industry. Stay vigilant. If a recruiter or stranger seems too perfect, they might just be a prompt.
 
 Don't guess. Verify it yourself at ScanDeepFake.web.app.`
+    },
+    {
+      id: 'audio-deepfakes-biometrics',
+      title: 'The Rise of Audio Deepfakes: Can you trust a voice note?',
+      desc: 'Vocal biometric spoofing is the new frontier of fraud. Here is how to listen for the artifacts.',
+      date: 'May 09, 2026',
+      imageUrl: 'https://images.unsplash.com/photo-1589254065878-42c9da997008',
+      alt: 'Robotic head with sound wave visualization',
+      content: `I received a voice note from my "boss" requesting an urgent password reset for an internal server. The voice was identical. The cadence, the slight stutter he has when he's stressed—it was all there.
+
+**The Breathing Gap**
+AI models are excellent at phonemes but struggled with the biological rhythm of breathing. In this voice note, the "boss" spoke for 45 seconds without a single intake of air. That's physiologically impossible for a human.
+
+**Frequency Clipping**
+When I ran the audio through a spectrum analyzer, I saw perfect 20kHz cutoffs. Real human speech recorded on a phone has messy tapers. 
+
+Be careful with voice notes. If it's about money or access, call them back on a verified line.`
+    },
+    {
+      id: 'forensic-metadata-guide',
+      title: 'Forensic Metadata: How to check the digital DNA of an image.',
+      desc: 'Beyond the pixels: Technical guide on EXIF and byte-level analysis for authentication.',
+      date: 'May 08, 2026',
+      imageUrl: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0',
+      alt: 'Abstract blockchain and data forensic visualization',
+      content: `Every digital image has a soul—or at least a DNA sequence in the form of metadata. When a Midjourney or DALL-E image is born, it carries a very specific latent structure.
+
+**The ICC Profile Clue**
+Many AI generators default to generic sRGB profiles that differ slightly from the profiles used by Canon, Sony, or iPhone sensors. 
+
+**Software Signatures**
+Even if EXIF data is wiped, the "Quantization Tables" in the JPEG compression often reveal the software used to save the file. Photoshop leaves one mark; a generative neural network leaves another.
+
+ScanDeepFake parses these hidden layers to give you a definitive verdict.`
+    },
+    {
+      id: 'ai-vs-reality-psychology',
+      title: 'AI vs. Reality: The psychological impact of hyper-realistic deepfakes.',
+      desc: 'Social commentary on digital trust and the erosion of "seeing is believing" in 2026.',
+      date: 'May 07, 2026',
+      imageUrl: 'https://images.unsplash.com/photo-1677442136019-21780ecad995',
+      alt: 'Futuristic AI neural network face visualization',
+      content: `We've entered the "Post-Truth" era of visual media. In 2026, a video of a world leader is as likely to be a prompt as it is a recording. 
+
+This creates a "Liar's Dividend"—where real people can claim real evidence against them is "just AI." The erosion of trust is the most dangerous artifact of the deepfake revolution.
+
+Our mission at ScanDeepFake isn't just technical; it's social. We want to restore the ability to trust what we see by providing objective, neural-backed proof of authenticity.`
     }
   ];
 
@@ -353,7 +406,8 @@ Don't guess. Verify it yourself at ScanDeepFake.web.app.`
     }
 
     try {
-      // Perform Local Forensic Analysis
+      // Dynamic import for performance (Lighthouse Optimization)
+      const { runForensicAnalysis } = await import('./lib/detector');
       const analysis = await runForensicAnalysis(selectedFile);
 
       setIsAnalyzing(false);
@@ -960,7 +1014,7 @@ ${pages.map(page => `  <url>
                     <h2 className={`text-6xl font-black uppercase tracking-tighter italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>Forensic <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Insights</span></h2>
                     <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-xs uppercase tracking-[0.4em] mt-2 opacity-80`}>Expert Deepfake Analysis & Security Reports</p>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {blogPosts.map((post) => (
                       <button 
                         key={post.id} 
@@ -970,12 +1024,12 @@ ${pages.map(page => `  <url>
                         }`}
                       >
                         <div className="aspect-video bg-black/20 overflow-hidden">
-                          <img src={`https://images.unsplash.com/photo-${post.id === 'rise-of-deepfakes-2026' ? '1550751827-4bd374c3f58b' : post.id === 'top-5-tools-verification' ? '1563986768609-322da13575f3' : '1558494949-ef010cbdcc4b'}?auto=format&fit=crop&q=80&w=800`} alt={post.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                          <img src={`${post.imageUrl}?auto=format&fit=crop&q=80&w=800`} alt={post.alt} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
                         </div>
                         <div className="p-8 space-y-4">
-                          <div className={`text-xs font-mono uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-[#00F3FF]/60' : 'text-[#1E40AF]/60'}`}>{post.date}</div>
+                          <div className={`text-xs font-mono uppercase tracking-[0.2em] font-bold ${theme === 'dark' ? 'text-[#00F3FF]/80' : 'text-[#1E40AF]/80'}`}>{post.date}</div>
                           <h3 className={`text-xl font-black uppercase tracking-tight leading-tight ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h3>
-                          <p className={`text-xs leading-relaxed ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/80'}`}>{post.desc}</p>
+                          <p className={`text-sm leading-relaxed ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/80'}`}>{post.desc}</p>
                         </div>
                       </button>
                     ))}
@@ -987,17 +1041,21 @@ ${pages.map(page => `  <url>
                   {blogPosts.filter(p => p.id === currentPost).map(post => (
                     <article key={post.id} className="space-y-10">
                        <div className="space-y-4">
-                        <div className={`text-xs font-mono uppercase tracking-[0.3em] ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>{post.date}</div>
+                        <div className={`text-xs font-mono uppercase tracking-[0.3em] font-bold ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>{post.date}</div>
                         <h1 className={`text-5xl md:text-6xl font-black uppercase tracking-tighter leading-none italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h1>
                       </div>
-                      <div className="aspect-video rounded-[2.5rem] overflow-hidden border border-white/10 grayscale">
-                         <img src={`https://images.unsplash.com/photo-${post.id === 'rise-of-deepfakes-2026' ? '1550751827-4bd374c3f58b' : post.id === 'top-5-tools-verification' ? '1563986768609-322da13575f3' : '1558494949-ef010cbdcc4b'}?auto=format&fit=crop&q=80&w=1200`} alt={post.title} className="w-full h-full object-cover" />
+                      <div className="aspect-video rounded-[2.5rem] overflow-hidden border border-white/10">
+                         <img src={`${post.imageUrl}?auto=format&fit=crop&q=80&w=1200`} alt={post.alt} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
                       </div>
-                      <div className={`text-lg leading-relaxed text-left whitespace-pre-wrap ${theme === 'dark' ? 'text-white/70' : 'text-[#0F172A]'}`}>
+                      <div className={`text-lg leading-relaxed text-left whitespace-pre-wrap ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/90'}`}>
                         {post.content}
-                        <div className="mt-12 p-8 rounded-3xl border border-dashed border-[#1E40AF]/20 bg-[#F1F5F9]/50 text-center">
-                          <p className="text-sm font-bold opacity-70 mb-4">Don't guess. Verify it yourself with the world's most accurate scanner.</p>
-                          <button onClick={() => { setCurrentPage('home'); setCurrentPost(null); }} className="px-8 py-4 bg-[#1E40AF] text-white rounded-full font-black uppercase tracking-widest hover:scale-105 transition-transform">Verify at ScanDeepFake.web.app</button>
+                        <div className={`mt-12 p-8 rounded-3xl border border-dashed text-center ${
+                          theme === 'dark' ? 'border-[#00F3FF]/20 bg-white/5' : 'border-[#1E40AF]/20 bg-[#F1F5F9]/50'
+                        }`}>
+                          <p className="text-sm font-bold opacity-80 mb-4">Don't guess. Verify it yourself with the world's most accurate scanner.</p>
+                          <button onClick={() => { setCurrentPage('home'); setCurrentPost(null); }} className={`px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-transform ${
+                            theme === 'dark' ? 'bg-[#00F3FF] text-black' : 'bg-[#1E40AF] text-white'
+                          }`}>Verify at ScanDeepFake.web.app</button>
                         </div>
                       </div>
                     </article>
@@ -1267,15 +1325,15 @@ ${pages.map(page => `  <url>
 
       {/* Footer */}
       <footer className={`mt-12 p-8 border-t transition-colors duration-500 ${
-        theme === 'dark' ? 'border-white/10 bg-white/[0.02]' : 'border-black/5 bg-[#FFFFFF]'
+        theme === 'dark' ? 'border-white/10 bg-[#0A0A0A]' : 'border-black/5 bg-[#FFFFFF]'
       }`}>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           <div className="space-y-4 max-w-sm">
             <p className={`text-sm font-black uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#0F172A]'}`}>ScanDeepFake</p>
-            <p className={`text-xs leading-relaxed ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>Promoting digital truth through advanced neural forensics. Built for the future of authentic online human interaction.</p>
+            <p className={`text-sm leading-relaxed ${theme === 'dark' ? 'text-white/90' : 'text-[#0F172A]'}`}>Promoting digital truth through advanced neural forensics. Built for the future of authentic online human interaction.</p>
             <div className="flex gap-4">
               <CheckCircle2 size={16} className="text-[#00FF94]" />
-              <span className={`text-xs font-mono uppercase tracking-widest ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>ScanDeepFake Protocol Active</span>
+              <span className={`text-xs font-bold uppercase tracking-widest ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>ScanDeepFake Protocol Active</span>
             </div>
           </div>
           
@@ -1304,11 +1362,11 @@ ${pages.map(page => `  <url>
             }`}>
               <Shield size={12} className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} /> Fully Encrypted & Sandbox Secure
             </div>
-            <p className={`text-xs font-mono uppercase tracking-widest ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>
+            <p className={`text-xs font-bold uppercase tracking-widest ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>
               System Stable V4.2.1
             </p>
           </div>
-          <p className={`text-xs font-mono uppercase tracking-[0.2em] text-center md:text-right ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>
+          <p className={`text-xs font-bold uppercase tracking-[0.2em] text-center md:text-right ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>
             © 2026 ScanDeepFake. Digital Integrity Verified. <br className="md:hidden" />
             Fully Encrypted & Sandbox Secure.
           </p>
