@@ -479,7 +479,7 @@ ${pages.map(page => `  <url>
         theme === 'dark' ? 'border-white/10 bg-[#050608]/80' : 'border-black/5 bg-[#F8FAFC]/80'
       }`}>
         <div className="flex flex-col cursor-pointer" onClick={() => setCurrentPage('home')}>
-          <div className="text-[10px] font-mono tracking-[0.3em] text-[#00F3FF] uppercase mb-1 flex items-center gap-2">
+          <div className="text-xs font-mono tracking-[0.3em] text-[#00F3FF] uppercase mb-1 flex items-center gap-2">
             <Cpu size={12} className="animate-spin-slow" />
             ScanDeepFake Engine v4.2.1
           </div>
@@ -571,7 +571,7 @@ ${pages.map(page => `  <url>
                       >
                         <MatrixIllusion theme={theme} />
                         <div className="space-y-4 relative z-10">
-                          <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-[0.2em] ${
+                          <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-black uppercase tracking-[0.2em] ${
                             theme === 'dark' ? 'bg-[#00F3FF]/10 border-[#00F3FF]/20 text-[#00F3FF]' : 'bg-[#1E40AF]/10 border-[#1E40AF]/20 text-[#1E40AF]'
                           }`}>
                             <Activity size={12} className="animate-pulse" /> System Online - v4.2
@@ -630,7 +630,7 @@ ${pages.map(page => `  <url>
                             theme={theme}
                           />
                         </div>
-                        <button onClick={() => setCurrentStep(1)} className="text-white/70 hover:text-white text-[10px] uppercase font-black tracking-widest block mx-auto py-4">← Back to home</button>
+                        <button onClick={() => setCurrentStep(1)} className="text-white/80 hover:text-white text-xs uppercase font-black tracking-widest block mx-auto py-4">← Back to home</button>
                       </motion.div>
                     )}
 
@@ -681,7 +681,7 @@ ${pages.map(page => `  <url>
                                     <div className="space-y-6 py-4">
                                       <Loader2 className={`w-10 h-10 animate-spin mx-auto ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`} />
                                       <div className="space-y-2">
-                                        <div className={`text-[10px] font-mono uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Uploading to Buffer... {uploadProgress}%</div>
+                                        <div className={`text-xs font-mono uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Uploading to Buffer... {uploadProgress}%</div>
                                         <div className={`w-full h-1.5 rounded-full overflow-hidden max-w-[200px] mx-auto ${theme === 'dark' ? 'bg-white/5' : 'bg-black/5'}`}>
                                           <motion.div 
                                             className={`${theme === 'dark' ? 'bg-[#00F3FF]' : 'bg-[#1E40AF]'} h-full`}
@@ -700,12 +700,12 @@ ${pages.map(page => `  <url>
                                             <video src={previewUrl} className="w-full h-full object-cover" />
                                           )}
                                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3">
-                                            <span className="text-[8px] font-mono text-white/80 uppercase tracking-widest truncate">{selectedFile.name}</span>
+                                            <span className="text-xs font-mono text-white/80 uppercase tracking-widest truncate">{selectedFile.name}</span>
                                           </div>
                                         </div>
                                       )}
                                       <div className="flex flex-col items-center gap-4">
-                                        <div className="text-[#00FF94] flex items-center gap-2 text-[10px] font-black uppercase tracking-widest bg-[#00FF94]/10 px-3 py-1 rounded-full border border-[#00FF94]/20">
+                                        <div className="text-[#00FF94] flex items-center gap-2 text-xs font-black uppercase tracking-widest bg-[#00FF94]/10 px-3 py-1 rounded-full border border-[#00FF94]/20">
                                           <CheckCircle2 size={12} /> Ready for Analysis
                                         </div>
                                         <button 
@@ -723,7 +723,7 @@ ${pages.map(page => `  <url>
                                       <div className={`${theme === 'dark' ? 'text-white/10' : 'text-black/10'} flex justify-center`}><Upload size={48} /></div>
                                       <div className="space-y-1">
                                         <div className={`text-xs font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>Drop {analysisType} or Click</div>
-                                        <div className={`text-[9px] uppercase tracking-[0.2em] ${theme === 'dark' ? 'opacity-80' : 'opacity-80'}`}>Max file size: 50MB</div>
+                                        <div className={`text-xs uppercase tracking-[0.2em] ${theme === 'dark' ? 'opacity-80' : 'opacity-80'}`}>Max file size: 50MB</div>
                                       </div>
                                     </div>
                                   )}
@@ -734,7 +734,7 @@ ${pages.map(page => `  <url>
                         </div>
 
                         <AdSlot id="content-mid-2" type="content" className="w-full h-24 rounded-2xl" />
-                        <button onClick={() => setCurrentStep(2)} className="opacity-70 hover:opacity-100 text-[10px] uppercase font-black tracking-widest block mx-auto transition-opacity">← Back</button>
+                        <button onClick={() => setCurrentStep(2)} className="opacity-80 hover:opacity-100 text-xs uppercase font-black tracking-widest block mx-auto transition-opacity">← Back</button>
                       </motion.div>
                     )}
 
@@ -760,7 +760,7 @@ ${pages.map(page => `  <url>
                                 animate={{ width: `${progress}%` }}
                               />
                             </div>
-                            <div className={`text-[10px] font-mono uppercase tracking-[0.3em] font-black ${theme === 'dark' ? 'text-[#00F3FF]/80' : 'text-[#1E40AF]/80'}`}>{progress}% Completed</div>
+                            <div className={`text-xs font-mono uppercase tracking-[0.3em] font-black ${theme === 'dark' ? 'text-[#00F3FF]/80' : 'text-[#1E40AF]/80'}`}>{progress}% Completed</div>
                           </div>
                         </div>
                       </motion.div>
@@ -777,18 +777,18 @@ ${pages.map(page => `  <url>
                         }`}>
                           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 relative z-10">
                             <div className="flex-1">
-                              <span className="text-[10px] font-mono uppercase opacity-80 mb-4 tracking-[0.3em] block transition-opacity">Scan Verdict</span>
+                              <span className="text-xs font-mono uppercase opacity-80 mb-4 tracking-[0.3em] block transition-opacity">Scan Verdict</span>
                               <h3 className={`text-6xl md:text-8xl font-black uppercase leading-[0.8] tracking-tighter italic ${result?.detected ? 'text-[#FF3E3E]' : 'text-[#00FF94]'}`}>
                                 {result?.detected ? 'AI Generated' : 'Authentic Media'}
                               </h3>
                               <div className="mt-6 flex flex-wrap items-center gap-8">
                                 <div>
-                                  <div className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-80 transition-opacity">Neural Confidence</div>
+                                  <div className="text-xs font-mono uppercase tracking-[0.2em] opacity-80 transition-opacity">Neural Confidence</div>
                                   <div className="text-2xl font-black">{result?.confidence}%</div>
                                 </div>
                                 <div className="h-10 w-px bg-white/10 hidden sm:block"></div>
                                 <div>
-                                  <div className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-80 transition-opacity">Risk Level</div>
+                                  <div className="text-xs font-mono uppercase tracking-[0.2em] opacity-80 transition-opacity">Risk Level</div>
                                   <div className={`text-2xl font-black ${result?.detected ? 'text-[#FF3E3E]' : 'text-[#00FF94]'}`}>
                                     {result?.detected ? 'CRITICAL' : 'MINIMAL'}
                                   </div>
@@ -809,7 +809,7 @@ ${pages.map(page => `  <url>
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                           {/* Detailed Breakdown */}
                           <div className="lg:col-span-8 bg-white/5 border border-white/10 rounded-[40px] p-8 md:p-12">
-                            <h4 className={`text-[10px] font-mono uppercase mb-12 tracking-[0.4em] flex items-center gap-3 font-black ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>
+                            <h4 className={`text-xs font-mono uppercase mb-12 tracking-[0.4em] flex items-center gap-3 font-black ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>
                               <div className={`h-px w-6 ${theme === 'dark' ? 'bg-[#00F3FF]/40' : 'bg-[#1E40AF]/40'}`}></div>
                               Forensic Breakdown
                             </h4>
@@ -853,7 +853,7 @@ ${pages.map(page => `  <url>
                           <div className={`lg:col-span-4 border rounded-[40px] p-8 space-y-8 transition-colors duration-500 ${
                             theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-[#F1F5F9] border-black/10 shadow-sm'
                           }`}>
-                            <h4 className={`text-[10px] font-mono uppercase tracking-[0.4em] font-black ${
+                            <h4 className={`text-xs font-mono uppercase tracking-[0.4em] font-black ${
                               theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#0F172A]'
                             }`}>
                               Forensic Legend
@@ -863,24 +863,24 @@ ${pages.map(page => `  <url>
                                 <div className={`p-4 rounded-2xl border space-y-4 ${
                                   theme === 'dark' ? 'bg-black/40 border-white/5' : 'bg-white/60 border-black/5'
                                 }`}>
-                                  <div className="flex justify-between items-center text-[10px] font-mono uppercase">
+                                  <div className="flex justify-between items-center text-xs font-mono uppercase">
                                     <span className={theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/80'}>File Status</span>
                                     <span className="text-[#00FF94] font-black">{selectedFile.size > 2000000 ? 'Stripped' : 'Original'}</span>
                                   </div>
-                                  <div className="flex justify-between items-center text-[10px] font-mono uppercase">
+                                  <div className="flex justify-between items-center text-xs font-mono uppercase">
                                     <span className={theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/80'}>Metadata</span>
                                     <span className={result?.detected ? 'text-[#FF3E3E] font-black' : (theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/90')}>
                                       {result?.detected ? 'INCONSISTENT' : 'VERIFIED'}
                                     </span>
                                   </div>
-                                  <div className="flex justify-between items-center text-[10px] font-mono uppercase">
+                                  <div className="flex justify-between items-center text-xs font-mono uppercase">
                                     <span className={theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/80'}>Hardware Sig.</span>
                                     <span className={theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/80'}>Unknown/Generic</span>
                                   </div>
                                 </div>
 
                                   <div className="space-y-4">
-                                  <div className={`text-[10px] font-mono uppercase tracking-widest ${
+                                  <div className={`text-xs font-mono uppercase tracking-widest ${
                                     theme === 'dark' ? 'text-[#00F3FF]/80' : 'text-[#1E40AF]/80'
                                   }`}>Technical Properties</div>
                                   <div className="space-y-3">
@@ -958,7 +958,7 @@ ${pages.map(page => `  <url>
                 <>
                   <div className="text-center mt-8">
                     <h2 className={`text-6xl font-black uppercase tracking-tighter italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>Forensic <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Insights</span></h2>
-                    <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-[10px] uppercase tracking-[0.4em] mt-2 opacity-80`}>Expert Deepfake Analysis & Security Reports</p>
+                    <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-xs uppercase tracking-[0.4em] mt-2 opacity-80`}>Expert Deepfake Analysis & Security Reports</p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {blogPosts.map((post) => (
@@ -973,7 +973,7 @@ ${pages.map(page => `  <url>
                           <img src={`https://images.unsplash.com/photo-${post.id === 'rise-of-deepfakes-2026' ? '1550751827-4bd374c3f58b' : post.id === 'top-5-tools-verification' ? '1563986768609-322da13575f3' : '1558494949-ef010cbdcc4b'}?auto=format&fit=crop&q=80&w=800`} alt={post.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
                         </div>
                         <div className="p-8 space-y-4">
-                          <div className={`text-[9px] font-mono uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-[#00F3FF]/60' : 'text-[#1E40AF]/60'}`}>{post.date}</div>
+                          <div className={`text-xs font-mono uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-[#00F3FF]/60' : 'text-[#1E40AF]/60'}`}>{post.date}</div>
                           <h3 className={`text-xl font-black uppercase tracking-tight leading-tight ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h3>
                           <p className={`text-xs leading-relaxed ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/80'}`}>{post.desc}</p>
                         </div>
@@ -983,7 +983,7 @@ ${pages.map(page => `  <url>
                 </>
               ) : (
                 <div className="max-w-3xl mx-auto space-y-10">
-                  <button onClick={() => setCurrentPost(null)} className={`text-[10px] font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white/80 hover:text-white' : 'text-[#0F172A] opacity-80 hover:opacity-100'}`}>← Back to Blog</button>
+                  <button onClick={() => setCurrentPost(null)} className={`text-xs font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white/80 hover:text-white' : 'text-[#0F172A] opacity-80 hover:opacity-100'}`}>← Back to Blog</button>
                   {blogPosts.filter(p => p.id === currentPost).map(post => (
                     <article key={post.id} className="space-y-10">
                        <div className="space-y-4">
@@ -1011,7 +1011,7 @@ ${pages.map(page => `  <url>
             <motion.div key="docs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-4xl mx-auto space-y-12 mb-20">
               <div className="text-center mt-8">
                 <h2 className="text-6xl font-black uppercase tracking-tighter italic">Forensic <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Manual</span></h2>
-                <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-[10px] uppercase tracking-[0.4em] mt-2`}>Neural Analysis Documentation v4.2</p>
+                <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-xs uppercase tracking-[0.4em] mt-2`}>Neural Analysis Documentation v4.2</p>
               </div>
 
               <div className="space-y-12">
@@ -1083,7 +1083,7 @@ ${pages.map(page => `  <url>
             <motion.div key="faq" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-4xl mx-auto space-y-12 mb-20">
               <div className="text-center mt-8">
                 <h2 className="text-6xl font-black uppercase tracking-tighter italic">Help & <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>FAQ</span></h2>
-                <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-[10px] uppercase tracking-[0.4em] mt-2`}>Semantic Search & Knowledge Base</p>
+                <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-xs uppercase tracking-[0.4em] mt-2`}>Semantic Search & Knowledge Base</p>
               </div>
               <div className="space-y-6">
                 <FAQItem 
@@ -1218,21 +1218,21 @@ ${pages.map(page => `  <url>
             <motion.div key="contact" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-2xl mx-auto space-y-10 mt-8">
               <div className="text-center">
                 <h2 className="text-5xl font-black uppercase tracking-tighter italic">Contact Us</h2>
-                <p className="text-white/40 font-mono text-xs uppercase mt-2">We'd love to hear from you</p>
+                <p className="text-white/80 font-mono text-xs uppercase mt-2">We'd love to hear from you</p>
               </div>
               <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); alert('Message sent! We will get back to you soon.'); }}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className={`text-[10px] font-mono uppercase ${theme === 'dark' ? 'text-white/40' : 'text-[#0F172A] opacity-60'}`}>Full Name</label>
+                    <label className={`text-xs font-mono uppercase ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A] opacity-80'}`}>Full Name</label>
                     <input type="text" required className={`w-full border rounded-xl px-4 py-3 focus:outline-none transition-colors ${theme === 'dark' ? 'bg-white/5 border-white/10 focus:border-[#00F3FF]' : 'bg-black/5 border-black/10 focus:border-[#1E40AF] text-[#0F172A]'}`} placeholder="John Doe" />
                   </div>
                   <div className="space-y-2">
-                    <label className={`text-[10px] font-mono uppercase ${theme === 'dark' ? 'text-white/40' : 'text-[#0F172A] opacity-60'}`}>Email Address</label>
+                    <label className={`text-xs font-mono uppercase ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A] opacity-80'}`}>Email Address</label>
                     <input type="email" required className={`w-full border rounded-xl px-4 py-3 focus:outline-none transition-colors ${theme === 'dark' ? 'bg-white/5 border-white/10 focus:border-[#00F3FF]' : 'bg-black/5 border-black/10 focus:border-[#1E40AF] text-[#0F172A]'}`} placeholder="john@example.com" />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className={`text-[10px] font-mono uppercase ${theme === 'dark' ? 'text-white/40' : 'text-[#0F172A] opacity-60'}`}>Your Message</label>
+                  <label className={`text-xs font-mono uppercase ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A] opacity-80'}`}>Your Message</label>
                   <textarea required rows={5} className={`w-full border rounded-xl px-4 py-3 focus:outline-none transition-colors resize-none ${theme === 'dark' ? 'bg-white/5 border-white/10 focus:border-[#00F3FF]' : 'bg-black/5 border-black/10 focus:border-[#1E40AF] text-[#0F172A]'}`} placeholder="How can we help?"></textarea>
                 </div>
                 <button type="submit" className={`w-full py-4 font-black uppercase tracking-widest rounded-xl transition-all shadow-lg active:scale-95 ${theme === 'dark' ? 'bg-[#00F3FF] text-black hover:bg-white' : 'bg-[#1E40AF] text-white hover:bg-[#0F172A]'}`}>Send Message</button>
@@ -1275,7 +1275,7 @@ ${pages.map(page => `  <url>
             <p className={`text-xs leading-relaxed ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>Promoting digital truth through advanced neural forensics. Built for the future of authentic online human interaction.</p>
             <div className="flex gap-4">
               <CheckCircle2 size={16} className="text-[#00FF94]" />
-              <span className={`text-[10px] font-mono uppercase tracking-widest ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>ScanDeepFake Protocol Active</span>
+              <span className={`text-xs font-mono uppercase tracking-widest ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>ScanDeepFake Protocol Active</span>
             </div>
           </div>
           
@@ -1351,11 +1351,11 @@ function MetadataItem({ label, value, theme }: { label: string; value: string; t
   const isDark = theme === 'dark';
   return (
     <div className="flex justify-between items-center group/meta">
-      <span className={`text-[9px] font-mono uppercase tracking-tighter transition-colors font-black ${
-        isDark ? 'text-white/20 group-hover/meta:text-white/40' : 'text-[#0F172A]/50 group-hover/meta:text-[#0F172A]/80'
+      <span className={`text-xs font-mono uppercase tracking-tighter transition-colors font-black ${
+        isDark ? 'text-white/80' : 'text-[#0F172A]/80'
       }`}>{label}</span>
-      <span className={`text-[10px] font-bold truncate max-w-[150px] ${
-        isDark ? 'opacity-60' : 'text-[#0F172A] font-black'
+      <span className={`text-xs font-bold truncate max-w-[150px] ${
+        isDark ? 'opacity-80' : 'text-[#0F172A] font-black'
       }`}>{value}</span>
     </div>
   );
@@ -1373,7 +1373,7 @@ function MetricItem({ label, value, status, isError, isSuccess, theme }: {
   const neon = isDark ? '#00F3FF' : '#1E40AF';
   return (
     <div className="flex flex-col group relative">
-      <span className={`text-[11px] font-black opacity-30 uppercase mb-2 tracking-[0.15em] transition-colors group-hover:opacity-100 ${isDark ? 'group-hover:text-[#00F3FF]' : 'group-hover:text-[#1E40AF]'}`}>
+      <span className={`text-xs font-black opacity-80 uppercase mb-2 tracking-[0.15em] transition-colors group-hover:opacity-100 ${isDark ? 'group-hover:text-[#00F3FF]' : 'group-hover:text-[#1E40AF]'}`}>
         {label}
       </span>
       <div className={`flex justify-between items-end border-b pb-3 relative transition-colors ${
@@ -1385,8 +1385,8 @@ function MetricItem({ label, value, status, isError, isSuccess, theme }: {
             key={status}
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`text-[10px] font-mono font-black uppercase tracking-wider ${
-              status === "Standby" ? "opacity-10" :
+            className={`text-xs font-mono font-black uppercase tracking-wider ${
+              status === "Standby" ? "opacity-80" :
               status.includes("...") ? (isDark ? "text-[#00F3FF] animate-pulse" : "text-[#1E40AF] animate-pulse") :
               isError ? "text-[#FF3E3E] shadow-[0_0_10px_#FF3E3E50]" : 
               isSuccess ? "text-[#00FF94] shadow-[0_0_10px_#00FF9450]" : 
@@ -1502,7 +1502,7 @@ function StatCard({ label, value, color, theme }: { label: string; value: string
     <div className={`p-6 border rounded-2xl transition-colors duration-500 ${
       isDark ? 'bg-white/[0.02] border-white/5' : 'bg-black/[0.02] border-black/5'
     }`}>
-      <div className="text-[10px] font-mono uppercase opacity-70 mb-2 tracking-widest">{label}</div>
+      <div className="text-xs font-mono uppercase opacity-80 mb-2 tracking-widest">{label}</div>
       <div className={`text-2xl font-black ${color || (isDark ? 'text-white' : 'text-black')}`}>{value}</div>
     </div>
   );
