@@ -42,34 +42,14 @@ const runForensicAnalysis = async (file: File) => {
   };
 };
 
-function AdSlot({ id, type, className }: { id: string; type: 'header' | 'side' | 'content' | 'footer' | 'anchor'; className?: string }) {
-  const [adLoaded, setAdLoaded] = useState(false);
-
-  useEffect(() => {
-    // Simulated AdSense logic: Completely hidden (display: none) by default
-    // We would typically check a global state or listen for a window event
-    const loadTimer = setTimeout(() => {
-      setAdLoaded(true);
-    }, 3000 + Math.random() * 2000);
-    
-    return () => clearTimeout(loadTimer);
-  }, []);
-
-  if (!adLoaded) return null;
-
+function AdSlot({ id, className }: { id: string; type: 'header' | 'side' | 'content' | 'footer' | 'anchor'; className?: string }) {
+  // Requirement 3: Ad-slot Suppression (Pre-approval)
   return (
     <div 
-      className={`relative overflow-hidden transition-all duration-700 ease-in-out block ${className}`}
       id={`ad-${id}`}
-    >
-      <div className="w-full h-full flex items-center justify-center border bg-white/[0.02] dark:bg-black/[0.02] border-white/5 dark:border-black/5">
-        <div className="flex flex-col items-center gap-2 opacity-20 hover:opacity-40 transition-all">
-          <span className="text-[9px] font-mono uppercase tracking-[0.4em]">
-            SECURE_ADSLOT::CONTENT_BUFFERED
-          </span>
-        </div>
-      </div>
-    </div>
+      className={`hidden !hidden opacity-0 pointer-events-none ${className || ''}`}
+      aria-hidden="true"
+    />
   );
 }
 
@@ -103,6 +83,43 @@ function MatrixIllusion({ theme }: { theme: 'dark' | 'light' }) {
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<'home' | 'faq' | 'about' | 'contact' | 'privacy' | 'terms' | 'disclaimer' | 'docs'>('home');
+
+  // Multi-page Routing System (Requirement 1)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const page = params.get('page') as any;
+    const validPages = ['home', 'faq', 'about', 'contact', 'privacy', 'terms', 'disclaimer', 'docs'];
+    if (page && validPages.includes(page)) {
+      setCurrentPage(page);
+    }
+
+    // Handle back/forward buttons
+    const handlePopState = () => {
+      const newParams = new URLSearchParams(window.location.search);
+      const newPage = newParams.get('page') as any;
+      if (newPage && validPages.includes(newPage)) {
+        setCurrentPage(newPage);
+      } else {
+        setCurrentPage('home');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (currentPage === 'home') {
+      url.searchParams.delete('page');
+    } else {
+      url.searchParams.set('page', currentPage);
+    }
+    // Only push if different to avoid infinite loops and maintain history
+    if (window.location.search !== url.search) {
+      window.history.pushState({ page: currentPage }, '', url.toString());
+    }
+  }, [currentPage]);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [analysisType, setAnalysisType] = useState<'image' | 'video' | null>(null);
@@ -965,14 +982,7 @@ ${pages.map(page => `  <url>
                 <p>Welcome to ScanDeepFake, a dedicated platform built to safeguard digital truth in an age of artificial synthesis. Our mission is to provide every individual with the tools needed to verify media authenticity instantly at https://scandeepfake.web.app.</p>
                 <p>In a world where seeing is no longer necessarily believing, we use the same technology that creates AI to detect it. Our forensic engine uses local analysis to ensure your data never leaves your device.</p>
                 <p>We are a self-funded project committed to transparency, privacy, and the preservation of authentic human expression on the internet.</p>
-                <div className="pt-8 flex justify-center">
-                  <button 
-                    onClick={generateSitemap}
-                    className={`text-[10px] font-mono uppercase tracking-[0.3em] transition-opacity border px-6 py-3 rounded-full ${theme === 'dark' ? 'opacity-40 hover:opacity-100 border-white/10' : 'text-[#0F172A] border-black/20 hover:border-[#1E40AF] hover:text-[#1E40AF]'}`}
-                  >
-                    Generate Sitemap.xml
-                  </button>
-                </div>
+                {/* Remove UI Clutter: Generate Sitemap button removed (Requirement 2.3) */}
               </div>
             </motion.div>
           )}
