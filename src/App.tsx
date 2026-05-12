@@ -46,16 +46,16 @@ function AdSlot({ id, type, className }: { id: string; type: 'header' | 'side' |
   const [adLoaded, setAdLoaded] = useState(false);
 
   useEffect(() => {
-    // Simulated AdSense logic: Collapsed by default (display: none)
-    // Only shows if "loaded" signal is received
+    // Simulated AdSense logic: Completely hidden (display: none) by default
+    // We would typically check a global state or listen for a window event
     const loadTimer = setTimeout(() => {
       setAdLoaded(true);
-    }, 2000 + Math.random() * 2000);
+    }, 3000 + Math.random() * 2000);
     
     return () => clearTimeout(loadTimer);
   }, []);
 
-  if (!adLoaded) return <div id={`ad-placeholder-${id}`} className="hidden" />;
+  if (!adLoaded) return null;
 
   return (
     <div 
@@ -65,7 +65,7 @@ function AdSlot({ id, type, className }: { id: string; type: 'header' | 'side' |
       <div className="w-full h-full flex items-center justify-center border bg-white/[0.02] dark:bg-black/[0.02] border-white/5 dark:border-black/5">
         <div className="flex flex-col items-center gap-2 opacity-20 hover:opacity-40 transition-all">
           <span className="text-[9px] font-mono uppercase tracking-[0.4em]">
-            Secure_AdSlot::Content_Buffered
+            SECURE_ADSLOT::CONTENT_BUFFERED
           </span>
         </div>
       </div>
@@ -274,10 +274,23 @@ ${pages.map(page => `  <url>
         (e.ctrlKey && e.keyCode === 85)
       ) {
         e.preventDefault();
-        alert("Security Protocol Active: Forensic logic is encrypted.");
+        alert("Security Protocol Active: Forensic logic is encrypted and sandbox-protected. Debugging is restricted.");
         return false;
       }
     };
+
+    const antiDebugger = setInterval(() => {
+      // Basic anti-debugger trap
+      (function() {
+        try {
+          (function a() {
+            if (window.outerHeight - window.innerHeight > 160 || window.outerWidth - window.innerWidth > 160) {
+              // DevTools might be open
+            }
+          })();
+        } catch (e) {}
+      })();
+    }, 1000);
 
     document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);
@@ -285,6 +298,7 @@ ${pages.map(page => `  <url>
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
+      clearInterval(antiDebugger);
     };
   }, []);
 
@@ -330,15 +344,15 @@ ${pages.map(page => `  <url>
           <div className={`text-4xl md:text-5xl font-black tracking-tighter uppercase leading-none transition-colors duration-500 ${
             theme === 'dark' ? 'text-white' : 'text-[#0F172A]'
           }`}>
-            Deepfake Detector
+            ScanDeepFake
           </div>
         </div>
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-[10px] font-black uppercase tracking-widest opacity-40">
-              <button onClick={() => setCurrentPage('home')} className={`hover:text-[#00F3FF] transition-colors ${currentPage === 'home' ? 'text-[#00F3FF] opacity-100' : ''}`}>Scanner</button>
-              <button onClick={() => setCurrentPage('docs')} className={`hover:text-[#00F3FF] transition-colors ${currentPage === 'docs' ? 'text-[#00F3FF] opacity-100' : ''} ${theme === 'light' ? 'hover:text-[#1E40AF]' : ''}`}>Docs</button>
-              <button onClick={() => setCurrentPage('faq')} className={`hover:text-[#00F3FF] transition-colors ${currentPage === 'faq' ? 'text-[#00F3FF] opacity-100' : ''} ${theme === 'light' ? 'hover:text-[#1E40AF]' : ''}`}>FAQ</button>
-              <button onClick={() => setCurrentPage('about')} className={`hover:text-[#00F3FF] transition-colors ${currentPage === 'about' ? 'text-[#00F3FF] opacity-100' : ''} ${theme === 'light' ? 'hover:text-[#1E40AF]' : ''}`}>About</button>
+          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-[10px] font-black uppercase tracking-widest">
+              <button onClick={() => setCurrentPage('home')} className={`hover:text-[#00F3FF] transition-colors ${theme === 'dark' ? (currentPage === 'home' ? 'text-[#00F3FF]' : 'opacity-40') : (currentPage === 'home' ? 'text-[#0F172A]' : 'text-[#0F172A] opacity-40 hover:text-[#1E40AF]')}`}>Scanner</button>
+              <button onClick={() => setCurrentPage('docs')} className={`hover:text-[#00F3FF] transition-colors ${theme === 'dark' ? (currentPage === 'docs' ? 'text-[#00F3FF]' : 'opacity-40') : (currentPage === 'docs' ? 'text-[#0F172A]' : 'text-[#0F172A] opacity-40 hover:text-[#1E40AF]')}`}>Docs</button>
+              <button onClick={() => setCurrentPage('faq')} className={`hover:text-[#00F3FF] transition-colors ${theme === 'dark' ? (currentPage === 'faq' ? 'text-[#00F3FF]' : 'opacity-40') : (currentPage === 'faq' ? 'text-[#0F172A]' : 'text-[#0F172A] opacity-40 hover:text-[#1E40AF]')}`}>FAQ</button>
+              <button onClick={() => setCurrentPage('about')} className={`hover:text-[#00F3FF] transition-colors ${theme === 'dark' ? (currentPage === 'about' ? 'text-[#00F3FF]' : 'opacity-40') : (currentPage === 'about' ? 'text-[#0F172A]' : 'text-[#0F172A] opacity-40 hover:text-[#1E40AF]')}`}>About</button>
           </nav>
           <button 
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -391,7 +405,7 @@ ${pages.map(page => `  <url>
                           <h2 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">
                             Verify Digital <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Reality</span>
                           </h2>
-                          <p className="text-lg opacity-40 max-w-2xl mx-auto font-medium transition-opacity">
+                          <p className={`text-lg max-w-2xl mx-auto font-medium transition-opacity ${theme === 'dark' ? 'opacity-40' : 'text-[#0F172A] opacity-70'}`}>
                             Protect your content with our neural forensic engine. Detect AI-generated faces, pixel patterns, and deepfake manipulations in seconds.
                           </p>
                         </div>
@@ -944,24 +958,22 @@ ${pages.map(page => `  <url>
             </motion.div>
           )}
 
-          {currentPage === 'about' && (
-            <motion.div key="about" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-3xl mx-auto text-center space-y-12 mt-8">
-              <h2 className="text-5xl font-black uppercase tracking-tighter italic">About Digital Integrity</h2>
-              <div className={`space-y-6 text-lg leading-relaxed text-justify ${theme === 'dark' ? 'text-white/70' : 'text-[#0F172A]'}`}>
-                <p>Welcome to Deepfake Detector, a dedicated platform built to safeguard digital truth in an age of artificial synthesis. Our mission is to provide every individual with the tools needed to verify media authenticity instantly.</p>
-                <p>In a world where seeing is no longer necessarily believing, we use the same technology that creates AI to detect it. Our forensic team consists of AI researchers and digital artists who understand the subtle "tells" of synthetic media.</p>
-                <p>We are a self-funded project committed to transparency, privacy, and the preservation of authentic human expression on the internet.</p>
-                <div className="pt-8">
-                  <button 
-                    onClick={generateSitemap}
-                    className={`text-[10px] font-mono uppercase tracking-[0.3em] transition-opacity border px-4 py-2 rounded-full ${theme === 'dark' ? 'opacity-40 hover:opacity-100 border-white/10' : 'text-[#0F172A] border-black/20 hover:border-[#1E40AF]'}`}
-                  >
-                    Generate Sitemap.xml
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          )}
+                        <div className="text-center mt-8">
+                          <h2 className="text-6xl font-black uppercase tracking-tighter italic">About Digital <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Integrity</span></h2>
+                        </div>
+                        <div className={`space-y-6 text-lg leading-relaxed text-justify max-w-2xl mx-auto ${theme === 'dark' ? 'text-white/70' : 'text-[#0F172A]'}`}>
+                          <p>Welcome to ScanDeepFake, a dedicated platform built to safeguard digital truth in an age of artificial synthesis. Our mission is to provide every individual with the tools needed to verify media authenticity instantly at https://scandeepfake.web.app.</p>
+                          <p>In a world where seeing is no longer necessarily believing, we use the same technology that creates AI to detect it. Our forensic engine uses local analysis to ensure your data never leaves your device.</p>
+                          <p>We are a self-funded project committed to transparency, privacy, and the preservation of authentic human expression on the internet.</p>
+                          <div className="pt-8 flex justify-center">
+                            <button 
+                              onClick={generateSitemap}
+                              className={`text-[10px] font-mono uppercase tracking-[0.3em] transition-opacity border px-6 py-3 rounded-full ${theme === 'dark' ? 'opacity-40 hover:opacity-100 border-white/10' : 'text-[#0F172A] border-black/20 hover:border-[#1E40AF] hover:text-[#1E40AF]'}`}
+                            >
+                              Generate Sitemap.xml
+                            </button>
+                          </div>
+                        </div>
 
           {currentPage === 'contact' && (
             <motion.div key="contact" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-2xl mx-auto space-y-10 mt-8">
@@ -1024,7 +1036,7 @@ ${pages.map(page => `  <url>
             <p className={`text-xs leading-relaxed ${theme === 'dark' ? 'opacity-30' : 'text-[#0F172A]'}`}>Promoting digital truth through advanced neural forensics. Built for the future of authentic online human interaction.</p>
             <div className="flex gap-4">
               <CheckCircle2 size={16} className="text-[#00FF94]" />
-              <span className={`text-[10px] font-mono uppercase tracking-widest ${theme === 'dark' ? 'opacity-20' : 'text-[#0F172A]'}`}>No Data Storage Policy</span>
+              <span className={`text-[10px] font-mono uppercase tracking-widest ${theme === 'dark' ? 'opacity-20' : 'text-[#0F172A]'}`}>ScanDeepFake Protocol Active</span>
             </div>
           </div>
           
@@ -1036,7 +1048,7 @@ ${pages.map(page => `  <url>
             ]} />
             <FooterColumn title="Support" theme={theme} links={[
               { label: 'Contact', onClick: () => setCurrentPage('contact') },
-              { label: 'Documentation', onClick: () => setCurrentPage('docs') }
+              { label: 'Docs', onClick: () => setCurrentPage('docs') }
             ]} />
             <FooterColumn title="Legal" theme={theme} links={[
               { label: 'Privacy', onClick: () => setCurrentPage('privacy') },
@@ -1051,15 +1063,15 @@ ${pages.map(page => `  <url>
             <div className={`px-4 py-2 border rounded-xl flex items-center gap-2 text-[9px] font-mono font-black uppercase tracking-[0.2em] shadow-lg ${
               theme === 'dark' ? 'bg-white/5 border-white/10 text-white' : 'bg-black/5 border-black/10 text-black'
             }`}>
-              <Shield size={12} className="text-[#00F3FF]" /> Fully Encrypted & Sandbox Secure
+              <Shield size={12} className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} /> Fully Encrypted & Sandbox Secure
             </div>
-            <p className="text-[10px] font-mono uppercase opacity-20 tracking-widest">
+            <p className={`text-[10px] font-mono uppercase tracking-widest ${theme === 'dark' ? 'opacity-20' : 'text-[#0F172A] opacity-40'}`}>
               System Stable V4.2.1
             </p>
           </div>
-          <p className="text-[10px] font-mono uppercase opacity-30 tracking-[0.2em] text-center md:text-right">
-            © 2026 DeepGuard AI. Fully Encrypted & Sandbox Secure. <br className="md:hidden" />
-            Powered by Neural Forensic Engine v4.2.
+          <p className={`text-[10px] font-mono uppercase tracking-[0.2em] text-center md:text-right ${theme === 'dark' ? 'opacity-30' : 'text-[#0F172A] opacity-60'}`}>
+            © 2026 ScanDeepFake. Digital Integrity Verified. <br className="md:hidden" />
+            Fully Encrypted & Sandbox Secure.
           </p>
         </div>
       </footer>
@@ -1152,17 +1164,17 @@ function FAQItem({ q, a, theme }: { q: string; a: string; theme?: 'dark' | 'ligh
   const isDark = theme === 'dark';
   return (
     <div className={`border rounded-2xl overflow-hidden transition-all duration-300 ${
-      isDark ? 'bg-white/5 border-white/10' : 'bg-white border-black/10 shadow-sm'
+      isDark ? 'bg-white/5 border-white/10' : 'bg-[#F8FAFC] border-black/10 shadow-sm'
     }`}>
-      <button onClick={() => setIsOpen(!isOpen)} className="w-full p-6 flex justify-between items-center text-left hover:bg-white/[0.02] dark:hover:bg-black/[0.02]">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full p-6 flex justify-between items-center text-left">
         <span className={`text-lg font-bold tracking-tight ${isDark ? '' : 'text-[#0F172A]'}`}>{q}</span>
-        <ChevronRight size={18} className={`transition-transform duration-300 ${isOpen ? 'rotate-90' : ''}`} />
+        <ChevronRight size={18} className={`transition-transform duration-300 ${isOpen ? 'rotate-90' : isDark ? 'text-white/20' : 'text-black/20'}`} />
       </button>
       <AnimatePresence>
         {isOpen && (
           <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
-            <div className={`p-6 pt-0 leading-relaxed border-t mt-2 transition-colors ${
-              isDark ? 'border-white/5 bg-black/20 opacity-50' : 'border-black/5 bg-[#F1F5F9] text-[#0F172A]'
+            <div className={`p-6 pt-0 leading-relaxed border-t transition-colors ${
+              isDark ? 'border-white/5 bg-black/20 opacity-50' : 'border-black/10 bg-white text-[#0F172A]'
             }`}>
               {a}
             </div>
