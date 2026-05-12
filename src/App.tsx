@@ -844,7 +844,7 @@ ${pages.map(page => `  <url>
               <div className="space-y-6">
                 <FAQItem 
                   q="How to spot deepfake videos in 2026?" 
-                  a="In 2026, spotting deepfakes requires looking for microscopic texture inconsistencies and the 'diffusion hum'—a specific frequency pattern found in generative synthesis. Deepfake detectors like ScanDeepFake automate this forensic deep-scan."
+                  a="In 2026, spotting deepfakes requires looking for microscopic texture inconsistencies and the 'diffusion hum'—a specific frequency pattern found in generative synthesis. ScanDeepFake automates this forensic deep-scan."
                   theme={theme}
                 />
                 <FAQItem 
