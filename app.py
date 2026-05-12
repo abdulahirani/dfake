@@ -71,19 +71,36 @@ def nav_to(page_name, post_name=None):
         del st.query_params["post"]
     st.rerun()
 
-# Blog Data (Simplified version for backend awareness)
+# Blog Data (Complete Production Version)
 blog_posts_data = {
     'whatsapp-deepfake-guide': {
         'title': 'How to detect deepfake video on WhatsApp: My hands-on guide.',
-        'content': 'Conversational analysis of human-centric verification...'
+        'desc': 'I saw my friend "calling" me from a number I didn\'t recognize. Here is how I knew it wasn\'t him.',
+        'content': """I was sitting in a coffee shop when a video call came through on WhatsApp. It was Mark's face. 100%. 
+
+**The Skin Texture Trap**
+Humans have pores. High-end deepfakes use diffusion hum that smooths out microscopic texture. When Mark moved his head, there was a slight "ghosting" near his jawline.
+
+**My Advice to You:**
+Don't trust the video. Ask a random question that requires a specific physical reaction. "Hey Mark, can you touch your ear?" Deepfakes often glitch when an object passes in front of the generated face."""
     },
     'why-i-built-scandeepfake': {
         'title': 'Free AI forensic tool for image verification: Why I built ScanDeepFake.',
-        'content': 'Transparency report on the technical and emotional drive behind the tool.'
+        'desc': 'I got tired of seeing people lose their life savings to "synthetic" managers.',
+        'content': """I built ScanDeepFake to bring "Neural Forensic Legend" capabilities to everyone. 
+
+**How it works:**
+When you upload an image here, we don't just look at the pixels. We look at the metadata (Size, Dimensions, GPS). AI-generated images often have telltale "latent artifacts." 
+
+My goal is a 99.8% precision rate accessible to everyone, for free. No storage, no tracking—just digital truth."""
     },
     'caught-a-scammer-video-call': {
         'title': 'Signs of AI face swap in video calls: How I caught a scammer.',
-        'content': 'True story of identity verification failure and recovery.'
+        'desc': 'They tried to use a face-swap on a Zoom interview. My forensic rig caught the temporal hum instantly.',
+        'content': """I was conducting a remote interview. The candidate, "Alex," had a stellar resume. But 3 minutes into the call, I noticed the "temporal hum." 
+
+**The Ear-Check Trick**
+Face-swaps are great at eyes and mouths. They are terrible at ears and hands. I asked "Alex" to adjust his headset. When his hand touched his ear, his face shifted 2 inches to the left for a split second. The mask slipped."""
     }
 }
 

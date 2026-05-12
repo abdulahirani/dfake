@@ -1,20 +1,23 @@
-# ScanDeepFake Deployment Module
 FROM python:3.9-slim
 
 WORKDIR /app
 
-# System dependencies for image processing
 RUN apt-get update && apt-get install -y \
     build-essential \
-    libmagic1 \
+    curl \
+    software-properties-common \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 COPY . .
 
-EXPOSE 8080
+# SEO File Generation on Build
+RUN python3 -c "from app import generate_seo_files; generate_seo_files()"
 
-# Serve on port 8080 as required by Cloud Run / App Engine
-CMD ["streamlit", "run", "app.py", "--server.port=8080", "--server.address=0.0.0.0"]
+EXPOSE 3000
+
+# Run Streamlit on port 3000 for AI Studio / Container compatibility
+ENTRYPOINT ["streamlit", "run", "app.py", "--server.port=3000", "--server.address=0.0.0.0"]

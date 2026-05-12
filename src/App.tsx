@@ -490,18 +490,48 @@ ${pages.map(page => `  <url>
           </h1>
         </div>
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-          <nav className={`flex flex-wrap gap-x-6 gap-y-2 text-[10px] font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>
-              <button onClick={() => { setCurrentPage('home'); setCurrentPost(null); }} className={`transition-colors ${theme === 'dark' ? (currentPage === 'home' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'home' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>Scanner</button>
-              <button onClick={() => { setCurrentPage('blog'); setCurrentPost(null); }} className={`transition-colors ${theme === 'dark' ? (currentPage === 'blog' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'blog' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>Blog</button>
-              <button onClick={() => { setCurrentPage('docs'); setCurrentPost(null); }} className={`transition-colors ${theme === 'dark' ? (currentPage === 'docs' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'docs' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>Docs</button>
-              <button onClick={() => { setCurrentPage('faq'); setCurrentPost(null); }} className={`transition-colors ${theme === 'dark' ? (currentPage === 'faq' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'faq' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>FAQ</button>
-              <button onClick={() => { setCurrentPage('about'); setCurrentPost(null); }} className={`transition-colors ${theme === 'dark' ? (currentPage === 'about' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'about' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>About</button>
+          <nav className={`flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>
+              <button 
+                onClick={() => { setCurrentPage('home'); setCurrentPost(null); }} 
+                aria-label="View Scanner page"
+                className={`transition-colors ${theme === 'dark' ? (currentPage === 'home' ? 'text-[#00F3FF]' : 'text-white/80 hover:text-[#00F3FF]') : (currentPage === 'home' ? 'text-[#0F172A]' : 'text-[#0F172A]/80 hover:text-[#1E40AF]')}`}
+              >
+                Scanner
+              </button>
+              <button 
+                onClick={() => { setCurrentPage('blog'); setCurrentPost(null); }} 
+                aria-label="View Blog page"
+                className={`transition-colors ${theme === 'dark' ? (currentPage === 'blog' ? 'text-[#00F3FF]' : 'text-white/80 hover:text-[#00F3FF]') : (currentPage === 'blog' ? 'text-[#0F172A]' : 'text-[#0F172A]/80 hover:text-[#1E40AF]')}`}
+              >
+                Blog
+              </button>
+              <button 
+                onClick={() => { setCurrentPage('docs'); setCurrentPost(null); }} 
+                aria-label="View Documentation page"
+                className={`transition-colors ${theme === 'dark' ? (currentPage === 'docs' ? 'text-[#00F3FF]' : 'text-white/80 hover:text-[#00F3FF]') : (currentPage === 'docs' ? 'text-[#0F172A]' : 'text-[#0F172A]/80 hover:text-[#1E40AF]')}`}
+              >
+                Docs
+              </button>
+              <button 
+                onClick={() => { setCurrentPage('faq'); setCurrentPost(null); }} 
+                aria-label="View FAQ page"
+                className={`transition-colors ${theme === 'dark' ? (currentPage === 'faq' ? 'text-[#00F3FF]' : 'text-white/80 hover:text-[#00F3FF]') : (currentPage === 'faq' ? 'text-[#0F172A]' : 'text-[#0F172A]/80 hover:text-[#1E40AF]')}`}
+              >
+                FAQ
+              </button>
+              <button 
+                onClick={() => { setCurrentPage('about'); setCurrentPost(null); }} 
+                aria-label="View About page"
+                className={`transition-colors ${theme === 'dark' ? (currentPage === 'about' ? 'text-[#00F3FF]' : 'text-white/80 hover:text-[#00F3FF]') : (currentPage === 'about' ? 'text-[#0F172A]' : 'text-[#0F172A]/80 hover:text-[#1E40AF]')}`}
+              >
+                About
+              </button>
           </nav>
           <button 
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             className={`p-2.5 rounded-xl border transition-all ${
-              theme === 'dark' ? 'bg-white/5 border-white/10 text-white hover:bg-white/10' : 'bg-black/5 border-black/10 text-black hover:bg-black/10'
+              theme === 'dark' ? 'bg-white/10 border-white/20 text-white hover:bg-white/20' : 'bg-black/5 border-black/10 text-black hover:bg-black/10'
             }`}
           >
             {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
@@ -549,7 +579,7 @@ ${pages.map(page => `  <url>
                           <h2 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">
                             ScanDeepFake: The World's Most <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Accurate AI Forensic Engine</span>
                           </h2>
-                          <h3 className={`text-lg max-w-2xl mx-auto font-medium transition-opacity ${theme === 'dark' ? 'opacity-40' : 'text-[#0F172A] opacity-90'}`}>
+                          <h3 className={`text-lg max-w-2xl mx-auto font-medium transition-opacity ${theme === 'dark' ? 'opacity-80' : 'text-[#0F172A] opacity-90'}`}>
                             Detect <strong>Deepfake Detection Online</strong>, verify <strong>AI Face Swap Checker</strong>, and ensure <strong>Video Authenticity Verification</strong> with our <strong>Free AI Forensic Tool</strong>.
                           </h3>
                         </div>
@@ -582,7 +612,7 @@ ${pages.map(page => `  <url>
                           <h3 className="text-3xl font-black uppercase italic tracking-tight">
                             Select Analysis <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Vector</span>
                           </h3>
-                          <p className="opacity-30 text-xs font-mono uppercase tracking-widest transition-opacity">Choose the media type you want to verify</p>
+                          <p className="opacity-80 text-xs font-mono uppercase tracking-widest transition-opacity">Choose the media type you want to verify</p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                           <SelectionCard 
@@ -600,7 +630,7 @@ ${pages.map(page => `  <url>
                             theme={theme}
                           />
                         </div>
-                        <button onClick={() => setCurrentStep(1)} className="text-white/20 hover:text-white text-[10px] uppercase font-black tracking-widest block mx-auto py-4">← Back to home</button>
+                        <button onClick={() => setCurrentStep(1)} className="text-white/70 hover:text-white text-[10px] uppercase font-black tracking-widest block mx-auto py-4">← Back to home</button>
                       </motion.div>
                     )}
 
@@ -618,7 +648,7 @@ ${pages.map(page => `  <url>
                               <Shield size={32} />
                             </div>
                             <h3 className={`text-2xl font-black uppercase tracking-tight italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>Secure Forensic Upload</h3>
-                            <p className={`text-sm max-w-md ${theme === 'dark' ? 'text-white/40' : 'text-[#0F172A]/70'}`}>Your media is encrypted locally and scanned in an ephemeral sandbox. No data is stored on our servers.</p>
+                            <p className={`text-sm max-w-md ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/90'}`}>Your media is encrypted locally and scanned in an ephemeral sandbox. No data is stored on our servers.</p>
                           </div>
 
                           <div className="max-w-md mx-auto space-y-6">
@@ -633,8 +663,8 @@ ${pages.map(page => `  <url>
                                   theme === 'dark' ? 'checked:bg-[#00F3FF]' : 'checked:bg-[#1E40AF]'
                                 }`}
                               />
-                              <span className={`text-[11px] font-black uppercase tracking-widest transition-colors ${
-                                theme === 'dark' ? 'text-white/40 group-hover:text-white' : 'text-[#0F172A]/60 group-hover:text-[#0F172A]'
+                              <span className={`text-[13px] font-semibold uppercase tracking-widest transition-colors ${
+                                theme === 'dark' ? 'text-white/80 group-hover:text-white' : 'text-[#0F172A]/90 group-hover:text-[#0F172A]'
                               }`}>I agree to the privacy terms & data encryption protocol</span>
                             </label>
 
@@ -693,7 +723,7 @@ ${pages.map(page => `  <url>
                                       <div className={`${theme === 'dark' ? 'text-white/10' : 'text-black/10'} flex justify-center`}><Upload size={48} /></div>
                                       <div className="space-y-1">
                                         <div className={`text-xs font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>Drop {analysisType} or Click</div>
-                                        <div className={`text-[9px] uppercase tracking-[0.2em] ${theme === 'dark' ? 'opacity-30' : 'opacity-40'}`}>Max file size: 50MB</div>
+                                        <div className={`text-[9px] uppercase tracking-[0.2em] ${theme === 'dark' ? 'opacity-80' : 'opacity-80'}`}>Max file size: 50MB</div>
                                       </div>
                                     </div>
                                   )}
@@ -704,7 +734,7 @@ ${pages.map(page => `  <url>
                         </div>
 
                         <AdSlot id="content-mid-2" type="content" className="w-full h-24 rounded-2xl" />
-                        <button onClick={() => setCurrentStep(2)} className="opacity-20 hover:opacity-100 text-[10px] uppercase font-black tracking-widest block mx-auto transition-opacity">← Back</button>
+                        <button onClick={() => setCurrentStep(2)} className="opacity-70 hover:opacity-100 text-[10px] uppercase font-black tracking-widest block mx-auto transition-opacity">← Back</button>
                       </motion.div>
                     )}
 
@@ -730,7 +760,7 @@ ${pages.map(page => `  <url>
                                 animate={{ width: `${progress}%` }}
                               />
                             </div>
-                            <div className={`text-[10px] font-mono uppercase tracking-[0.3em] font-black ${theme === 'dark' ? 'text-[#00F3FF]/40' : 'text-[#1E40AF]/40'}`}>{progress}% Completed</div>
+                            <div className={`text-[10px] font-mono uppercase tracking-[0.3em] font-black ${theme === 'dark' ? 'text-[#00F3FF]/80' : 'text-[#1E40AF]/80'}`}>{progress}% Completed</div>
                           </div>
                         </div>
                       </motion.div>
@@ -747,18 +777,18 @@ ${pages.map(page => `  <url>
                         }`}>
                           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 relative z-10">
                             <div className="flex-1">
-                              <span className="text-[10px] font-mono uppercase opacity-40 mb-4 tracking-[0.3em] block transition-opacity">Scan Verdict</span>
+                              <span className="text-[10px] font-mono uppercase opacity-80 mb-4 tracking-[0.3em] block transition-opacity">Scan Verdict</span>
                               <h3 className={`text-6xl md:text-8xl font-black uppercase leading-[0.8] tracking-tighter italic ${result?.detected ? 'text-[#FF3E3E]' : 'text-[#00FF94]'}`}>
                                 {result?.detected ? 'AI Generated' : 'Authentic Media'}
                               </h3>
                               <div className="mt-6 flex flex-wrap items-center gap-8">
                                 <div>
-                                  <div className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-40 transition-opacity">Neural Confidence</div>
+                                  <div className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-80 transition-opacity">Neural Confidence</div>
                                   <div className="text-2xl font-black">{result?.confidence}%</div>
                                 </div>
                                 <div className="h-10 w-px bg-white/10 hidden sm:block"></div>
                                 <div>
-                                  <div className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-40 transition-opacity">Risk Level</div>
+                                  <div className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-80 transition-opacity">Risk Level</div>
                                   <div className={`text-2xl font-black ${result?.detected ? 'text-[#FF3E3E]' : 'text-[#00FF94]'}`}>
                                     {result?.detected ? 'CRITICAL' : 'MINIMAL'}
                                   </div>
@@ -834,24 +864,24 @@ ${pages.map(page => `  <url>
                                   theme === 'dark' ? 'bg-black/40 border-white/5' : 'bg-white/60 border-black/5'
                                 }`}>
                                   <div className="flex justify-between items-center text-[10px] font-mono uppercase">
-                                    <span className={theme === 'dark' ? 'text-white/40' : 'text-[#0F172A]/40'}>File Status</span>
+                                    <span className={theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/80'}>File Status</span>
                                     <span className="text-[#00FF94] font-black">{selectedFile.size > 2000000 ? 'Stripped' : 'Original'}</span>
                                   </div>
                                   <div className="flex justify-between items-center text-[10px] font-mono uppercase">
-                                    <span className={theme === 'dark' ? 'text-white/40' : 'text-[#0F172A]/40'}>Metadata</span>
-                                    <span className={result?.detected ? 'text-[#FF3E3E] font-black' : (theme === 'dark' ? 'text-white/60' : 'text-[#0F172A]/60')}>
+                                    <span className={theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/80'}>Metadata</span>
+                                    <span className={result?.detected ? 'text-[#FF3E3E] font-black' : (theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/90')}>
                                       {result?.detected ? 'INCONSISTENT' : 'VERIFIED'}
                                     </span>
                                   </div>
                                   <div className="flex justify-between items-center text-[10px] font-mono uppercase">
-                                    <span className={theme === 'dark' ? 'text-white/40' : 'text-[#0F172A]/40'}>Hardware Sig.</span>
-                                    <span className={theme === 'dark' ? 'text-white/60' : 'text-[#0F172A]/60'}>Unknown/Generic</span>
+                                    <span className={theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/80'}>Hardware Sig.</span>
+                                    <span className={theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/80'}>Unknown/Generic</span>
                                   </div>
                                 </div>
 
                                   <div className="space-y-4">
                                   <div className={`text-[10px] font-mono uppercase tracking-widest ${
-                                    theme === 'dark' ? 'text-[#00F3FF]/60' : 'text-[#1E40AF]/60'
+                                    theme === 'dark' ? 'text-[#00F3FF]/80' : 'text-[#1E40AF]/80'
                                   }`}>Technical Properties</div>
                                   <div className="space-y-3">
                                     <MetadataItem label="Name" value={selectedFile.name} theme={theme} />
@@ -894,8 +924,8 @@ ${pages.map(page => `  <url>
                       }`}>
                         <h3 className={`text-2xl font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>System FAQ</h3>
                         <div className="space-y-4">
-                          <p className={`text-xs font-mono tracking-widest uppercase ${theme === 'dark' ? 'text-[#00F3FF]/40' : 'text-[#1E40AF]/60'}`}>Q: Is it accurate?</p>
-                          <p className={`text-sm ${theme === 'dark' ? 'text-white/70' : 'text-[#0F172A]'}`}>A: Our neural engine has a 99.8% precision rate on standard generative models including Midjourney v6 and SVD. <button onClick={() => { setCurrentPage('blog'); setCurrentPost('whatsapp-deepfake-guide'); }} className="underline hover:text-[#1E40AF]">Read our full forensic guide here</button>.</p>
+                          <p className={`text-xs font-mono tracking-widest uppercase ${theme === 'dark' ? 'text-[#00F3FF]/80' : 'text-[#1E40AF]/90'}`}>Q: Is it accurate?</p>
+                          <p className={`text-sm ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>A: Our neural engine has a 99.8% precision rate on standard generative models including Midjourney v6 and SVD. <button onClick={() => { setCurrentPage('blog'); setCurrentPost('whatsapp-deepfake-guide'); }} className="underline hover:text-[#1E40AF]">Read our full forensic guide here</button>.</p>
                         </div>
                       </div>
                     </div>
@@ -928,7 +958,7 @@ ${pages.map(page => `  <url>
                 <>
                   <div className="text-center mt-8">
                     <h2 className={`text-6xl font-black uppercase tracking-tighter italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>Forensic <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Insights</span></h2>
-                    <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-[10px] uppercase tracking-[0.4em] mt-2`}>Expert Deepfake Analysis & Security Reports</p>
+                    <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-[10px] uppercase tracking-[0.4em] mt-2 opacity-80`}>Expert Deepfake Analysis & Security Reports</p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {blogPosts.map((post) => (
@@ -945,7 +975,7 @@ ${pages.map(page => `  <url>
                         <div className="p-8 space-y-4">
                           <div className={`text-[9px] font-mono uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-[#00F3FF]/60' : 'text-[#1E40AF]/60'}`}>{post.date}</div>
                           <h3 className={`text-xl font-black uppercase tracking-tight leading-tight ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h3>
-                          <p className={`text-xs leading-relaxed ${theme === 'dark' ? 'opacity-40' : 'text-[#0F172A]/70'}`}>{post.desc}</p>
+                          <p className={`text-xs leading-relaxed ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/80'}`}>{post.desc}</p>
                         </div>
                       </button>
                     ))}
@@ -953,7 +983,7 @@ ${pages.map(page => `  <url>
                 </>
               ) : (
                 <div className="max-w-3xl mx-auto space-y-10">
-                  <button onClick={() => setCurrentPost(null)} className={`text-[10px] font-black uppercase tracking-widest ${theme === 'dark' ? 'opacity-40 hover:opacity-100' : 'text-[#0F172A] opacity-60 hover:opacity-100'}`}>← Back to Blog</button>
+                  <button onClick={() => setCurrentPost(null)} className={`text-[10px] font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white/80 hover:text-white' : 'text-[#0F172A] opacity-80 hover:opacity-100'}`}>← Back to Blog</button>
                   {blogPosts.filter(p => p.id === currentPost).map(post => (
                     <article key={post.id} className="space-y-10">
                        <div className="space-y-4">
@@ -986,47 +1016,47 @@ ${pages.map(page => `  <url>
 
               <div className="space-y-12">
                 <section>
-                  <h3 className="text-2xl font-black uppercase mb-6 flex items-center gap-4">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs ${theme === 'dark' ? 'bg-[#00F3FF]/10 text-[#00F3FF]' : 'bg-[#1E40AF]/10 text-[#1E40AF]'}`}>01</div>
+                  <p className="text-2xl font-black uppercase mb-6 flex items-center gap-4">
+                    <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs ${theme === 'dark' ? 'bg-[#00F3FF]/10 text-[#00F3FF]' : 'bg-[#1E40AF]/10 text-[#1E40AF]'}`}>01</span>
                     Core Methodology
-                  </h3>
+                  </p>
                   <div className={`p-8 rounded-[2rem] border ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'} space-y-6`}>
-                    <p className="leading-relaxed opacity-70">
+                    <p className="leading-relaxed opacity-80">
                       ScanDeepFake employs a hybrid detection pipeline combining <strong>Frequency Domain Analysis (FDA)</strong> and <strong>Spatial Consistency Checks (SCC)</strong>. 
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-3">
-                        <h4 className={`text-sm font-black uppercase ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Frequency Domain Analysis</h4>
-                        <p className="text-xs opacity-50 leading-relaxed">AI generators leave structured "repetitive wavelets" in the high-frequency spectrum. Our engine isolates these patterns, which are invisible to standard CMOS sensors but ubiquitous in Diffusion models.</p>
+                        <p className={`text-sm font-black uppercase ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Frequency Domain Analysis</p>
+                        <p className="text-xs opacity-80 leading-relaxed">AI generators leave structured "repetitive wavelets" in the high-frequency spectrum. Our engine isolates these patterns, which are invisible to standard CMOS sensors but ubiquitous in Diffusion models.</p>
                       </div>
                       <div className="space-y-3">
-                        <h4 className={`text-sm font-black uppercase ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Pixel Artifact Inspection</h4>
-                        <p className="text-xs opacity-50 leading-relaxed">Generative AI often struggles with global consistency in noise distribution. We analyze the variance across different color channels to identify localized synthetic "patches".</p>
+                        <p className={`text-sm font-black uppercase ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Pixel Artifact Inspection</p>
+                        <p className="text-xs opacity-80 leading-relaxed">Generative AI often struggles with global consistency in noise distribution. We analyze the variance across different color channels to identify localized synthetic "patches".</p>
                       </div>
                     </div>
                   </div>
                 </section>
 
                 <section>
-                  <h3 className="text-2xl font-black uppercase mb-6 flex items-center gap-4">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs ${theme === 'dark' ? 'bg-[#00F3FF]/10 text-[#00F3FF]' : 'bg-[#1E40AF]/10 text-[#1E40AF]'}`}>02</div>
+                  <p className="text-2xl font-black uppercase mb-6 flex items-center gap-4">
+                    <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs ${theme === 'dark' ? 'bg-[#00F3FF]/10 text-[#00F3FF]' : 'bg-[#1E40AF]/10 text-[#1E40AF]'}`}>02</span>
                     Neural Architecture
-                  </h3>
+                  </p>
                   <div className={`p-8 rounded-[2rem] border ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'} space-y-6`}>
-                    <p className="leading-relaxed opacity-70">
+                    <p className="leading-relaxed opacity-80">
                       Our proprietary model is built upon a modified <strong>Vision Transformer (ViT-L/14)</strong> architecture, specifically fine-tuned for high-fidelity forgery detection.
                     </p>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <li className="flex items-center gap-3 text-xs opacity-60">
+                      <li className="flex items-center gap-3 text-xs opacity-80">
                         <CheckCircle2 size={12} className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} /> EfficientNet-B7 Feature Extraction
                       </li>
-                      <li className="flex items-center gap-3 text-xs opacity-60">
+                      <li className="flex items-center gap-3 text-xs opacity-80">
                         <CheckCircle2 size={12} className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} /> Multi-Scale Attention Layers
                       </li>
-                      <li className="flex items-center gap-3 text-xs opacity-60">
+                      <li className="flex items-center gap-3 text-xs opacity-80">
                         <CheckCircle2 size={12} className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} /> Adversarial Training Sets
                       </li>
-                      <li className="flex items-center gap-3 text-xs opacity-60">
+                      <li className="flex items-center gap-3 text-xs opacity-80">
                         <CheckCircle2 size={12} className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} /> Local Gradient Maps
                       </li>
                     </ul>
@@ -1034,13 +1064,13 @@ ${pages.map(page => `  <url>
                 </section>
 
                 <section>
-                  <h3 className="text-2xl font-black uppercase mb-6 flex items-center gap-4">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs ${theme === 'dark' ? 'bg-[#00F3FF]/10 text-[#00F3FF]' : 'bg-[#1E40AF]/10 text-[#1E40AF]'}`}>03</div>
+                  <p className="text-2xl font-black uppercase mb-6 flex items-center gap-4">
+                    <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs ${theme === 'dark' ? 'bg-[#00F3FF]/10 text-[#00F3FF]' : 'bg-[#1E40AF]/10 text-[#1E40AF]'}`}>03</span>
                     Privacy & The Sandbox
-                  </h3>
+                  </p>
                   <div className={`p-8 rounded-[2rem] border ${theme === 'dark' ? 'bg-[#00F3FF]/5 border-[#00F3FF]/20' : 'bg-black/5 border-black/10'} space-y-4`}>
-                    <h4 className={`text-sm font-black uppercase ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Zero-Retention Protocol</h4>
-                    <p className="text-sm leading-relaxed opacity-70">
+                    <p className={`text-sm font-black uppercase ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Zero-Retention Protocol</p>
+                    <p className="text-sm leading-relaxed opacity-80">
                       ScanDeepFake operates on a strictly ephemeral basis. Your media is processed in volatile memory (RAM) within a secure sandbox environment. Once the results are generated, the processing cache is purged, ensuring no permanent records ever exist on our physical disk storage.
                     </p>
                   </div>
@@ -1237,15 +1267,15 @@ ${pages.map(page => `  <url>
 
       {/* Footer */}
       <footer className={`mt-12 p-8 border-t transition-colors duration-500 ${
-        theme === 'dark' ? 'border-white/5 bg-white/[0.01]' : 'border-black/5 bg-[#FFFFFF]'
+        theme === 'dark' ? 'border-white/10 bg-white/[0.02]' : 'border-black/5 bg-[#FFFFFF]'
       }`}>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           <div className="space-y-4 max-w-sm">
-            <h5 className={`font-black uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#0F172A]'}`}>ScanDeepFake</h5>
-            <p className={`text-xs leading-relaxed ${theme === 'dark' ? 'opacity-30' : 'text-[#0F172A]'}`}>Promoting digital truth through advanced neural forensics. Built for the future of authentic online human interaction.</p>
+            <p className={`text-sm font-black uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#0F172A]'}`}>ScanDeepFake</p>
+            <p className={`text-xs leading-relaxed ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>Promoting digital truth through advanced neural forensics. Built for the future of authentic online human interaction.</p>
             <div className="flex gap-4">
               <CheckCircle2 size={16} className="text-[#00FF94]" />
-              <span className={`text-[10px] font-mono uppercase tracking-widest ${theme === 'dark' ? 'opacity-20' : 'text-[#0F172A]'}`}>ScanDeepFake Protocol Active</span>
+              <span className={`text-[10px] font-mono uppercase tracking-widest ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>ScanDeepFake Protocol Active</span>
             </div>
           </div>
           
@@ -1267,18 +1297,18 @@ ${pages.map(page => `  <url>
           </div>
         </div>
         
-        <div className="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
+        <div className="mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-6">
-            <div className={`px-4 py-2 border rounded-xl flex items-center gap-2 text-[9px] font-mono font-black uppercase tracking-[0.2em] shadow-lg ${
-              theme === 'dark' ? 'bg-white/5 border-white/10 text-white' : 'bg-black/5 border-black/10 text-black'
+            <div className={`px-4 py-2 border rounded-xl flex items-center gap-2 text-xs font-mono font-black uppercase tracking-[0.2em] shadow-lg ${
+              theme === 'dark' ? 'bg-white/10 border-white/20 text-white' : 'bg-black/5 border-black/10 text-black'
             }`}>
               <Shield size={12} className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} /> Fully Encrypted & Sandbox Secure
             </div>
-            <p className={`text-[10px] font-mono uppercase tracking-widest ${theme === 'dark' ? 'opacity-20' : 'text-[#0F172A] opacity-40'}`}>
+            <p className={`text-xs font-mono uppercase tracking-widest ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>
               System Stable V4.2.1
             </p>
           </div>
-          <p className={`text-[10px] font-mono uppercase tracking-[0.2em] text-center md:text-right ${theme === 'dark' ? 'opacity-30' : 'text-[#0F172A] opacity-60'}`}>
+          <p className={`text-xs font-mono uppercase tracking-[0.2em] text-center md:text-right ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>
             © 2026 ScanDeepFake. Digital Integrity Verified. <br className="md:hidden" />
             Fully Encrypted & Sandbox Secure.
           </p>
@@ -1388,7 +1418,7 @@ function FAQItem({ q, a, theme }: { q: string; a: string; theme?: 'dark' | 'ligh
         {isOpen && (
           <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
             <div className={`p-6 pt-0 leading-relaxed border-t transition-colors ${
-              isDark ? 'border-white/5 bg-black/20 opacity-50 text-white/70' : 'border-black/10 bg-[#F1F5F9] text-[#0F172A]'
+              isDark ? 'border-white/5 bg-black/20 text-white/80' : 'border-black/10 bg-[#F1F5F9] text-[#0F172A]'
             }`}>
               {a}
             </div>
@@ -1403,11 +1433,17 @@ function FooterColumn({ title, links, theme }: { title: string; links: { label: 
   const isDark = theme === 'dark';
   return (
     <div className="space-y-4">
-      <h6 className={`text-[10px] font-mono uppercase tracking-widest font-black ${isDark ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>{title}</h6>
+      <p className={`text-xs font-mono uppercase tracking-widest font-black ${isDark ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>{title}</p>
       <ul className="space-y-3">
         {links.map((link, i) => (
           <li key={i}>
-            <button onClick={link.onClick} className={`text-[11px] font-black uppercase tracking-widest hover:opacity-100 transition-all ${isDark ? 'opacity-30 text-white' : 'text-[#0F172A]'}`}>{link.label}</button>
+            <button 
+              onClick={link.onClick} 
+              aria-label={`View ${link.label} page`}
+              className={`text-sm font-semibold uppercase tracking-widest hover:opacity-100 transition-all ${isDark ? 'text-white/80' : 'text-[#0F172A] hover:text-[#1E40AF]'}`}
+            >
+              {link.label}
+            </button>
           </li>
         ))}
       </ul>
@@ -1441,8 +1477,8 @@ function BenefitCard({ title, desc, theme }: { title: string; desc: string; them
     <div className={`p-6 border rounded-2xl transition-all group ${
       isDark ? 'bg-white/5 border-white/10 hover:border-[#00F3FF]/50' : 'bg-[#F1F5F9] border-black/10 hover:border-[#1E40AF]/50'
     }`}>
-      <h4 className={`text-sm font-black uppercase mb-2 ${isDark ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>{title}</h4>
-      <p className={`text-xs leading-relaxed group-hover:opacity-70 transition-opacity ${isDark ? 'opacity-40' : 'text-[#0F172A]'}`}>{desc}</p>
+      <p className={`text-sm font-black uppercase mb-2 ${isDark ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>{title}</p>
+      <p className={`text-xs leading-relaxed group-hover:opacity-80 transition-opacity ${isDark ? 'text-white/80' : 'text-[#0F172A]'}`}>{desc}</p>
     </div>
   );
 }
@@ -1451,10 +1487,10 @@ function StepItem({ num, title, desc, theme }: { num: string; title: string; des
   const isDark = theme === 'dark';
   return (
     <li className="flex gap-6 group">
-      <span className={`text-2xl font-black transition-colors ${isDark ? 'text-white/10 group-hover:text-[#00F3FF]/20' : 'text-black/10 group-hover:text-[#1E40AF]/20'}`}>{num}</span>
+      <span className={`text-2xl font-black transition-colors ${isDark ? 'text-white/70 group-hover:text-[#00F3FF]/80' : 'text-black/70 group-hover:text-[#1E40AF]/80'}`}>{num}</span>
       <div>
-        <h4 className="text-sm font-black uppercase mb-1">{title}</h4>
-        <p className={`text-xs leading-relaxed ${isDark ? 'opacity-40' : 'text-[#0F172A] opacity-60'}`}>{desc}</p>
+        <p className="text-sm font-black uppercase mb-1">{title}</p>
+        <p className={`text-xs leading-relaxed ${isDark ? 'text-white/80' : 'text-[#0F172A] opacity-90'}`}>{desc}</p>
       </div>
     </li>
   );
@@ -1466,7 +1502,7 @@ function StatCard({ label, value, color, theme }: { label: string; value: string
     <div className={`p-6 border rounded-2xl transition-colors duration-500 ${
       isDark ? 'bg-white/[0.02] border-white/5' : 'bg-black/[0.02] border-black/5'
     }`}>
-      <div className="text-[10px] font-mono uppercase opacity-20 mb-2 tracking-widest">{label}</div>
+      <div className="text-[10px] font-mono uppercase opacity-70 mb-2 tracking-widest">{label}</div>
       <div className={`text-2xl font-black ${color || (isDark ? 'text-white' : 'text-black')}`}>{value}</div>
     </div>
   );
@@ -1489,8 +1525,8 @@ function SelectionCard({ icon: Icon, title, desc, onClick, theme }: { icon: any;
       }`}>
         <Icon size={32} />
       </div>
-      <h4 className="text-xl font-black uppercase italic mb-2 tracking-tight">{title}</h4>
-      <p className={`text-sm leading-relaxed ${isDark ? 'opacity-40' : 'text-[#0F172A] opacity-60'}`}>{desc}</p>
+      <p className="text-xl font-black uppercase italic mb-2 tracking-tight">{title}</p>
+      <p className={`text-sm leading-relaxed ${isDark ? 'text-white/80' : 'text-[#0F172A] opacity-90'}`}>{desc}</p>
     </button>
   );
 }
