@@ -309,7 +309,7 @@ ${pages.map(page => `  <url>
         {JSON.stringify({
           "@context": "https://schema.org",
           "@type": "SoftwareApplication",
-          "name": "DeepGuard AI - Forensic Media Detector",
+          "name": "ScanDeepFake - Forensic Media Detector",
           "operatingSystem": "Web",
           "applicationCategory": "SecurityApplication",
           "offers": {
@@ -778,7 +778,7 @@ ${pages.map(page => `  <url>
                   </h3>
                   <div className={`p-8 rounded-[2rem] border ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'} space-y-6`}>
                     <p className="leading-relaxed opacity-70">
-                      DeepGuard AI employs a hybrid detection pipeline combining <strong>Frequency Domain Analysis (FDA)</strong> and <strong>Spatial Consistency Checks (SCC)</strong>. 
+                      ScanDeepFake employs a hybrid detection pipeline combining <strong>Frequency Domain Analysis (FDA)</strong> and <strong>Spatial Consistency Checks (SCC)</strong>. 
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-3">
@@ -825,9 +825,9 @@ ${pages.map(page => `  <url>
                     Privacy & The Sandbox
                   </h3>
                   <div className={`p-8 rounded-[2rem] border ${theme === 'dark' ? 'bg-[#00F3FF]/5 border-[#00F3FF]/20' : 'bg-black/5 border-black/10'} space-y-4`}>
-                    <h4 className={`text-sm font-black uppercase ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Zero-Knowledge Protocol</h4>
+                    <h4 className={`text-sm font-black uppercase ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Zero-Retention Protocol</h4>
                     <p className="text-sm leading-relaxed opacity-70">
-                      DeepGuard AI operates on a strictly ephemeral basis. Your media is processed in volatile memory (RAM) within a secure sandbox environment. Once the results are generated, the processing cache is purged, ensuring no permanent records ever exist on our physical disk storage.
+                      ScanDeepFake operates on a strictly ephemeral basis. Your media is processed in volatile memory (RAM) within a secure sandbox environment. Once the results are generated, the processing cache is purged, ensuring no permanent records ever exist on our physical disk storage.
                     </p>
                   </div>
                 </section>
@@ -844,12 +844,12 @@ ${pages.map(page => `  <url>
               <div className="space-y-6">
                 <FAQItem 
                   q="How to spot deepfake videos in 2026?" 
-                  a="In 2026, spotting deepfakes requires looking for microscopic texture inconsistencies and the 'diffusion hum'—a specific frequency pattern found in generative synthesis. Deepfake detectors like DeepGuard AI automate this forensic deep-scan."
+                  a="In 2026, spotting deepfakes requires looking for microscopic texture inconsistencies and the 'diffusion hum'—a specific frequency pattern found in generative synthesis. Deepfake detectors like ScanDeepFake automate this forensic deep-scan."
                   theme={theme}
                 />
                 <FAQItem 
                   q="Free AI image integrity check: Is it reliable?" 
-                  a="Yes, our DeepGuard AI free-tier uses advanced neural fingerprints to verify image integrity. While no tool is 100% infallible, our system provides a 99.8% precision score on standard generative models."
+                  a="Yes, our ScanDeepFake free-tier uses advanced neural fingerprints to verify image integrity. While no tool is 100% infallible, our system provides a 99.8% precision score on standard generative models."
                   theme={theme}
                 />
                 <FAQItem 
@@ -879,7 +879,7 @@ ${pages.map(page => `  <url>
                 />
                 <FAQItem 
                   q="Best tools for identifying AI-generated content." 
-                  a="DeepGuard AI stands out due to its local-first processing, high-confidence scoring, and comprehensive forensic legend that breaks down exactly why an image might be suspect."
+                  a="ScanDeepFake stands out due to its local-first processing, high-confidence scoring, and comprehensive forensic legend that breaks down exactly why an image might be suspect."
                   theme={theme}
                 />
                 <FAQItem 
@@ -894,7 +894,7 @@ ${pages.map(page => `  <url>
                 />
                 <FAQItem 
                   q="Protecting yourself from misinformation and synthetic media." 
-                  a="Cultivate digital skepticism. Use verification tools before sharing viral content. DeepGuard AI is designed to be your first line of defense against online misinformation."
+                  a="Cultivate digital skepticism. Use verification tools before sharing viral content. ScanDeepFake is designed to be your first line of defense against online misinformation."
                   theme={theme}
                 />
                 <FAQItem 
@@ -939,7 +939,7 @@ ${pages.map(page => `  <url>
                 />
                 <FAQItem 
                   q="Is it possible to detect deepfakes for free?" 
-                  a="DeepGuard AI offers a robust free-tier neural forensic scanner specifically tuned to identify the 'diffusion signatures' of modern AI models like Midjourney and Stable Diffusion."
+                  a="ScanDeepFake offers a robust free-tier neural forensic scanner specifically tuned to identify the 'diffusion signatures' of modern AI models like Midjourney and Stable Diffusion."
                   theme={theme}
                 />
                 <FAQItem 
@@ -949,7 +949,7 @@ ${pages.map(page => `  <url>
                 />
                 <FAQItem 
                   q="How to use forensic logic to protect digital assets." 
-                  a="By embedding DeepGuard verification into your content workflow, you create a layer of digital trust. Our forensic logic analyzes metadata inconsistencies and lighting mismatches automatically."
+                  a="By embedding ScanDeepFake verification into your content workflow, you create a layer of digital trust. Our forensic logic analyzes metadata inconsistencies and lighting mismatches automatically."
                   theme={theme}
                 />
               </div>
@@ -1003,7 +1003,7 @@ ${pages.map(page => `  <url>
             </motion.div>
           )}
 
-          {currentPage === 'privacy' && <LegalPage key="privacy" title="Privacy Policy" theme={theme} content={`Our commitment to your privacy is absolute. Our Deepfake Detector tools are designed with "Privacy by Design" principles. 
+          {currentPage === 'privacy' && <LegalPage key="privacy" title="Privacy Policy" theme={theme} content={`Our commitment to your privacy is absolute. Our ScanDeepFake tools are designed with "Privacy by Design" principles. 
           
 1. Data Integrity: We do not store, upload, or transmit your media to our permanent servers. Processing happens in secure ephemeral cloud instances that are deleted immediately after result generation.
 2. Analytics: We use anonymized usage metrics to improve our detection algorithms. No personally identifiable information (PII) is ever linked to these metrics.
@@ -1011,12 +1011,12 @@ ${pages.map(page => `  <url>
 4. Third Parties: Verified AI partners may receive transient data for processing, strictly governed by zero-retention policies.
 5. Advertising: This site uses Google AdSense. Google's use of advertising cookies enables it and its partners to serve ads based on your visit to this site and/or other sites on the Internet.`} />}
 
-          {currentPage === 'terms' && <LegalPage key="terms" title="Terms of Service" theme={theme} content={`By accessing Deepfake Detector, you agree to these legal terms:
+          {currentPage === 'terms' && <LegalPage key="terms" title="Terms of Service" theme={theme} content={`By accessing ScanDeepFake, you agree to these legal terms:
 
 1. Usage: You are granted a limited license to use our scanner for personal or professional verification.
 2. Prohibitions: You may not use this tool for illegal purposes, harassing individuals, or attempting to reverse-engineer our detection model.
 3. API Access: Automated requests (scripts) are prohibited without an official API key.
-4. Ownership: The detection output belongs to you, but the detection technology remains intellectual property of Deepfake Detector.
+4. Ownership: The detection output belongs to you, but the detection technology remains intellectual property of ScanDeepFake.
 5. Service: We reserve the right to modify or discontinue the service at any time without prior notice.`} />}
 
           {currentPage === 'disclaimer' && <LegalPage key="disclaimer" title="Disclaimer" theme={theme} content={`While our AI models are among the most advanced in the industry, users must acknowledge:
@@ -1024,7 +1024,7 @@ ${pages.map(page => `  <url>
 1. Probabilistic Results: Detection scores are estimates based on statistical probability. They are NOT definitive legal proof of authenticity or synthetic origin.
 2. False Positives: High-quality real images can sometimes be flagged as AI if they possess unusual lighting or camera artifacts.
 3. Evolution of AI: The technology used to create deepfakes advances daily. A "Real" result today does not guarantee that a more advanced AI did not create the image.
-4. No Liability: Deepfake Detector is not responsible for decisions made based on our analysis results. Use this tool as a supporting reference, not a final verdict.`} />}
+4. No Liability: ScanDeepFake is not responsible for decisions made based on our analysis results. Use this tool as a supporting reference, not a final verdict.`} />}
         </AnimatePresence>
       </main>
 
