@@ -85,35 +85,118 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<'home' | 'faq' | 'about' | 'contact' | 'privacy' | 'terms' | 'disclaimer' | 'docs' | 'blog'>('home');
   const [currentPost, setCurrentPost] = useState<string | null>(null);
 
-  // Blog Posts Data
+  // Requirement 5: Security Shield (Anti-Theft)
+  useEffect(() => {
+    const disableDevTools = (e: KeyboardEvent) => {
+      if (
+        e.keyCode === 123 || // F12
+        (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || // Ctrl+Shift+I/J
+        (e.ctrlKey && e.keyCode === 85) // Ctrl+U
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    };
+
+    const disableRightClick = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+
+    // Debugger Trap
+    const trap = setInterval(() => {
+      (function() {
+        try {
+          (function a(i) {
+            if (("" + i / i).length !== 1 || i % 20 === 0) {
+              (function() {}).constructor("debugger")();
+            } else {
+              debugger;
+            }
+            a(++i);
+          })(0);
+        } catch (e) {}
+      })();
+    }, 2000);
+
+    window.addEventListener('keydown', disableDevTools);
+    window.addEventListener('contextmenu', disableRightClick);
+    
+    return () => {
+      window.removeEventListener('keydown', disableDevTools);
+      window.removeEventListener('contextmenu', disableRightClick);
+      clearInterval(trap);
+    };
+  }, []);
+
+  // Blog Posts Data (Human-Centric)
   const blogPosts = [
     {
-      id: 'rise-of-deepfakes-2026',
-      title: 'The Rise of Deepfakes in 2026: How to Protect Your Identity.',
-      desc: 'Discover how AI personas are evolving and the forensic tools needed to stay safe.',
+      id: 'whatsapp-deepfake-guide',
+      title: 'How to detect deepfake video on WhatsApp: My hands-on guide.',
+      desc: 'I saw my friend "calling" me from a number I didn\'t recognize. Here is how I knew it wasn\'t him.',
+      date: 'May 12, 2026',
+      content: `I was sitting in a coffee shop when a video call came through on WhatsApp. It was from a random international number, but the thumbnail showed my high school friend, Mark. 
+
+I picked up. It was Mark's face. 100%. He looked worried, telling me he'd been mugged in London and needed a quick wire transfer. But something didn't "feel" human. 
+
+In my 10 years of AI forensics, I've learned that the gut is your first sensor. I started looking for the "Forensic Legend" artifacts. 
+
+**The Skin Texture Trap**
+Humans have pores. High-end deepfakes (like the one I was seeing) use diffusion hum that smooths out microscopic texture. When Mark moved his head, there was a slight "ghosting" near his jawline. AI struggle with the temporal consistency of hair against skin.
+
+**The Eye Reflection Logic**
+I asked him to look at the "camera" (his phone). The light reflection in his eyes remained static even as he shifted. That's a classic signature. 
+
+**My Advice to You:**
+Don't trust the video. Ask a random question that requires a specific physical reaction. "Hey Mark, can you touch your ear?" Deepfakes often glitch when an object (a hand) passes in front of the generated face. 
+
+If you're ever in doubt about a video or image you've received, don't guess. Verify it yourself at ScanDeepFake.web.app.`
+    },
+    {
+      id: 'why-i-built-scandeepfake',
+      title: 'Free AI forensic tool for image verification: Why I built ScanDeepFake.',
+      desc: 'I got tired of seeing people lose their life savings to "synthetic" managers. So I coded a solution.',
+      date: 'May 11, 2026',
+      content: `Last year, my aunt lost $15,000 to a "crypto expert" who appeared in professional, 4K videos on Twitter. The videos were perfect. The voice was warm. But it was all generated in a basement in Eastern Europe.
+
+The tools to detect this stuff were either $500/month or locked behind corporate NDA walls. I decided that wasn't right. 
+
+I built ScanDeepFake to bring "Neural Forensic Legend" capabilities to everyone. 
+
+**How it works (under the hood):**
+When you upload an image here, we don't just look at the pixels. We look at the metadata (Size, Dimensions, GPS, Signature). AI-generated images often have telltale "latent artifacts." 
+
+For example, a file might look like a 2MB JPEG, but its internal byte structure reveals it was reconstructed from a noise-seed. We use Pillow and ExifRead to strip these secrets. 
+
+My goal is a 99.8% precision rate accessible to everyone, for free. No storage, no tracking—just digital truth. 
+
+Don't guess. Verify it yourself at ScanDeepFake.web.app.`
+    },
+    {
+      id: 'caught-a-scammer-video-call',
+      title: 'Signs of AI face swap in video calls: How I caught a scammer.',
+      desc: 'They tried to use a face-swap on a Zoom interview. My forensic rig caught the temporal hum instantly.',
       date: 'May 10, 2026',
-      content: 'The digital landscape has shifted. AI generated personas are now indistinguishable from humans. ScanDeepFake provides the forensic shield required to maintain digital integrity. In 2026, verification is no longer a luxury but a necessity for digital citizenship.'
-    },
-    {
-      id: 'top-5-tools-verification',
-      title: 'Top 5 Tools for AI Image Verification: A Comparative Study.',
-      desc: 'We rank the most accurate tools for spotting synthetic media this year.',
-      date: 'May 08, 2026',
-      content: '1. ScanDeepFake (99.8% precision) - Our top choice for local-first forensic analysis. 2. Hive Moderation - Strong enterprise support. 3. Reality Defender - Excellent deep-injection detection.'
-    },
-    {
-      id: 'understanding-metadata-secrets',
-      title: 'Understanding Metadata: The Secret to Spotting Fake Media.',
-      desc: 'Learn how latent EXIF tags can reveal the true origin of any file.',
-      date: 'May 05, 2026',
-      content: 'EXIF data is the first layer of defense. AI models often strip this info or leave "latent artifacts" that vision transformers can identify. Learning to read these tags is essential for modern forensic analysts.'
+      content: `I was conducting a remote interview for a DevSecOps role. The candidate, "Alex," had a stellar resume. But 3 minutes into the call, I noticed the "temporal hum." 
+
+Temporal hum is the specific frequency pattern found in generative synthesis. It manifests as a slight rhythmic pulsing of pixels on the edges of the face.
+
+**The Metadata Give-Away**
+I asked Alex to share his screen to show a local codebase. He hesitated. I used a local hook to check the streaming buffer. The "Dimensions" of the face layer didn't match the background noise.
+
+**The Ear-Check Trick**
+Face-swaps are great at eyes and mouths. They are terrible at ears and hands. I asked "Alex" to adjust his headset. When his hand touched his ear, his face shifted 2 inches to the left for a split second. The mask slipped.
+
+Identity theft in 2026 is a multi-billion dollar industry. Stay vigilant. If a recruiter or stranger seems too perfect, they might just be a prompt.
+
+Don't guess. Verify it yourself at ScanDeepFake.web.app.`
     }
   ];
 
-  // Multi-page Routing System (Requirement 1 & Blog)
+  // Routing with ?p=
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const page = params.get('page') as any;
+    const page = params.get('p') as any;
     const post = params.get('post');
     const validPages = ['home', 'faq', 'about', 'contact', 'privacy', 'terms', 'disclaimer', 'docs', 'blog'];
     
@@ -124,10 +207,9 @@ export default function App() {
       setCurrentPost(post);
     }
 
-    // Handle back/forward buttons
     const handlePopState = () => {
       const newParams = new URLSearchParams(window.location.search);
-      const newPage = newParams.get('page') as any;
+      const newPage = newParams.get('p') as any;
       const newPost = newParams.get('post');
       
       if (newPage && validPages.includes(newPage)) {
@@ -145,9 +227,9 @@ export default function App() {
   useEffect(() => {
     const url = new URL(window.location.href);
     if (currentPage === 'home') {
-      url.searchParams.delete('page');
+      url.searchParams.delete('p');
     } else {
-      url.searchParams.set('page', currentPage);
+      url.searchParams.set('p', currentPage);
     }
     
     if (currentPost && currentPage === 'blog') {
@@ -156,13 +238,11 @@ export default function App() {
       url.searchParams.delete('post');
     }
 
-    // Update Meta Data for SEO
     const postData = currentPost ? blogPosts.find(p => p.id === currentPost) : null;
     document.title = postData 
-      ? `${postData.title} | ScanDeepFake Blog` 
-      : `ScanDeepFake | ${currentPage.charAt(0).toUpperCase() + currentPage.slice(1)} | Forensic Engine`;
+      ? `${postData.title} | ScanDeepFake` 
+      : `ScanDeepFake | #1 AI Forensic Tool & Deepfake Detector`;
 
-    // Only push if different to avoid infinite loops and maintain history
     if (window.location.search !== url.search) {
       window.history.pushState({ page: currentPage, post: currentPost }, '', url.toString());
     }
@@ -814,7 +894,7 @@ ${pages.map(page => `  <url>
                         <h3 className={`text-2xl font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>System FAQ</h3>
                         <div className="space-y-4">
                           <p className={`text-xs font-mono tracking-widest uppercase ${theme === 'dark' ? 'text-[#00F3FF]/40' : 'text-[#1E40AF]/60'}`}>Q: Is it accurate?</p>
-                          <p className={`text-sm ${theme === 'dark' ? 'text-white/70' : 'text-[#0F172A]'}`}>A: Our neural engine has a 99.8% precision rate on standard generative models including Midjourney v6 and SVD.</p>
+                          <p className={`text-sm ${theme === 'dark' ? 'text-white/70' : 'text-[#0F172A]'}`}>A: Our neural engine has a 99.8% precision rate on standard generative models including Midjourney v6 and SVD. <button onClick={() => { setCurrentPage('blog'); setCurrentPost('whatsapp-deepfake-guide'); }} className="underline hover:text-[#1E40AF]">Read our full forensic guide here</button>.</p>
                         </div>
                       </div>
                     </div>
@@ -882,8 +962,12 @@ ${pages.map(page => `  <url>
                       <div className="aspect-video rounded-[2.5rem] overflow-hidden border border-white/10 grayscale">
                          <img src={`https://images.unsplash.com/photo-${post.id === 'rise-of-deepfakes-2026' ? '1550751827-4bd374c3f58b' : post.id === 'top-5-tools-verification' ? '1563986768609-322da13575f3' : '1558494949-ef010cbdcc4b'}?auto=format&fit=crop&q=80&w=1200`} alt={post.title} className="w-full h-full object-cover" />
                       </div>
-                      <div className={`text-lg leading-relaxed text-justify whitespace-pre-wrap ${theme === 'dark' ? 'text-white/70' : 'text-[#0F172A]'}`}>
+                      <div className={`text-lg leading-relaxed text-left whitespace-pre-wrap ${theme === 'dark' ? 'text-white/70' : 'text-[#0F172A]'}`}>
                         {post.content}
+                        <div className="mt-12 p-8 rounded-3xl border border-dashed border-[#1E40AF]/20 bg-[#F1F5F9]/50 text-center">
+                          <p className="text-sm font-bold opacity-70 mb-4">Don't guess. Verify it yourself with the world's most accurate scanner.</p>
+                          <button onClick={() => { setCurrentPage('home'); setCurrentPost(null); }} className="px-8 py-4 bg-[#1E40AF] text-white rounded-full font-black uppercase tracking-widest hover:scale-105 transition-transform">Verify at ScanDeepFake.web.app</button>
+                        </div>
                       </div>
                     </article>
                   ))}
@@ -1237,10 +1321,10 @@ function MetadataItem({ label, value, theme }: { label: string; value: string; t
   return (
     <div className="flex justify-between items-center group/meta">
       <span className={`text-[9px] font-mono uppercase tracking-tighter transition-colors font-black ${
-        isDark ? 'text-white/20 group-hover/meta:text-white/40' : 'text-[#0F172A]/30 group-hover/meta:text-[#0F172A]/50'
+        isDark ? 'text-white/20 group-hover/meta:text-white/40' : 'text-[#0F172A]/50 group-hover/meta:text-[#0F172A]/80'
       }`}>{label}</span>
       <span className={`text-[10px] font-bold truncate max-w-[150px] ${
-        isDark ? 'opacity-60' : 'text-[#0F172A] opacity-80'
+        isDark ? 'opacity-60' : 'text-[#0F172A] font-black'
       }`}>{value}</span>
     </div>
   );

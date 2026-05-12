@@ -10,14 +10,14 @@ import os
 def generate_seo_files():
     domain = "https://scandeepfake.web.app"
     pages = ['', 'docs', 'faq', 'about', 'contact', 'privacy', 'terms', 'disclaimer', 'blog']
-    blog_posts = ['rise-of-deepfakes-2026', 'top-5-tools-verification', 'understanding-metadata-secrets']
+    blog_posts = ['whatsapp-deepfake-guide', 'why-i-built-scandeepfake', 'caught-a-scammer-video-call']
     
     sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     for p in pages:
-        url = f"{domain}{'?page='+p if p else ''}"
+        url = f"{domain}{'?p='+p if p else ''}"
         sitemap += f"  <url><loc>{url}</loc><changefreq>weekly</changefreq></url>\n"
     for bp in blog_posts:
-        url = f"{domain}?page=blog&post={bp}"
+        url = f"{domain}?p=blog&post={bp}"
         sitemap += f"  <url><loc>{url}</loc><changefreq>monthly</changefreq></url>\n"
     sitemap += '</urlset>'
     
@@ -58,30 +58,30 @@ st.markdown("""
 
 # Query Param Router
 params = st.query_params
-current_page = params.get("page", "home")
+current_page = params.get("p", "home")
 current_post = params.get("post", None)
 
 def nav_to(page_name, post_name=None):
-    st.query_params["page"] = page_name
+    st.query_params["p"] = page_name
     if post_name:
         st.query_params["post"] = post_name
     elif "post" in st.query_params:
         del st.query_params["post"]
     st.rerun()
 
-# Blog Data
+# Blog Data (Simplified version for backend awareness)
 blog_posts_data = {
-    'rise-of-deepfakes-2026': {
-        'title': 'The Rise of Deepfakes in 2026: How to Protect Your Identity.',
-        'content': 'The digital landscape has shifted. AI generated personas are now indistinguishable from humans. ScanDeepFake provides the forensic shield required to maintain digital integrity.'
+    'whatsapp-deepfake-guide': {
+        'title': 'How to detect deepfake video on WhatsApp: My hands-on guide.',
+        'content': 'Conversational analysis of human-centric verification...'
     },
-    'top-5-tools-verification': {
-        'title': 'Top 5 Tools for AI Image Verification: A Comparative Study.',
-        'content': '1. ScanDeepFake (99.8%) 2. Hive 3. Reality Defender... Expert studies show that pixel-frequency analysis is the gold standard in 2026.'
+    'why-i-built-scandeepfake': {
+        'title': 'Free AI forensic tool for image verification: Why I built ScanDeepFake.',
+        'content': 'Transparency report on the technical and emotional drive behind the tool.'
     },
-    'understanding-metadata-secrets': {
-        'title': 'Understanding Metadata: The Secret to Spotting Fake Media.',
-        'content': 'EXIF data is the first layer of defense. AI models often strip this info or leave "latent artifacts" that reveal synthetic origin.'
+    'caught-a-scammer-video-call': {
+        'title': 'Signs of AI face swap in video calls: How I caught a scammer.',
+        'content': 'True story of identity verification failure and recovery.'
     }
 }
 
