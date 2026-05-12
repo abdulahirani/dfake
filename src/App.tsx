@@ -82,26 +82,60 @@ function MatrixIllusion({ theme }: { theme: 'dark' | 'light' }) {
 }
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<'home' | 'faq' | 'about' | 'contact' | 'privacy' | 'terms' | 'disclaimer' | 'docs'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'faq' | 'about' | 'contact' | 'privacy' | 'terms' | 'disclaimer' | 'docs' | 'blog'>('home');
+  const [currentPost, setCurrentPost] = useState<string | null>(null);
 
-  // Multi-page Routing System (Requirement 1)
+  // Blog Posts Data
+  const blogPosts = [
+    {
+      id: 'rise-of-deepfakes-2026',
+      title: 'The Rise of Deepfakes in 2026: How to Protect Your Identity.',
+      desc: 'Discover how AI personas are evolving and the forensic tools needed to stay safe.',
+      date: 'May 10, 2026',
+      content: 'The digital landscape has shifted. AI generated personas are now indistinguishable from humans. ScanDeepFake provides the forensic shield required to maintain digital integrity. In 2026, verification is no longer a luxury but a necessity for digital citizenship.'
+    },
+    {
+      id: 'top-5-tools-verification',
+      title: 'Top 5 Tools for AI Image Verification: A Comparative Study.',
+      desc: 'We rank the most accurate tools for spotting synthetic media this year.',
+      date: 'May 08, 2026',
+      content: '1. ScanDeepFake (99.8% precision) - Our top choice for local-first forensic analysis. 2. Hive Moderation - Strong enterprise support. 3. Reality Defender - Excellent deep-injection detection.'
+    },
+    {
+      id: 'understanding-metadata-secrets',
+      title: 'Understanding Metadata: The Secret to Spotting Fake Media.',
+      desc: 'Learn how latent EXIF tags can reveal the true origin of any file.',
+      date: 'May 05, 2026',
+      content: 'EXIF data is the first layer of defense. AI models often strip this info or leave "latent artifacts" that vision transformers can identify. Learning to read these tags is essential for modern forensic analysts.'
+    }
+  ];
+
+  // Multi-page Routing System (Requirement 1 & Blog)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const page = params.get('page') as any;
-    const validPages = ['home', 'faq', 'about', 'contact', 'privacy', 'terms', 'disclaimer', 'docs'];
+    const post = params.get('post');
+    const validPages = ['home', 'faq', 'about', 'contact', 'privacy', 'terms', 'disclaimer', 'docs', 'blog'];
+    
     if (page && validPages.includes(page)) {
       setCurrentPage(page);
+    }
+    if (post) {
+      setCurrentPost(post);
     }
 
     // Handle back/forward buttons
     const handlePopState = () => {
       const newParams = new URLSearchParams(window.location.search);
       const newPage = newParams.get('page') as any;
+      const newPost = newParams.get('post');
+      
       if (newPage && validPages.includes(newPage)) {
         setCurrentPage(newPage);
       } else {
         setCurrentPage('home');
       }
+      setCurrentPost(newPost);
     };
 
     window.addEventListener('popstate', handlePopState);
@@ -115,11 +149,24 @@ export default function App() {
     } else {
       url.searchParams.set('page', currentPage);
     }
+    
+    if (currentPost && currentPage === 'blog') {
+      url.searchParams.set('post', currentPost);
+    } else {
+      url.searchParams.delete('post');
+    }
+
+    // Update Meta Data for SEO
+    const postData = currentPost ? blogPosts.find(p => p.id === currentPost) : null;
+    document.title = postData 
+      ? `${postData.title} | ScanDeepFake Blog` 
+      : `ScanDeepFake | ${currentPage.charAt(0).toUpperCase() + currentPage.slice(1)} | Forensic Engine`;
+
     // Only push if different to avoid infinite loops and maintain history
     if (window.location.search !== url.search) {
-      window.history.pushState({ page: currentPage }, '', url.toString());
+      window.history.pushState({ page: currentPage, post: currentPost }, '', url.toString());
     }
-  }, [currentPage]);
+  }, [currentPage, currentPost]);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [analysisType, setAnalysisType] = useState<'image' | 'video' | null>(null);
@@ -363,11 +410,12 @@ ${pages.map(page => `  <url>
           </div>
         </div>
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-[10px] font-black uppercase tracking-widest text-[#0F172A]">
-              <button onClick={() => setCurrentPage('home')} className={`transition-colors ${theme === 'dark' ? (currentPage === 'home' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'home' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>Scanner</button>
-              <button onClick={() => setCurrentPage('docs')} className={`transition-colors ${theme === 'dark' ? (currentPage === 'docs' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'docs' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>Docs</button>
-              <button onClick={() => setCurrentPage('faq')} className={`transition-colors ${theme === 'dark' ? (currentPage === 'faq' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'faq' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>FAQ</button>
-              <button onClick={() => setCurrentPage('about')} className={`transition-colors ${theme === 'dark' ? (currentPage === 'about' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'about' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>About</button>
+          <nav className={`flex flex-wrap gap-x-6 gap-y-2 text-[10px] font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>
+              <button onClick={() => { setCurrentPage('home'); setCurrentPost(null); }} className={`transition-colors ${theme === 'dark' ? (currentPage === 'home' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'home' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>Scanner</button>
+              <button onClick={() => { setCurrentPage('blog'); setCurrentPost(null); }} className={`transition-colors ${theme === 'dark' ? (currentPage === 'blog' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'blog' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>Blog</button>
+              <button onClick={() => { setCurrentPage('docs'); setCurrentPost(null); }} className={`transition-colors ${theme === 'dark' ? (currentPage === 'docs' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'docs' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>Docs</button>
+              <button onClick={() => { setCurrentPage('faq'); setCurrentPost(null); }} className={`transition-colors ${theme === 'dark' ? (currentPage === 'faq' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'faq' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>FAQ</button>
+              <button onClick={() => { setCurrentPage('about'); setCurrentPost(null); }} className={`transition-colors ${theme === 'dark' ? (currentPage === 'about' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'about' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>About</button>
           </nav>
           <button 
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -418,16 +466,17 @@ ${pages.map(page => `  <url>
                             <Activity size={12} className="animate-pulse" /> System Online - v4.2
                           </div>
                           <h2 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">
-                            Verify Digital <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Reality</span>
+                            ScanDeepFake: The World's Most <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Accurate AI Forensic Engine</span>
                           </h2>
-                          <p className={`text-lg max-w-2xl mx-auto font-medium transition-opacity ${theme === 'dark' ? 'opacity-40' : 'text-[#0F172A] opacity-70'}`}>
-                            Protect your content with our neural forensic engine. Detect AI-generated faces, pixel patterns, and deepfake manipulations in seconds.
+                          <p className={`text-lg max-w-2xl mx-auto font-medium transition-opacity ${theme === 'dark' ? 'opacity-40' : 'text-[#0F172A] opacity-90'}`}>
+                            Detect <strong>Deepfake Detection Online</strong>, verify <strong>AI Face Swap Checker</strong>, and ensure <strong>Video Authenticity Verification</strong> with our <strong>Free AI Forensic Tool</strong>.
                           </p>
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 relative z-10">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
                           <StatCard label="Analysis per day" value="245k+" theme={theme} />
                           <StatCard label="Detection accuracy" value="99.8%" theme={theme} />
+                          <StatCard label="Privacy Compliance" value="Local" theme={theme} />
                           <StatCard label="Global Threats" value="1,402" color="text-[#FF3E3E]" theme={theme} />
                         </div>
 
@@ -487,12 +536,14 @@ ${pages.map(page => `  <url>
                             <div className={`w-20 h-20 rounded-3xl flex items-center justify-center border animate-pulse ${theme === 'dark' ? 'bg-[#00F3FF]/10 text-[#00F3FF] border-[#00F3FF]/20' : 'bg-[#1E40AF]/10 text-[#1E40AF] border-[#1E40AF]/20'}`}>
                               <Shield size={32} />
                             </div>
-                            <h3 className="text-2xl font-black uppercase tracking-tight italic">Secure Forensic Upload</h3>
-                            <p className="text-white/40 text-sm max-w-md">Your media is encrypted locally and scanned in an ephemeral sandbox. No data is stored on our servers.</p>
+                            <h3 className={`text-2xl font-black uppercase tracking-tight italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>Secure Forensic Upload</h3>
+                            <p className={`text-sm max-w-md ${theme === 'dark' ? 'text-white/40' : 'text-[#0F172A]/70'}`}>Your media is encrypted locally and scanned in an ephemeral sandbox. No data is stored on our servers.</p>
                           </div>
 
                           <div className="max-w-md mx-auto space-y-6">
-                            <label className="flex items-center gap-4 group cursor-pointer p-6 bg-white/[0.02] border border-white/10 rounded-2xl hover:bg-white/5 transition-all">
+                            <label className={`flex items-center gap-4 group cursor-pointer p-6 border rounded-2xl transition-all ${
+                              theme === 'dark' ? 'bg-white/[0.02] border-white/10 hover:bg-white/5' : 'bg-black/[0.02] border-black/10 hover:bg-black/5'
+                            }`}>
                               <input 
                                 type="checkbox" 
                                 checked={privacyAgreed} 
@@ -501,7 +552,9 @@ ${pages.map(page => `  <url>
                                   theme === 'dark' ? 'checked:bg-[#00F3FF]' : 'checked:bg-[#1E40AF]'
                                 }`}
                               />
-                              <span className="text-[11px] font-black uppercase tracking-widest text-white/40 group-hover:text-white transition-colors">I agree to the privacy terms & data encryption protocol</span>
+                              <span className={`text-[11px] font-black uppercase tracking-widest transition-colors ${
+                                theme === 'dark' ? 'text-white/40 group-hover:text-white' : 'text-[#0F172A]/60 group-hover:text-[#0F172A]'
+                              }`}>I agree to the privacy terms & data encryption protocol</span>
                             </label>
 
                             <AnimatePresence>
@@ -509,7 +562,7 @@ ${pages.map(page => `  <url>
                                 <motion.div 
                                   initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                                   className={`border-2 border-dashed rounded-3xl p-8 md:p-12 text-center cursor-pointer transition-all overflow-hidden relative ${
-                                    selectedFile ? (theme === 'dark' ? 'border-[#00F3FF] bg-[#00F3FF]/5' : 'border-[#2563EB] bg-[#2563EB]/5') : 'border-white/10 hover:border-[#00F3FF]/40'
+                                    selectedFile ? (theme === 'dark' ? 'border-[#00F3FF] bg-[#00F3FF]/5' : 'border-[#1E40AF] bg-[#1E40AF]/5') : (theme === 'dark' ? 'border-white/10 hover:border-[#00F3FF]/40' : 'border-black/10 hover:border-[#1E40AF]/40')
                                   }`}
                                   onClick={() => !isUploading && triggerFileSelect()}
                                 >
@@ -518,7 +571,7 @@ ${pages.map(page => `  <url>
                                       <Loader2 className={`w-10 h-10 animate-spin mx-auto ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`} />
                                       <div className="space-y-2">
                                         <div className={`text-[10px] font-mono uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Uploading to Buffer... {uploadProgress}%</div>
-                                        <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden max-w-[200px] mx-auto">
+                                        <div className={`w-full h-1.5 rounded-full overflow-hidden max-w-[200px] mx-auto ${theme === 'dark' ? 'bg-white/5' : 'bg-black/5'}`}>
                                           <motion.div 
                                             className={`${theme === 'dark' ? 'bg-[#00F3FF]' : 'bg-[#1E40AF]'} h-full`}
                                             animate={{ width: `${uploadProgress}%` }}
@@ -556,10 +609,10 @@ ${pages.map(page => `  <url>
                                     </div>
                                   ) : (
                                     <div className="space-y-4 py-4">
-                                      <div className="text-white/10 dark:text-black/10 flex justify-center"><Upload size={48} /></div>
+                                      <div className={`${theme === 'dark' ? 'text-white/10' : 'text-black/10'} flex justify-center`}><Upload size={48} /></div>
                                       <div className="space-y-1">
-                                        <div className="text-xs font-black uppercase tracking-widest">Drop {analysisType} or Click</div>
-                                        <div className="text-[9px] opacity-30 uppercase tracking-[0.2em]">Max file size: 50MB</div>
+                                        <div className={`text-xs font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>Drop {analysisType} or Click</div>
+                                        <div className={`text-[9px] uppercase tracking-[0.2em] ${theme === 'dark' ? 'opacity-30' : 'opacity-40'}`}>Max file size: 50MB</div>
                                       </div>
                                     </div>
                                   )}
@@ -686,28 +739,32 @@ ${pages.map(page => `  <url>
                           </div>
 
                           {/* Forensic Legend / Metadata Panel */}
-                          <div className="lg:col-span-4 bg-white/5 border border-white/10 rounded-[40px] p-8 space-y-8">
+                          <div className={`lg:col-span-4 border rounded-[40px] p-8 space-y-8 transition-colors duration-500 ${
+                            theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-[#F1F5F9] border-black/10 shadow-sm'
+                          }`}>
                             <h4 className={`text-[10px] font-mono uppercase tracking-[0.4em] font-black ${
-                              theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'
+                              theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#0F172A]'
                             }`}>
                               Forensic Legend
                             </h4>
                             {selectedFile && (
                               <div className="space-y-6">
-                                <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-4">
-                                  <div className="flex justify-between items-center text-[10px] font-mono text-white/40 uppercase">
-                                    <span>File Status</span>
+                                <div className={`p-4 rounded-2xl border space-y-4 ${
+                                  theme === 'dark' ? 'bg-black/40 border-white/5' : 'bg-white/60 border-black/5'
+                                }`}>
+                                  <div className="flex justify-between items-center text-[10px] font-mono uppercase">
+                                    <span className={theme === 'dark' ? 'text-white/40' : 'text-[#0F172A]/40'}>File Status</span>
                                     <span className="text-[#00FF94] font-black">{selectedFile.size > 2000000 ? 'Stripped' : 'Original'}</span>
                                   </div>
-                                  <div className="flex justify-between items-center text-[10px] font-mono text-white/40 uppercase">
-                                    <span>Metadata</span>
-                                    <span className={result?.detected ? 'text-[#FF3E3E] font-black' : 'text-white/60'}>
+                                  <div className="flex justify-between items-center text-[10px] font-mono uppercase">
+                                    <span className={theme === 'dark' ? 'text-white/40' : 'text-[#0F172A]/40'}>Metadata</span>
+                                    <span className={result?.detected ? 'text-[#FF3E3E] font-black' : (theme === 'dark' ? 'text-white/60' : 'text-[#0F172A]/60')}>
                                       {result?.detected ? 'INCONSISTENT' : 'VERIFIED'}
                                     </span>
                                   </div>
-                                  <div className="flex justify-between items-center text-[10px] font-mono text-white/40 uppercase">
-                                    <span>Hardware Sig.</span>
-                                    <span className="text-white/60">Unknown/Generic</span>
+                                  <div className="flex justify-between items-center text-[10px] font-mono uppercase">
+                                    <span className={theme === 'dark' ? 'text-white/40' : 'text-[#0F172A]/40'}>Hardware Sig.</span>
+                                    <span className={theme === 'dark' ? 'text-white/60' : 'text-[#0F172A]/60'}>Unknown/Generic</span>
                                   </div>
                                 </div>
 
@@ -716,12 +773,12 @@ ${pages.map(page => `  <url>
                                     theme === 'dark' ? 'text-[#00F3FF]/60' : 'text-[#1E40AF]/60'
                                   }`}>Technical Properties</div>
                                   <div className="space-y-3">
-                                    <MetadataItem label="Name" value={selectedFile.name} />
-                                    <MetadataItem label="Size" value={`${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`} />
-                                    <MetadataItem label="Type" value={selectedFile.type.toUpperCase()} />
-                                    <MetadataItem label="Dimensions" value={dimensions ? `${dimensions.width}x${dimensions.height}` : 'Calculating...'} />
-                                    <MetadataItem label="Format" value={selectedFile.name.split('.').pop()?.toUpperCase() || 'RAW'} />
-                                    <MetadataItem label="Last Modified" value={new Date(selectedFile.lastModified).toLocaleDateString()} />
+                                    <MetadataItem label="Name" value={selectedFile.name} theme={theme} />
+                                    <MetadataItem label="Size" value={`${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`} theme={theme} />
+                                    <MetadataItem label="Type" value={selectedFile.type.toUpperCase()} theme={theme} />
+                                    <MetadataItem label="Dimensions" value={dimensions ? `${dimensions.width}x${dimensions.height}` : 'Calculating...'} theme={theme} />
+                                    <MetadataItem label="Format" value={selectedFile.name.split('.').pop()?.toUpperCase() || 'RAW'} theme={theme} />
+                                    <MetadataItem label="Last Modified" value={new Date(selectedFile.lastModified).toLocaleDateString()} theme={theme} />
                                   </div>
                                 </div>
                               </div>
@@ -736,24 +793,28 @@ ${pages.map(page => `  <url>
                   <div className="pt-24 space-y-16">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-16 pt-12 border-t border-white/5">
                       <div className="space-y-8">
-                        <h2 className="text-4xl font-black uppercase tracking-tighter leading-none italic">
-                          Safe & Secure <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Deepfake Analysis</span>
+                        <h2 className={`text-4xl font-black uppercase tracking-tighter leading-none italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>
+                          Why <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>ScanDeepFake?</span>
                         </h2>
-                        <p className="text-lg text-white/60 leading-relaxed">
-                          ScanDeepFake uses military-grade neural forensics to protect you from misinformation. Every pixel is scanned for minute irregularities introduced during AI training.
-                        </p>
-                        <div className="grid grid-cols-2 gap-4">
-                          <BenefitCard title="Privacy First" desc="No storage policy. No tracking." theme={theme} />
-                          <BenefitCard title="Fast Scan" desc="Global edge network." theme={theme} />
+                        <div className="space-y-6">
+                            <p className={`text-lg leading-relaxed ${theme === 'dark' ? 'text-white/60' : 'text-[#0F172A]'}`}>
+                              Our forensic engine provides military-grade detection for digital assets. We focus on three core pillars:
+                            </p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <BenefitCard title="Privacy Protocol" desc="Processing happens locally. No media is ever sent to our cloud." theme={theme} />
+                              <BenefitCard title="Instant Scan" desc="Get high-confidence forensic results in under 10 seconds." theme={theme} />
+                              <BenefitCard title="99.8% Precision" desc="Trained on massive adversarial datasets for max accuracy." theme={theme} />
+                              <BenefitCard title="Multi-Format" desc="Expert verification for images and complex video sequences." theme={theme} />
+                            </div>
                         </div>
                       </div>
                       <div className={`p-8 rounded-[2rem] border space-y-6 transition-colors duration-500 ${
-                        theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'
+                        theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-[#F1F5F9] border-black/10'
                       }`}>
-                        <h3 className="text-2xl font-black uppercase tracking-tight">System FAQ</h3>
+                        <h3 className={`text-2xl font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>System FAQ</h3>
                         <div className="space-y-4">
-                          <p className="text-xs text-white/40 font-mono tracking-widest uppercase">Q: Is it accurate?</p>
-                          <p className="text-sm text-white/70">A: Our neural engine has a 99.8% precision rate on standard generative models including Midjourney v6 and SVD.</p>
+                          <p className={`text-xs font-mono tracking-widest uppercase ${theme === 'dark' ? 'text-[#00F3FF]/40' : 'text-[#1E40AF]/60'}`}>Q: Is it accurate?</p>
+                          <p className={`text-sm ${theme === 'dark' ? 'text-white/70' : 'text-[#0F172A]'}`}>A: Our neural engine has a 99.8% precision rate on standard generative models including Midjourney v6 and SVD.</p>
                         </div>
                       </div>
                     </div>
@@ -777,6 +838,57 @@ ${pages.map(page => `  <url>
                   theme === 'dark' ? 'bg-black/80 border-white/10' : 'bg-white/80 border-black/10'
                 }`} 
               />
+            </motion.div>
+          )}
+
+          {currentPage === 'blog' && (
+            <motion.div key="blog" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-6xl mx-auto space-y-12 mb-20 px-4">
+              {!currentPost ? (
+                <>
+                  <div className="text-center mt-8">
+                    <h2 className={`text-6xl font-black uppercase tracking-tighter italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>Forensic <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Insights</span></h2>
+                    <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-[10px] uppercase tracking-[0.4em] mt-2`}>Expert Deepfake Analysis & Security Reports</p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {blogPosts.map((post) => (
+                      <button 
+                        key={post.id} 
+                        onClick={() => setCurrentPost(post.id)}
+                        className={`text-left rounded-[2rem] border transition-all overflow-hidden group ${
+                          theme === 'dark' ? 'bg-white/5 border-white/10 hover:border-[#00F3FF]/50' : 'bg-[#F1F5F9] border-black/10 hover:border-[#1E40AF]/50 shadow-sm'
+                        }`}
+                      >
+                        <div className="aspect-video bg-black/20 overflow-hidden">
+                          <img src={`https://images.unsplash.com/photo-${post.id === 'rise-of-deepfakes-2026' ? '1550751827-4bd374c3f58b' : post.id === 'top-5-tools-verification' ? '1563986768609-322da13575f3' : '1558494949-ef010cbdcc4b'}?auto=format&fit=crop&q=80&w=800`} alt={post.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                        </div>
+                        <div className="p-8 space-y-4">
+                          <div className={`text-[9px] font-mono uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-[#00F3FF]/60' : 'text-[#1E40AF]/60'}`}>{post.date}</div>
+                          <h3 className={`text-xl font-black uppercase tracking-tight leading-tight ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h3>
+                          <p className={`text-xs leading-relaxed ${theme === 'dark' ? 'opacity-40' : 'text-[#0F172A]/70'}`}>{post.desc}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="max-w-3xl mx-auto space-y-10">
+                  <button onClick={() => setCurrentPost(null)} className={`text-[10px] font-black uppercase tracking-widest ${theme === 'dark' ? 'opacity-40 hover:opacity-100' : 'text-[#0F172A] opacity-60 hover:opacity-100'}`}>← Back to Blog</button>
+                  {blogPosts.filter(p => p.id === currentPost).map(post => (
+                    <article key={post.id} className="space-y-10">
+                       <div className="space-y-4">
+                        <div className={`text-xs font-mono uppercase tracking-[0.3em] ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>{post.date}</div>
+                        <h1 className={`text-5xl md:text-6xl font-black uppercase tracking-tighter leading-none italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h1>
+                      </div>
+                      <div className="aspect-video rounded-[2.5rem] overflow-hidden border border-white/10 grayscale">
+                         <img src={`https://images.unsplash.com/photo-${post.id === 'rise-of-deepfakes-2026' ? '1550751827-4bd374c3f58b' : post.id === 'top-5-tools-verification' ? '1563986768609-322da13575f3' : '1558494949-ef010cbdcc4b'}?auto=format&fit=crop&q=80&w=1200`} alt={post.title} className="w-full h-full object-cover" />
+                      </div>
+                      <div className={`text-lg leading-relaxed text-justify whitespace-pre-wrap ${theme === 'dark' ? 'text-white/70' : 'text-[#0F172A]'}`}>
+                        {post.content}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
             </motion.div>
           )}
 
@@ -1120,11 +1232,16 @@ ${pages.map(page => `  <url>
   );
 }
 
-function MetadataItem({ label, value }: { label: string; value: string }) {
+function MetadataItem({ label, value, theme }: { label: string; value: string; theme?: 'dark' | 'light' }) {
+  const isDark = theme === 'dark';
   return (
     <div className="flex justify-between items-center group/meta">
-      <span className="text-[9px] font-mono uppercase text-white/20 tracking-tighter transition-colors group-hover/meta:text-white/40 font-black">{label}</span>
-      <span className="text-[10px] font-bold text-white/60 truncate max-w-[150px]">{value}</span>
+      <span className={`text-[9px] font-mono uppercase tracking-tighter transition-colors font-black ${
+        isDark ? 'text-white/20 group-hover/meta:text-white/40' : 'text-[#0F172A]/30 group-hover/meta:text-[#0F172A]/50'
+      }`}>{label}</span>
+      <span className={`text-[10px] font-bold truncate max-w-[150px] ${
+        isDark ? 'opacity-60' : 'text-[#0F172A] opacity-80'
+      }`}>{value}</span>
     </div>
   );
 }
@@ -1179,14 +1296,14 @@ function FAQItem({ q, a, theme }: { q: string; a: string; theme?: 'dark' | 'ligh
       isDark ? 'bg-white/5 border-white/10' : 'bg-[#F8FAFC] border-black/10 shadow-sm'
     }`}>
       <button onClick={() => setIsOpen(!isOpen)} className="w-full p-6 flex justify-between items-center text-left">
-        <span className={`text-lg font-bold tracking-tight ${isDark ? '' : 'text-[#0F172A]'}`}>{q}</span>
+        <span className={`text-lg font-bold tracking-tight ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{q}</span>
         <ChevronRight size={18} className={`transition-transform duration-300 ${isOpen ? 'rotate-90' : isDark ? 'text-white/20' : 'text-black/20'}`} />
       </button>
       <AnimatePresence>
         {isOpen && (
           <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
             <div className={`p-6 pt-0 leading-relaxed border-t transition-colors ${
-              isDark ? 'border-white/5 bg-black/20 opacity-50' : 'border-black/10 bg-[#F1F5F9]/50 text-[#0F172A]'
+              isDark ? 'border-white/5 bg-black/20 opacity-50 text-white/70' : 'border-black/10 bg-[#F1F5F9] text-[#0F172A]'
             }`}>
               {a}
             </div>
@@ -1216,16 +1333,16 @@ function FooterColumn({ title, links, theme }: { title: string; links: { label: 
 function LegalPage({ title, content, theme }: { title: string; content: string; theme?: 'dark' | 'light' }) {
   const isDark = theme === 'dark';
   return (
-    <div className="max-w-4xl mx-auto space-y-12">
+    <div className="max-w-4xl mx-auto space-y-12 mb-20 px-4">
       <div className="text-center mt-8">
-        <h2 className="text-6xl font-black uppercase tracking-tighter italic">{title}</h2>
-        <div className={`h-1 w-24 mx-auto mt-6 ${isDark ? 'bg-[#00F3FF]' : 'bg-[#2563EB]'}`}></div>
+        <h2 className={`text-6xl font-black uppercase tracking-tighter italic ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{title}</h2>
+        <div className={`h-1 w-24 mx-auto mt-6 ${isDark ? 'bg-[#00F3FF]' : 'bg-[#1E40AF]'}`}></div>
       </div>
       <div className={`border rounded-[40px] p-8 md:p-16 relative overflow-hidden backdrop-blur-3xl transition-colors duration-500 ${
-        isDark ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'
+        isDark ? 'bg-white/5 border-white/10' : 'bg-[#F1F5F9] border-black/10'
       }`}>
         <div className={`absolute top-0 right-0 p-8 font-mono text-8xl font-black select-none opacity-20 ${isDark ? 'text-[#00F3FF]/10' : 'text-[#1E40AF]/10'}`}>LEGAL</div>
-        <div className={`relative z-10 leading-loose text-justify text-lg space-y-8 whitespace-pre-wrap font-sans ${isDark ? 'opacity-70' : 'text-[#0F172A]'}`}>
+        <div className={`relative z-10 leading-loose text-justify text-lg space-y-8 whitespace-pre-wrap font-sans ${isDark ? 'text-white/70' : 'text-[#0F172A]'}`}>
           {content}
         </div>
       </div>
@@ -1237,10 +1354,10 @@ function BenefitCard({ title, desc, theme }: { title: string; desc: string; them
   const isDark = theme === 'dark';
   return (
     <div className={`p-6 border rounded-2xl transition-all group ${
-      isDark ? 'bg-white/5 border-white/10 hover:border-[#00F3FF]/50' : 'bg-black/5 border-black/10 hover:border-[#1E40AF]/50'
+      isDark ? 'bg-white/5 border-white/10 hover:border-[#00F3FF]/50' : 'bg-[#F1F5F9] border-black/10 hover:border-[#1E40AF]/50'
     }`}>
       <h4 className={`text-sm font-black uppercase mb-2 ${isDark ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>{title}</h4>
-      <p className={`text-xs leading-relaxed group-hover:opacity-70 transition-opacity ${isDark ? 'opacity-40' : 'text-[#0F172A] opacity-60'}`}>{desc}</p>
+      <p className={`text-xs leading-relaxed group-hover:opacity-70 transition-opacity ${isDark ? 'opacity-40' : 'text-[#0F172A]'}`}>{desc}</p>
     </div>
   );
 }
