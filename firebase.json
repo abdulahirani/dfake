@@ -9,7 +9,10 @@
     "rewrites": [
       {
         "source": "**",
-        "destination": "/index.html"
+        "run": {
+          "serviceId": "scandeepfake",
+          "region": "us-central1"
+        }
       }
     ]
   }

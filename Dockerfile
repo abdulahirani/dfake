@@ -1,16 +1,20 @@
 # ScanDeepFake Pro Deployment Module
-FROM node:18-slim AS build
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
+FROM python:3.9-slim
 
-# Lightweight serving environment
-FROM node:18-slim
 WORKDIR /app
-RUN npm install -g serve
-COPY --from=build /app/dist ./dist
+
+# System dependencies for image processing
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libmagic1 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
 EXPOSE 8080
+
 # Serve on port 8080 as required by Cloud Run / App Engine
-CMD ["serve", "-s", "dist", "-l", "8080"]
+CMD ["streamlit", "run", "app.py", "--server.port=8080", "--server.address=0.0.0.0"]

@@ -225,12 +225,12 @@ export default function App() {
   };
 
   const generateSitemap = () => {
-    const pages = ['home', 'docs', 'faq', 'about', 'contact', 'privacy', 'terms', 'disclaimer'];
-    const baseUrl = window.location.origin;
+    const pages = ['', 'docs', 'faq', 'about', 'contact', 'privacy', 'terms', 'disclaimer'];
+    const baseUrl = 'https://scandeepfake.web.app';
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${pages.map(page => `  <url>
-    <loc>${baseUrl}/${page}</loc>
+    <loc>${baseUrl}${page ? '/' + page : ''}</loc>
     <changefreq>weekly</changefreq>
   </url>`).join('\n')}
 </urlset>`;
@@ -280,16 +280,14 @@ ${pages.map(page => `  <url>
     };
 
     const antiDebugger = setInterval(() => {
-      // Basic anti-debugger trap
-      (function() {
-        try {
-          (function a() {
-            if (window.outerHeight - window.innerHeight > 160 || window.outerWidth - window.innerWidth > 160) {
-              // DevTools might be open
-            }
-          })();
-        } catch (e) {}
-      })();
+      // Strict anti-debugger trap
+      const t1 = Date.now();
+      debugger;
+      const t2 = Date.now();
+      if (t2 - t1 > 100) {
+        // Debugging detected
+        console.log("Forensic integrity probe active.");
+      }
     }, 1000);
 
     document.addEventListener('contextmenu', handleContextMenu);
@@ -348,11 +346,11 @@ ${pages.map(page => `  <url>
           </div>
         </div>
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-[10px] font-black uppercase tracking-widest">
-              <button onClick={() => setCurrentPage('home')} className={`hover:text-[#00F3FF] transition-colors ${theme === 'dark' ? (currentPage === 'home' ? 'text-[#00F3FF]' : 'opacity-40') : (currentPage === 'home' ? 'text-[#0F172A]' : 'text-[#0F172A] opacity-40 hover:text-[#1E40AF]')}`}>Scanner</button>
-              <button onClick={() => setCurrentPage('docs')} className={`hover:text-[#00F3FF] transition-colors ${theme === 'dark' ? (currentPage === 'docs' ? 'text-[#00F3FF]' : 'opacity-40') : (currentPage === 'docs' ? 'text-[#0F172A]' : 'text-[#0F172A] opacity-40 hover:text-[#1E40AF]')}`}>Docs</button>
-              <button onClick={() => setCurrentPage('faq')} className={`hover:text-[#00F3FF] transition-colors ${theme === 'dark' ? (currentPage === 'faq' ? 'text-[#00F3FF]' : 'opacity-40') : (currentPage === 'faq' ? 'text-[#0F172A]' : 'text-[#0F172A] opacity-40 hover:text-[#1E40AF]')}`}>FAQ</button>
-              <button onClick={() => setCurrentPage('about')} className={`hover:text-[#00F3FF] transition-colors ${theme === 'dark' ? (currentPage === 'about' ? 'text-[#00F3FF]' : 'opacity-40') : (currentPage === 'about' ? 'text-[#0F172A]' : 'text-[#0F172A] opacity-40 hover:text-[#1E40AF]')}`}>About</button>
+          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-[10px] font-black uppercase tracking-widest text-[#0F172A]">
+              <button onClick={() => setCurrentPage('home')} className={`transition-colors ${theme === 'dark' ? (currentPage === 'home' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'home' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>Scanner</button>
+              <button onClick={() => setCurrentPage('docs')} className={`transition-colors ${theme === 'dark' ? (currentPage === 'docs' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'docs' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>Docs</button>
+              <button onClick={() => setCurrentPage('faq')} className={`transition-colors ${theme === 'dark' ? (currentPage === 'faq' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'faq' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>FAQ</button>
+              <button onClick={() => setCurrentPage('about')} className={`transition-colors ${theme === 'dark' ? (currentPage === 'about' ? 'text-[#00F3FF]' : 'opacity-40 hover:text-[#00F3FF]') : (currentPage === 'about' ? 'text-[#0F172A]' : 'opacity-60 hover:text-[#1E40AF]')}`}>About</button>
           </nav>
           <button 
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -1036,7 +1034,7 @@ ${pages.map(page => `  <url>
       }`}>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           <div className="space-y-4 max-w-sm">
-            <h5 className={`font-black uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#0F172A]'}`}>DeepGuard AI</h5>
+            <h5 className={`font-black uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#0F172A]'}`}>ScanDeepFake</h5>
             <p className={`text-xs leading-relaxed ${theme === 'dark' ? 'opacity-30' : 'text-[#0F172A]'}`}>Promoting digital truth through advanced neural forensics. Built for the future of authentic online human interaction.</p>
             <div className="flex gap-4">
               <CheckCircle2 size={16} className="text-[#00FF94]" />
@@ -1178,7 +1176,7 @@ function FAQItem({ q, a, theme }: { q: string; a: string; theme?: 'dark' | 'ligh
         {isOpen && (
           <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
             <div className={`p-6 pt-0 leading-relaxed border-t transition-colors ${
-              isDark ? 'border-white/5 bg-black/20 opacity-50' : 'border-black/10 bg-white text-[#0F172A]'
+              isDark ? 'border-white/5 bg-black/20 opacity-50' : 'border-black/10 bg-[#F1F5F9]/50 text-[#0F172A]'
             }`}>
               {a}
             </div>
