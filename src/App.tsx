@@ -6,6 +6,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Upload, Shield, Activity, Cpu, CheckCircle2, ChevronRight, Info, FileVideo, FileImage, Loader2, BookOpen, Terminal, Sun, Moon } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import Markdown from 'react-markdown';
 
 // Forensic Simulation Engine (Local)
 const runForensicAnalysis = async (file: File) => {
@@ -143,13 +144,13 @@ I picked up. It was Mark's face. 100%. He looked worried, telling me he'd been m
 
 In my 10 years of AI forensics, I've learned that the gut is your first sensor. I started looking for the "Forensic Legend" artifacts. 
 
-**The Skin Texture Trap**
+## The Skin Texture Trap
 Humans have pores. High-end deepfakes (like the one I was seeing) use diffusion hum that smooths out microscopic texture. When Mark moved his head, there was a slight "ghosting" near his jawline. AI struggle with the temporal consistency of hair against skin.
 
-**The Eye Reflection Logic**
+## The Eye Reflection Logic
 I asked him to look at the "camera" (his phone). The light reflection in his eyes remained static even as he shifted. That's a classic signature. 
 
-**My Advice to You:**
+## My Advice to You
 Don't trust the video. Ask a random question that requires a specific physical reaction. "Hey Mark, can you touch your ear?" Deepfakes often glitch when an object (a hand) passes in front of the generated face. 
 
 If you're ever in doubt about a video or image you've received, don't guess. Verify it yourself at ScanDeepFake.web.app.`
@@ -167,7 +168,7 @@ The tools to detect this stuff were either $500/month or locked behind corporate
 
 I built ScanDeepFake to bring "Neural Forensic Legend" capabilities to everyone. 
 
-**How it works (under the hood):**
+## How it works (under the hood)
 When you upload an image here, we don't just look at the pixels. We look at the metadata (Size, Dimensions, GPS, Signature). AI-generated images often have telltale "latent artifacts." 
 
 For example, a file might look like a 2MB JPEG, but its internal byte structure reveals it was reconstructed from a noise-seed. We use Pillow and ExifRead to strip these secrets. 
@@ -187,10 +188,10 @@ Don't guess. Verify it yourself at ScanDeepFake.web.app.`
 
 Temporal hum is the specific frequency pattern found in generative synthesis. It manifests as a slight rhythmic pulsing of pixels on the edges of the face.
 
-**The Metadata Give-Away**
+## The Metadata Give-Away
 I asked Alex to share his screen to show a local codebase. He hesitated. I used a local hook to check the streaming buffer. The "Dimensions" of the face layer didn't match the background noise.
 
-**The Ear-Check Trick**
+## The Ear-Check Trick
 Face-swaps are great at eyes and mouths. They are terrible at ears and hands. I asked "Alex" to adjust his headset. When his hand touched his ear, his face shifted 2 inches to the left for a split second. The mask slipped.
 
 Identity theft in 2026 is a multi-billion dollar industry. Stay vigilant. If a recruiter or stranger seems too perfect, they might just be a prompt.
@@ -206,10 +207,10 @@ Don't guess. Verify it yourself at ScanDeepFake.web.app.`
       alt: 'Robotic head with sound wave visualization',
       content: `I received a voice note from my "boss" requesting an urgent password reset for an internal server. The voice was identical. The cadence, the slight stutter he has when he's stressed—it was all there.
 
-**The Breathing Gap**
+## The Breathing Gap
 AI models are excellent at phonemes but struggled with the biological rhythm of breathing. In this voice note, the "boss" spoke for 45 seconds without a single intake of air. That's physiologically impossible for a human.
 
-**Frequency Clipping**
+## Frequency Clipping
 When I ran the audio through a spectrum analyzer, I saw perfect 20kHz cutoffs. Real human speech recorded on a phone has messy tapers. 
 
 Be careful with voice notes. If it's about money or access, call them back on a verified line.`
@@ -223,10 +224,10 @@ Be careful with voice notes. If it's about money or access, call them back on a 
       alt: 'Abstract blockchain and data forensic visualization',
       content: `Every digital image has a soul—or at least a DNA sequence in the form of metadata. When a Midjourney or DALL-E image is born, it carries a very specific latent structure.
 
-**The ICC Profile Clue**
+## The ICC Profile Clue
 Many AI generators default to generic sRGB profiles that differ slightly from the profiles used by Canon, Sony, or iPhone sensors. 
 
-**Software Signatures**
+## Software Signatures
 Even if EXIF data is wiped, the "Quantization Tables" in the JPEG compression often reveal the software used to save the file. Photoshop leaves one mark; a generative neural network leaves another.
 
 ScanDeepFake parses these hidden layers to give you a definitive verdict.`
@@ -292,9 +293,12 @@ Our mission at ScanDeepFake isn't just technical; it's social. We want to restor
     }
 
     const postData = currentPost ? blogPosts.find(p => p.id === currentPost) : null;
-    document.title = postData 
+    const rawTitle = postData 
       ? `${postData.title} | ScanDeepFake` 
       : `ScanDeepFake | #1 AI Forensic Tool & Deepfake Detector`;
+    
+    // Truncate at 60 characters for SEO compliance
+    document.title = rawTitle.length > 60 ? rawTitle.slice(0, 57) + "..." : rawTitle;
 
     if (window.location.search !== url.search) {
       window.history.pushState({ page: currentPage, post: currentPost }, '', url.toString());
@@ -537,11 +541,11 @@ ${pages.map(page => `  <url>
             <Cpu size={12} className="animate-spin-slow" />
             ScanDeepFake Engine v4.2.1
           </div>
-          <h1 className={`text-4xl md:text-5xl font-black tracking-tighter uppercase leading-none transition-colors duration-500 ${
+          <div className={`text-4xl md:text-5xl font-black tracking-tighter uppercase leading-none transition-colors duration-500 ${
             theme === 'dark' ? 'text-white' : 'text-[#0F172A]'
           }`}>
             ScanDeepFake
-          </h1>
+          </div>
         </div>
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
           <nav className={`flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>
@@ -630,9 +634,9 @@ ${pages.map(page => `  <url>
                           }`}>
                             <Activity size={12} className="animate-pulse" /> System Online - v4.2
                           </div>
-                          <h2 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">
+                          <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">
                             ScanDeepFake: The World's Most <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Accurate AI Forensic Engine</span>
-                          </h2>
+                          </h1>
                           <h3 className={`text-lg max-w-2xl mx-auto font-medium transition-opacity ${theme === 'dark' ? 'opacity-80' : 'text-[#0F172A] opacity-90'}`}>
                             Detect <strong>Deepfake Detection Online</strong>, verify <strong>AI Face Swap Checker</strong>, and ensure <strong>Video Authenticity Verification</strong> with our <strong>Free AI Forensic Tool</strong>.
                           </h3>
@@ -1011,7 +1015,7 @@ ${pages.map(page => `  <url>
               {!currentPost ? (
                 <>
                   <div className="text-center mt-8">
-                    <h2 className={`text-6xl font-black uppercase tracking-tighter italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>Forensic <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Insights</span></h2>
+                    <h1 className={`text-6xl font-black uppercase tracking-tighter italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>Forensic <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Insights</span></h1>
                     <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-xs uppercase tracking-[0.4em] mt-2 opacity-80`}>Expert Deepfake Analysis & Security Reports</p>
                   </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -1047,8 +1051,8 @@ ${pages.map(page => `  <url>
                       <div className="aspect-video rounded-[2.5rem] overflow-hidden border border-white/10">
                          <img src={`${post.imageUrl}?auto=format&fit=crop&q=80&w=1200`} alt={post.alt} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
                       </div>
-                      <div className={`text-lg leading-relaxed text-left whitespace-pre-wrap ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/90'}`}>
-                        {post.content}
+                      <div className={`text-lg leading-relaxed text-left ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/90'} prose prose-invert max-w-none`}>
+                        <Markdown>{post.content}</Markdown>
                         <div className={`mt-12 p-8 rounded-3xl border border-dashed text-center ${
                           theme === 'dark' ? 'border-[#00F3FF]/20 bg-white/5' : 'border-[#1E40AF]/20 bg-[#F1F5F9]/50'
                         }`}>
@@ -1068,7 +1072,7 @@ ${pages.map(page => `  <url>
           {currentPage === 'docs' && (
             <motion.div key="docs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-4xl mx-auto space-y-12 mb-20">
               <div className="text-center mt-8">
-                <h2 className="text-6xl font-black uppercase tracking-tighter italic">Forensic <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Manual</span></h2>
+                <h1 className="text-6xl font-black uppercase tracking-tighter italic">Forensic <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Manual</span></h1>
                 <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-xs uppercase tracking-[0.4em] mt-2`}>Neural Analysis Documentation v4.2</p>
               </div>
 
@@ -1140,7 +1144,7 @@ ${pages.map(page => `  <url>
           {currentPage === 'faq' && (
             <motion.div key="faq" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-4xl mx-auto space-y-12 mb-20">
               <div className="text-center mt-8">
-                <h2 className="text-6xl font-black uppercase tracking-tighter italic">Help & <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>FAQ</span></h2>
+                <h1 className="text-6xl font-black uppercase tracking-tighter italic">Help & <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>FAQ</span></h1>
                 <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-xs uppercase tracking-[0.4em] mt-2`}>Semantic Search & Knowledge Base</p>
               </div>
               <div className="space-y-6">
@@ -1261,7 +1265,7 @@ ${pages.map(page => `  <url>
           {currentPage === 'about' && (
             <motion.div key="about" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-4xl mx-auto space-y-12 mb-20">
               <div className="text-center mt-8">
-                <h2 className="text-6xl font-black uppercase tracking-tighter italic">About Digital <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Integrity</span></h2>
+                <h1 className="text-6xl font-black uppercase tracking-tighter italic">About Digital <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Integrity</span></h1>
               </div>
               <div className={`space-y-6 text-lg leading-relaxed text-justify max-w-2xl mx-auto ${theme === 'dark' ? 'text-white/70' : 'text-[#0F172A]'}`}>
                 <p>Welcome to ScanDeepFake, a dedicated platform built to safeguard digital truth in an age of artificial synthesis. Our mission is to provide every individual with the tools needed to verify media authenticity instantly at https://scandeepfake.web.app.</p>
@@ -1275,7 +1279,7 @@ ${pages.map(page => `  <url>
           {currentPage === 'contact' && (
             <motion.div key="contact" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-2xl mx-auto space-y-10 mt-8">
               <div className="text-center">
-                <h2 className="text-5xl font-black uppercase tracking-tighter italic">Contact Us</h2>
+                <h1 className="text-5xl font-black uppercase tracking-tighter italic">Contact Us</h1>
                 <p className="text-white/80 font-mono text-xs uppercase mt-2">We'd love to hear from you</p>
               </div>
               <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); alert('Message sent! We will get back to you soon.'); }}>
@@ -1514,7 +1518,7 @@ function LegalPage({ title, content, theme }: { title: string; content: string; 
   return (
     <div className="max-w-4xl mx-auto space-y-12 mb-20 px-4">
       <div className="text-center mt-8">
-        <h2 className={`text-6xl font-black uppercase tracking-tighter italic ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{title}</h2>
+        <h1 className={`text-6xl font-black uppercase tracking-tighter italic ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{title}</h1>
         <div className={`h-1 w-24 mx-auto mt-6 ${isDark ? 'bg-[#00F3FF]' : 'bg-[#1E40AF]'}`}></div>
       </div>
       <div className={`border rounded-[40px] p-8 md:p-16 relative overflow-hidden backdrop-blur-3xl transition-colors duration-500 ${
