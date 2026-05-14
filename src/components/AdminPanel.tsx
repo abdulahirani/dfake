@@ -219,6 +219,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
                     <img 
                       src={post.imageUrl.includes('?') ? post.imageUrl : `${post.imageUrl}?auto=format&fit=crop&q=40&w=200`} 
                       alt={post.alt} 
+                      referrerPolicy="no-referrer"
                       className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" 
                     />
                   </div>

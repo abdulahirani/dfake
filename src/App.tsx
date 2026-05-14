@@ -91,19 +91,33 @@ export default function App() {
 
   // Fetch posts from backend with fallback to static json
   useEffect(() => {
-    fetch('/api/posts')
-      .then(res => {
-        if (!res.ok) throw new Error('API failed');
-        return res.json();
-      })
-      .then(data => setPosts(data))
-      .catch(err => {
+    const loadPosts = async () => {
+      try {
+        const res = await fetch('/api/posts');
+        if (!res.ok) throw new Error(`API status ${res.status}`);
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setPosts(data);
+          return;
+        }
+        throw new Error('API did not return an array');
+      } catch (err) {
         console.warn('API posts failed, trying static fallback:', err);
-        fetch('/posts.json')
-          .then(res => res.json())
-          .then(data => setPosts(data))
-          .catch(err2 => console.error('Final fallback failed:', err2));
-      });
+        try {
+          const res = await fetch('/posts.json');
+          if (!res.ok) throw new Error(`Static status ${res.status}`);
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            setPosts(data);
+          } else {
+            console.error('Static fallback was not an array');
+          }
+        } catch (err2) {
+          console.error('Final fallback failed:', err2);
+        }
+      }
+    };
+    loadPosts();
   }, []);
 
   // Hidden admin access: ?admin=true
@@ -943,6 +957,7 @@ ${pages.map(page => `  <url>
                           <img 
                             src={post.imageUrl.includes('?') ? post.imageUrl : `${post.imageUrl}?auto=format&fit=crop&q=80&w=800`} 
                             alt={post.alt} 
+                            referrerPolicy="no-referrer"
                             className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" 
                           />
                         </div>
@@ -968,6 +983,7 @@ ${pages.map(page => `  <url>
                         <img 
                           src={post.imageUrl.includes('?') ? post.imageUrl : `${post.imageUrl}?auto=format&fit=crop&q=80&w=1200`} 
                           alt={post.alt} 
+                          referrerPolicy="no-referrer"
                           className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" 
                         />
                       </div>

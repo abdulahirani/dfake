@@ -10,7 +10,9 @@ dotenv.config();
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
-const POSTS_FILE = path.join(process.cwd(), "posts.json");
+const POSTS_FILE = fs.pathExistsSync(path.join(process.cwd(), "public", "posts.json")) 
+  ? path.join(process.cwd(), "public", "posts.json")
+  : path.join(process.cwd(), "posts.json");
 
 app.use(express.json());
 
@@ -201,7 +203,7 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
+    app.get('*all', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }

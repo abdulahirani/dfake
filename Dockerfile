@@ -26,7 +26,7 @@ RUN npm install --production
 # Copy built files
 COPY --from=builder --chown=node /app/dist ./dist
 COPY --from=builder --chown=node /app/server.ts .
-COPY --from=builder --chown=node /app/posts.json .
+COPY --from=builder --chown=node /app/public/posts.json .
 COPY --from=builder --chown=node /app/.env* ./
 
 # Install tsx to run server.ts in production if needed, or follow package.json start
