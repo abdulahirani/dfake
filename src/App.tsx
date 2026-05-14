@@ -85,6 +85,17 @@ function MatrixIllusion({ theme }: { theme: 'dark' | 'light' }) {
 export default function App() {
   const [currentPage, setCurrentPage] = useState<'home' | 'faq' | 'about' | 'contact' | 'privacy' | 'terms' | 'disclaimer' | 'docs' | 'blog'>('home');
   const [currentPost, setCurrentPost] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Hidden admin access: ?admin=true
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('admin') === 'true') {
+      setIsAdmin(true);
+    }
+  }, []);
 
   // Requirement 5: Security Shield (Anti-Theft)
   useEffect(() => {
@@ -278,6 +289,34 @@ Our mission at ScanDeepFake isn't just technical; it's social. We want to restor
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  const [posts, setPosts] = useState(() => {
+    const saved = localStorage.getItem('scandeepfake_posts');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return blogPosts;
+      }
+    }
+    return blogPosts;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('scandeepfake_posts', JSON.stringify(posts));
+  }, [posts]);
+
+  const handleUpdatePost = (updatedPost: any) => {
+    setPosts(posts.map((p: any) => p.id === updatedPost.id ? updatedPost : p));
+  };
+
+  const handleDeletePost = (id: string) => {
+    setPosts(posts.filter((p: any) => p.id !== id));
+  };
+
+  const handleAddPost = (newPost: any) => {
+    setPosts([newPost, ...posts]);
+  };
+
   useEffect(() => {
     const url = new URL(window.location.href);
     if (currentPage === 'home') {
@@ -292,7 +331,7 @@ Our mission at ScanDeepFake isn't just technical; it's social. We want to restor
       url.searchParams.delete('post');
     }
 
-    const postData = currentPost ? blogPosts.find(p => p.id === currentPost) : null;
+    const postData = currentPost ? posts.find((p: any) => p.id === currentPost) : null;
     const rawTitle = postData 
       ? `${postData.title} | ScanDeepFake` 
       : `ScanDeepFake | #1 AI Forensic Tool & Deepfake Detector`;
@@ -303,7 +342,7 @@ Our mission at ScanDeepFake isn't just technical; it's social. We want to restor
     if (window.location.search !== url.search) {
       window.history.pushState({ page: currentPage, post: currentPost }, '', url.toString());
     }
-  }, [currentPage, currentPost]);
+  }, [currentPage, currentPost, posts]);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [analysisType, setAnalysisType] = useState<'image' | 'video' | null>(null);
@@ -1019,7 +1058,7 @@ ${pages.map(page => `  <url>
                     <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-xs uppercase tracking-[0.4em] mt-2 opacity-80`}>Expert Deepfake Analysis & Security Reports</p>
                   </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {blogPosts.map((post) => (
+                    {posts.map((post: any) => (
                       <button 
                         key={post.id} 
                         onClick={() => setCurrentPost(post.id)}
@@ -1042,7 +1081,7 @@ ${pages.map(page => `  <url>
               ) : (
                 <div className="max-w-3xl mx-auto space-y-10">
                   <button onClick={() => setCurrentPost(null)} className={`text-xs font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white/80 hover:text-white' : 'text-[#0F172A] opacity-80 hover:opacity-100'}`}>← Back to Blog</button>
-                  {blogPosts.filter(p => p.id === currentPost).map(post => (
+                  {posts.filter((p: any) => p.id === currentPost).map((post: any) => (
                     <article key={post.id} className="space-y-10">
                        <div className="space-y-4">
                         <div className={`text-xs font-mono uppercase tracking-[0.3em] font-bold ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>{post.date}</div>
@@ -1324,12 +1363,96 @@ ${pages.map(page => `  <url>
 5. Service: We reserve the right to modify or discontinue the service at any time without prior notice.`} />}
 
           {currentPage === 'disclaimer' && <LegalPage key="disclaimer" title="Disclaimer" theme={theme} content={`While our AI models are among the most advanced in the industry, users must acknowledge:
-
 1. Probabilistic Results: Detection scores are estimates based on statistical probability. They are NOT definitive legal proof of authenticity or synthetic origin.
 2. False Positives: High-quality real images can sometimes be flagged as AI if they possess unusual lighting or camera artifacts.
 3. Evolution of AI: The technology used to create deepfakes advances daily. A "Real" result today does not guarantee that a more advanced AI did not create the image.
 4. No Liability: ScanDeepFake is not responsible for decisions made based on our analysis results. Use this tool as a supporting reference, not a final verdict.`} />}
         </AnimatePresence>
+
+        {/* --- Hidden Admin Panel --- */}
+        {isAdmin && (
+          <div className={`fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-3xl transition-colors duration-500 ${theme === 'dark' ? 'bg-black/90' : 'bg-white/90'}`}>
+            {!isLoggedIn ? (
+              <div className="max-w-md w-full p-8 border rounded-3xl space-y-6 shadow-2xl bg-black/40 border-white/10">
+                <h2 className="text-3xl font-black uppercase italic text-white text-center">System <span className="text-[#00F3FF]">Authentication</span></h2>
+                <div className="space-y-4">
+                  <input 
+                    type="password" 
+                    placeholder="Security Token" 
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-[#00F3FF]"
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && adminPassword === 'scandeepfake2026' && setIsLoggedIn(true)}
+                  />
+                  <button 
+                    onClick={() => adminPassword === 'scandeepfake2026' ? setIsLoggedIn(true) : alert('Invalid Token')}
+                    className="w-full py-4 bg-[#00F3FF] text-black font-black uppercase tracking-widest rounded-xl"
+                  >Authorize</button>
+                  <button onClick={() => setIsAdmin(false)} className="w-full text-white/50 text-xs uppercase font-bold">Cancel</button>
+                </div>
+              </div>
+            ) : (
+              <div className="w-full h-full max-w-6xl overflow-y-auto p-8 space-y-12">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-4xl font-black uppercase italic text-[#00F3FF]">Command <span className="text-white">Center</span></h2>
+                  <button onClick={() => setIsAdmin(false)} className="px-6 py-2 border border-white/20 rounded-xl text-white font-bold uppercase text-xs hover:bg-white/10">Exit Command</button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                  <div className="space-y-6">
+                    <h3 className="text-xl font-bold uppercase tracking-widest text-white/80">Manage Content</h3>
+                    <div className="space-y-4">
+                      {posts.map((post: any) => (
+                        <div key={post.id} className="p-4 border border-white/5 bg-white/5 rounded-xl flex justify-between items-center">
+                          <div className="truncate pr-4">
+                            <p className="text-white font-bold truncate">{post.title}</p>
+                            <p className="text-xs text-white/50">{post.date}</p>
+                          </div>
+                          <div className="flex gap-2">
+                             <button onClick={() => handleDeletePost(post.id)} className="text-red-400 text-xs font-bold uppercase p-2">Delete</button>
+                          </div>
+                        </div>
+                      ))}
+                      <button 
+                        onClick={() => handleAddPost({
+                          id: `post-${Date.now()}`,
+                          title: 'New Forensic Report',
+                          desc: 'Enter short description...',
+                          date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+                          imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b',
+                          alt: 'Generic forensic image',
+                          content: 'Enter markdown content here...'
+                        })}
+                        className="w-full py-4 border border-dashed border-[#00F3FF]/40 rounded-xl text-[#00F3FF] font-black uppercase text-xs hover:bg-[#00F3FF]/5"
+                      >
+                        + Add New Post
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <h3 className="text-xl font-bold uppercase tracking-widest text-white/80">System Export</h3>
+                    <div className="p-8 border border-white/10 bg-white/5 rounded-3xl space-y-4">
+                      <p className="text-sm text-white/70">Download current configuration to persist changes in next deployment.</p>
+                      <button 
+                        onClick={() => {
+                          const data = JSON.stringify(posts, null, 2);
+                          const blob = new Blob([data], { type: 'application/json' });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = 'site_config.json';
+                          a.click();
+                        }}
+                        className="w-full py-4 bg-white text-black font-black uppercase text-xs rounded-xl"
+                      >Download site_config.json</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       {/* Footer */}

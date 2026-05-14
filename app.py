@@ -19,7 +19,7 @@ def generate_seo_files():
         url = f"{domain}{'?p='+p if p else ''}"
         sitemap += f"  <url><loc>{url}</loc><changefreq>weekly</changefreq></url>\n"
     for bp in blog_posts:
-        url = f"{domain}?p=blog&post={bp}"
+        url = f"{domain}?p=blog&amp;post={bp}"
         sitemap += f"  <url><loc>{url}</loc><changefreq>monthly</changefreq></url>\n"
     sitemap += '</urlset>'
     
