@@ -18,21 +18,23 @@ jobs:
         with:
           node-version: 22
 
-      # 1. Firebase Deployment (Frontend)
+      # 1. Install & Build
       - name: Install & Build
         run: |
-          npm install
+          npm ci
           npm run build
 
+      # 2. Deploy to Firebase (Static Hosting)
       - name: Deploy to Firebase
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_SCANDEEPFAKE }}'
-          projectId: scandeepfake-web-app
           channelId: live
+        env:
+          FIREBASE_CLI_PREVIEWS: hostingchannels
 
-      # 2. Hugging Face Sync (Full Docker App)
+      # 3. Hugging Face Sync (Full Docker App)
       - name: Push to Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
