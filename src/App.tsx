@@ -1050,9 +1050,9 @@ ${pages.map(page => `  <url>
                     <article key={post.id} className="space-y-10 w-full overflow-hidden break-words">
                        <div className="space-y-4">
                         <div className={`text-xs font-mono uppercase tracking-[0.3em] font-bold ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>{post.date}</div>
-                        <h2 className={`text-5xl md:text-6xl font-black uppercase tracking-tighter leading-none italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h2>
+                        <h2 className={`text-3xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-none italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h2>
                       </div>
-                      <div className="aspect-video rounded-[2.5rem] overflow-hidden border border-white/10">
+                      <div className="aspect-video rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border border-white/10">
                         <img 
                           src={transformDriveUrl(post.imageUrl).includes('?') ? transformDriveUrl(post.imageUrl) : `${transformDriveUrl(post.imageUrl)}?auto=format&fit=crop&q=80&w=1200`} 
                           alt={post.alt} 
@@ -1060,7 +1060,7 @@ ${pages.map(page => `  <url>
                           className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" 
                         />
                       </div>
-                      <div className={`text-lg leading-relaxed text-left ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/90'} prose prose-invert max-w-none break-words overflow-hidden`}>
+                      <div className={`text-base md:text-lg leading-relaxed text-left ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/90'} prose prose-invert max-w-none break-words overflow-hidden px-1`}>
                         {post.content.trim().startsWith('<') ? (
                           <div dangerouslySetInnerHTML={{ __html: post.content }} />
                         ) : (

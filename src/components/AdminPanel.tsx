@@ -52,6 +52,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
   const [mainTab, setMainTab] = useState<'posts' | 'faqs' | 'settings' | 'legal' | 'ads'>('posts');
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [config, setConfig] = useState<AppConfig | null>(null);
+  const [loadingConfig, setLoadingConfig] = useState(true);
   const [sidebarTab, setSidebarTab] = useState<'settings' | 'seo'>('settings');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
@@ -59,6 +60,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
 
   useEffect(() => {
     const fetchConfig = async () => {
+      setLoadingConfig(true);
       try {
         const res = await fetch('/api/config');
         if (res.ok) {
@@ -67,6 +69,8 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
         }
       } catch (err) {
         console.error('Failed to load config', err);
+      } finally {
+        setLoadingConfig(false);
       }
     };
     fetchConfig();
@@ -238,16 +242,16 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
   return (
     <div className={`fixed inset-0 z-[300] flex flex-col font-sans transition-colors duration-500 ${theme === 'dark' ? 'bg-[#0A0F1E] text-white' : 'bg-[#F8FAFC] text-[#0F172A]'}`}>
       {/* Header */}
-      <header className={`h-16 border-b flex items-center justify-between px-6 transition-colors duration-500 ${theme === 'dark' ? 'bg-[#0F172A] border-white/10' : 'bg-white border-black/5 shadow-sm'}`}>
-        <div className="flex items-center gap-4">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${theme === 'dark' ? 'bg-[#00F3FF]' : 'bg-[#1E40AF]'}`}>
+      <header className={`h-20 md:h-16 border-b flex items-center justify-between px-4 md:px-6 transition-colors duration-500 ${theme === 'dark' ? 'bg-[#0F172A] border-white/10' : 'bg-white border-black/5 shadow-sm'}`}>
+        <div className="flex items-center gap-3 overflow-hidden">
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${theme === 'dark' ? 'bg-[#00F3FF]' : 'bg-[#1E40AF]'}`}>
             <Settings size={18} className={theme === 'dark' ? 'text-black' : 'text-white'} />
           </div>
-          <h1 className="text-lg font-black uppercase tracking-tighter italic">ScanDeepFake <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>CMS</span></h1>
+          <h1 className="text-sm md:text-lg font-black uppercase tracking-tighter italic whitespace-nowrap">ScanDeepFake <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>CMS</span></h1>
           
-          <div className="h-6 w-px bg-white/10 mx-2 hidden md:block" />
+          <div className="h-6 w-px bg-white/10 mx-2 hidden lg:block" />
           
-          <nav className="flex items-center gap-1 overflow-x-auto no-scrollbar pb-1 px-4 max-w-[calc(100vw-180px)] md:max-w-none">
+          <nav className="hidden lg:flex items-center gap-1">
             {[
               { id: 'posts', label: 'Reports', icon: FileText },
               { id: 'faqs', label: 'FAQ', icon: HelpCircle },
@@ -270,8 +274,45 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
             ))}
           </nav>
         </div>
-        
-        <div className="flex items-center gap-4">
+
+        {/* Mobile Toolbar (Visible only on md and smaller when side menu is hidden) */}
+        <div className="flex items-center gap-2">
+          <div className="lg:hidden relative group">
+            <button className="p-2 bg-white/5 border border-white/10 rounded-xl">
+              <Layout size={18} />
+            </button>
+            <div className="absolute right-0 top-full mt-2 w-56 bg-[#0F172A] border border-white/10 rounded-2xl shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all p-2 z-[400] scale-95 group-hover:scale-100 origin-top-right">
+              {[
+                { id: 'posts', label: 'Reports', icon: FileText },
+                { id: 'faqs', label: 'FAQ', icon: HelpCircle },
+                { id: 'settings', label: 'Identity', icon: Shield },
+                { id: 'legal', label: 'Legal', icon: FileText },
+                { id: 'ads', label: 'Ads', icon: Megaphone }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => { setMainTab(tab.id as any); setView('list'); }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                    mainTab === tab.id 
+                      ? 'bg-[#00F3FF] text-black' 
+                      : 'text-white/40 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <tab.icon size={12} />
+                  {tab.label}
+                </button>
+              ))}
+              <div className="h-px bg-white/10 my-2" />
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition-all"
+              >
+                <LogOut size={12} />
+                Logout System
+              </button>
+            </div>
+          </div>
+
           <button 
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             className={`p-2 rounded-xl border transition-all ${
@@ -279,14 +320,6 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
             }`}
           >
             {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
-          </button>
-          <div className="h-4 w-px bg-white/10 mx-2" />
-          <button 
-            onClick={handleLogout}
-            className={`flex items-center gap-2 text-xs font-bold uppercase tracking-widest transition-all ${theme === 'dark' ? 'text-white/50 hover:text-white' : 'text-black/50 hover:text-black'}`}
-          >
-            <LogOut size={14} />
-            Logout
           </button>
           <button 
             onClick={onClose}
@@ -298,8 +331,15 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
       </header>
 
       {view === 'list' ? (
-        <div className="flex-1 overflow-y-auto p-8 max-w-6xl mx-auto w-full space-y-8">
-          {mainTab === 'posts' && (
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 max-w-6xl mx-auto w-full space-y-8 no-scrollbar">
+          {loadingConfig ? (
+            <div className="flex flex-col items-center justify-center h-64 space-y-4">
+              <div className="w-12 h-12 border-4 border-[#00F3FF] border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">Synchronizing Local Config...</p>
+            </div>
+          ) : (
+            <>
+              {mainTab === 'posts' && (
             <>
               <div className="flex justify-between items-end">
                 <div className="space-y-1">
@@ -564,7 +604,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
                 <div className="space-y-4">
                   <label className="text-xs font-black uppercase tracking-widest opacity-40">AdSense Publisher ID (ca-pub-xxx)</label>
                   <input 
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-[#00F3FF] font-mono"
+                    className={`w-full border rounded-2xl px-6 py-4 outline-none focus:border-[#00F3FF] font-mono ${theme === 'dark' ? 'bg-white/5 border-white/10 text-white' : 'bg-black/5 border-black/10 text-black'}`}
                     value={config.settings.adsClient}
                     onChange={(e) => setConfig({...config, settings: {...config.settings, adsClient: e.target.value}})}
                   />
@@ -573,18 +613,20 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
                 <div className="space-y-4">
                   <label className="text-xs font-black uppercase tracking-widest opacity-40">Custom Ad Unit / Script Code (HTML/JS)</label>
                   <textarea 
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-[#00F3FF] font-mono min-h-[150px] text-xs"
+                    className={`w-full border rounded-2xl px-6 py-4 outline-none focus:border-[#00F3FF] font-mono min-h-[150px] text-xs ${theme === 'dark' ? 'bg-white/5 border-white/10 text-white' : 'bg-black/5 border-black/10 text-black'}`}
                     placeholder="<script>...</script> or <ins>...</ins>"
                     value={config.settings.customAdCode || ''}
                     onChange={(e) => setConfig({...config, settings: {...config.settings, customAdCode: e.target.value}})}
                   />
-                  <p className="text-[10px] opacity-30 italic">Note: If custom code is provided, it will override the simple AdSense ID for standard slots. Use this for third-party platforms or custom banners.</p>
+                  <p className="text-[10px] opacity-30 italic">Note: If custom code is provided, it will override the simple AdSense ID for standard slots.</p>
                 </div>
               </div>
             </div>
           )}
-        </div>
-      ) : (
+        </>
+      )}
+    </div>
+  ) : (
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
           {/* Main Editor Section */}
           <div className="flex-1 flex flex-col p-4 md:p-8 overflow-y-auto space-y-8 no-scrollbar">

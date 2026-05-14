@@ -10,13 +10,33 @@ dotenv.config();
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
-const POSTS_FILE = fs.pathExistsSync(path.join(process.cwd(), "public", "posts.json")) 
-  ? path.join(process.cwd(), "public", "posts.json")
-  : path.join(process.cwd(), "posts.json");
 
-const CONFIG_FILE = fs.pathExistsSync(path.join(process.cwd(), "public", "config.json")) 
-  ? path.join(process.cwd(), "public", "config.json")
-  : path.join(process.cwd(), "config.json");
+const POSTS_FILE = path.join(process.cwd(), "posts.json");
+const CONFIG_FILE = path.join(process.cwd(), "config.json");
+
+// Ensure files exist with defaults
+if (!fs.pathExistsSync(POSTS_FILE)) {
+  fs.writeJsonSync(POSTS_FILE, []);
+}
+if (!fs.pathExistsSync(CONFIG_FILE)) {
+  fs.writeJsonSync(CONFIG_FILE, {
+    faqs: [],
+    settings: {
+      siteName: "ScanDeepFake",
+      siteDescription: "AI Forensic Engine",
+      faviconUrl: "/favicon.ico",
+      adsEnabled: false,
+      adsClient: ""
+    },
+    legal: {
+      privacy: "",
+      terms: "",
+      disclaimer: "",
+      about: "",
+      docs: ""
+    }
+  });
+}
 
 app.use(express.json());
 
@@ -233,7 +253,7 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
+    app.get('*all', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
