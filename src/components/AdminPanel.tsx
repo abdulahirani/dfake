@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
-import { X, Save, Trash2, Plus, LogOut, ChevronRight, Settings, Globe, FileText, Image as ImageIcon } from 'lucide-react';
+import { X, Save, Trash2, Plus, LogOut, ChevronRight, Settings, Globe, FileText, Image as ImageIcon, Sun, Moon } from 'lucide-react';
 
 interface Post {
   id: string;
@@ -113,11 +113,16 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
         } else {
           setPosts(posts.map(p => p.id === savedPost.id ? savedPost : p));
         }
+        alert('Post published successfully!');
         setView('list');
         setEditingPost(null);
+      } else {
+        const errData = await res.json();
+        alert(`Failed to save: ${errData.detail || 'Unknown error'}`);
       }
     } catch (err) {
       console.error(err);
+      alert('Network error or server offline');
     }
   };
 
