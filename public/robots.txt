@@ -1,5 +1,10 @@
 User-agent: *
 Allow: /
+
+# General Sitemaps
 Sitemap: https://scandeepfake.web.app/sitemap.xml
+Sitemap: https://huggingface.co/spaces/gundkatira/scandeepfake-scanner/resolve/main/public/sitemap.xml
+
+# Platform-specific Sitemaps
 Sitemap: https://scandeepfake.web.app/sitemap-fb.xml
-Sitemap: https://scandeepfake-scanner.hf.space/sitemap-hf.xml
+Sitemap: https://huggingface.co/spaces/gundkatira/scandeepfake-scanner/resolve/main/public/sitemap-hf.xml

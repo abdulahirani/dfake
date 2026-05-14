@@ -145,7 +145,7 @@ I picked up. It was Mark's face. 100%. He looked worried, telling me he'd been m
 In my 10 years of AI forensics, I've learned that the gut is your first sensor. I started looking for the "Forensic Legend" artifacts. 
 
 ## The Skin Texture Trap
-Humans have pores. High-end deepfakes (like the one I was seeing) use diffusion hum that smooths out microscopic texture. When Mark moved his head, there was a slight "ghosting" near his jawline. AI struggle with the temporal consistency of hair against skin.
+Humans have pores. High-end deepfakes (like the one I was seeing) use diffusion hum that smooths out microscopic texture. When Mark moved his head, there was a slight "ghosting" near his jawline. AI struggle with the temporal consistency of hair against skin. Learn more in our [AI vs Reality Analysis](?p=blog&post=ai-vs-reality-psychology).
 
 ## The Eye Reflection Logic
 I asked him to look at the "camera" (his phone). The light reflection in his eyes remained static even as he shifted. That's a classic signature. 
@@ -153,7 +153,7 @@ I asked him to look at the "camera" (his phone). The light reflection in his eye
 ## My Advice to You
 Don't trust the video. Ask a random question that requires a specific physical reaction. "Hey Mark, can you touch your ear?" Deepfakes often glitch when an object (a hand) passes in front of the generated face. 
 
-If you're ever in doubt about a video or image you've received, don't guess. Verify it yourself at ScanDeepFake.web.app.`
+If you're ever in doubt about a video or image you've received, don't guess. Verify it yourself at [ScanDeepFake](https://scandeepfake.web.app).`
     },
     {
       id: 'why-i-built-scandeepfake',
@@ -169,13 +169,13 @@ The tools to detect this stuff were either $500/month or locked behind corporate
 I built ScanDeepFake to bring "Neural Forensic Legend" capabilities to everyone. 
 
 ## How it works (under the hood)
-When you upload an image here, we don't just look at the pixels. We look at the metadata (Size, Dimensions, GPS, Signature). AI-generated images often have telltale "latent artifacts." 
+When you upload an image here, we don't just look at the pixels. We look at the metadata (Size, Dimensions, GPS, Signature). AI-generated images often have telltale "latent artifacts." For a deep dive, see our [Forensic Metadata Guide](?p=blog&post=forensic-metadata-guide).
 
 For example, a file might look like a 2MB JPEG, but its internal byte structure reveals it was reconstructed from a noise-seed. We use Pillow and ExifRead to strip these secrets. 
 
 My goal is a 99.8% precision rate accessible to everyone, for free. No storage, no tracking—just digital truth. 
 
-Don't guess. Verify it yourself at ScanDeepFake.web.app.`
+Don't guess. Verify it yourself with our [Online Deepfake Scanner](https://scandeepfake.web.app).`
     },
     {
       id: 'caught-a-scammer-video-call',
@@ -637,9 +637,9 @@ ${pages.map(page => `  <url>
                           <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">
                             ScanDeepFake: The World's Most <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Accurate AI Forensic Engine</span>
                           </h1>
-                          <h3 className={`text-lg max-w-2xl mx-auto font-medium transition-opacity ${theme === 'dark' ? 'opacity-80' : 'text-[#0F172A] opacity-90'}`}>
+                          <h2 className={`text-lg max-w-2xl mx-auto font-medium transition-opacity ${theme === 'dark' ? 'opacity-80' : 'text-[#0F172A] opacity-90'}`}>
                             Detect <strong>Deepfake Detection Online</strong>, verify <strong>AI Face Swap Checker</strong>, and ensure <strong>Video Authenticity Verification</strong> with our <strong>Free AI Forensic Tool</strong>.
-                          </h3>
+                          </h2>
                         </div>
 
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
@@ -1057,9 +1057,14 @@ ${pages.map(page => `  <url>
                           theme === 'dark' ? 'border-[#00F3FF]/20 bg-white/5' : 'border-[#1E40AF]/20 bg-[#F1F5F9]/50'
                         }`}>
                           <p className="text-sm font-bold opacity-80 mb-4">Don't guess. Verify it yourself with the world's most accurate scanner.</p>
-                          <button onClick={() => { setCurrentPage('home'); setCurrentPost(null); }} className={`px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-transform ${
-                            theme === 'dark' ? 'bg-[#00F3FF] text-black' : 'bg-[#1E40AF] text-white'
-                          }`}>Verify at ScanDeepFake.web.app</button>
+                          <div className="flex flex-col sm:flex-row justify-center gap-4">
+                            <button onClick={() => { setCurrentPage('home'); setCurrentPost(null); }} className={`px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-transform ${
+                              theme === 'dark' ? 'bg-[#00F3FF] text-black' : 'bg-[#1E40AF] text-white'
+                            }`}>Start Free Scan</button>
+                            <a href="https://huggingface.co/spaces/gundkatira/scandeepfake-scanner" target="_blank" rel="noopener noreferrer" className={`px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-transform border ${
+                              theme === 'dark' ? 'border-[#00F3FF] text-[#00F3FF]' : 'border-[#1E40AF] text-[#1E40AF]'
+                            }`}>Hugging Face Mirror</a>
+                          </div>
                         </div>
                       </div>
                     </article>
