@@ -52,7 +52,12 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
     localStorage.removeItem('scandeepfake_admin_token');
   };
 
-  const handleCreateNew = () => {
+  const handleEdit = React.useCallback((post: Post) => {
+    setEditingPost({ ...post });
+    setTimeout(() => setView('edit'), 0);
+  }, []);
+
+  const handleCreateNew = React.useCallback(() => {
     const newPost: Post = {
       id: `post-${Date.now()}`,
       title: 'New Forensic Report',
@@ -65,14 +70,8 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
       metaDesc: ''
     };
     setEditingPost(newPost);
-    setView('edit');
-  };
-
-  const handleEdit = (post: Post) => {
-    // Deep clone to avoid immediate state updates during typing in list view (if any)
-    setEditingPost({ ...post });
-    setView('edit');
-  };
+    setTimeout(() => setView('edit'), 0);
+  }, []);
 
   const handleDelete = async (postId: string) => {
     if (!confirm('Are you sure you want to delete this post?')) return;
@@ -201,7 +200,11 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
               >
                 <div className="flex items-center gap-6 flex-1 pr-6">
                   <div className="w-16 h-16 rounded-2xl overflow-hidden bg-black/40 flex-shrink-0">
-                    <img src={post.imageUrl} alt={post.alt} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
+                    <img 
+                      src={post.imageUrl.includes('?') ? post.imageUrl : `${post.imageUrl}?auto=format&fit=crop&q=40&w=200`} 
+                      alt={post.alt} 
+                      className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" 
+                    />
                   </div>
                   <div className="space-y-1 overflow-hidden">
                     <h3 className="text-lg font-bold truncate">{post.title}</h3>

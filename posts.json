@@ -9,6 +9,15 @@
     "content": "I was sitting in a coffee shop when a video call came through on WhatsApp. It was from a random international number, but the thumbnail showed my high school friend, Mark. \n\nI picked up. It was Mark's face. 100%. He looked worried, telling me he'd been mugged in London and needed a quick wire transfer. But something didn't \"feel\" human. \n\nIn my 10 years of AI forensics, I've learned that the gut is your first sensor. I started looking for the \"Forensic Legend\" artifacts. \n\n## The Skin Texture Trap\nHumans have pores. High-end deepfakes (like the one I was seeing) use diffusion hum that smooths out microscopic texture. When Mark moved his head, there was a slight \"ghosting\" near his jawline. AI struggle with the temporal consistency of hair against skin. Learn more in our [AI vs Reality Analysis](?p=blog&post=ai-vs-reality-psychology).\n\n## The Eye Reflection Logic\nI asked him to look at the \"camera\" (his phone). The light reflection in his eyes remained static even as he shifted. That's a classic signature. \n\n## My Advice to You\nDon't trust the video. Ask a random question that requires a specific physical reaction. \"Hey Mark, can you touch your ear?\" Deepfakes often glitch when an object (a hand) passes in front of the generated face. \n\nIf you're ever in doubt about a video or image you've received, don't guess. Verify it yourself at [ScanDeepFake](https://scandeepfake.web.app)."
   },
   {
+    "id": "neural-artifacts-deep-dive",
+    "title": "Neural Artifacts: The fingerprints AI leaves behind.",
+    "desc": "Understanding why AI still struggles with complex backgrounds and fine details.",
+    "date": "May 14, 2026",
+    "imageUrl": "https://images.unsplash.com/photo-1677442136019-21780ecad995",
+    "alt": "Neural network visualization",
+    "content": "As an AI researcher, I spend most of my day looking at what went wrong. Every generative model, from Stable Diffusion to Sora, leaves a signature. \n\n## Edge Bleeding\nWhen AI generates a foreground object, the edges often \"bleed\" into the background. This is particularly visible around hair or eyeglasses. If you zoom in and see pixels that shouldn't be there, it's likely a composite.\n\n## Symmetry Errors\nHumans are symmetrical, but AI often gets the details wrong. One earring might be slightly different from the other, or a shirt collar might have an extra buttonhole. These 'ghost' details are the first thing I look for during a manual scan."
+  },
+  {
     "id": "why-i-built-scandeepfake",
     "title": "Free AI forensic tool for image verification: Why I built ScanDeepFake.",
     "desc": "I got tired of seeing people lose their life savings to \"synthetic\" managers. So I coded a solution.",
@@ -34,6 +43,15 @@
     "imageUrl": "https://images.unsplash.com/photo-1589254065878-42c9da997008",
     "alt": "Robotic head with sound wave visualization",
     "content": "I received a voice note from my \"boss\" requesting an urgent password reset for an internal server. The voice was identical. The cadence, the slight stutter he has when he's stressed—it was all there.\n\n## The Breathing Gap\nAI models are excellent at phonemes but struggled with the biological rhythm of breathing. In this voice note, the \"boss\" spoke for 45 seconds without a single intake of air. That's physiologically impossible for a human.\n\n## Frequency Clipping\nWhen I ran the audio through a spectrum analyzer, I saw perfect 20kHz cutoffs. Real human speech recorded on a phone has messy tapers. \n\nBe careful with voice notes. If it's about money or access, call them back on a verified line."
+  },
+  {
+    "id": "identity-theft-prevention-2026",
+    "title": "Identity Theft Prevention: 5 steps for 2026.",
+    "desc": "How to secure your digital footprint in the age of generative identity.",
+    "date": "May 13, 2026",
+    "imageUrl": "https://images.unsplash.com/photo-1510511459019-5dee211c1827",
+    "alt": "Security lock icon on a digital circuit board",
+    "content": "The rules of identity have changed. Your face and voice are no longer private keys. They are public data that can be cloned in seconds. \n\n1. Use 'Shared Secrets': Create a code word with your family that only you know. \n2. Biometric 2FA: Move beyond SMS. Use hardware keys like YubiKey. \n3. Verify images on ScanDeepFake: Always run suspicious profiling through a digital analyst."
   },
   {
     "id": "forensic-metadata-guide",

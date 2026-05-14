@@ -1,5 +1,5 @@
 # --- Stage 1: Build React Frontend ---
-FROM node:20-slim AS frontend-builder
+FROM node:20-slim AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
@@ -7,41 +7,35 @@ COPY . .
 RUN npm run build
 
 # --- Stage 2: Serve Backend & Frontend ---
-FROM python:3.9-slim
-
-# Set environment variables
-ENV HOME=/home/user \
-    PATH=/home/user/.local/bin:$PATH
-
-# Create non-root user
-RUN useradd -m -u 1000 user
+FROM node:20-slim
 WORKDIR /app
-RUN chown user:user /app
 
-# Install system dependencies
+# Install system dependencies for any native modules
 RUN apt-get update && apt-get install -y \
-    build-essential \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
-
-# Switch to non-root user
+# Create non-root user
+RUN useradd -m -u 1000 user
+RUN chown user:user /app
 USER user
 
-# Copy backend files and built frontend
-COPY --chown=user app.py .
-COPY --chown=user .env* ./
-COPY --from=frontend-builder --chown=user /app/dist ./dist
+# Copy dependencies and source
+COPY --chown=user package*.json ./
+RUN npm install --production
 
-# Create public folder
-RUN mkdir -p public
+# Copy built files
+COPY --from=builder --chown=user /app/dist ./dist
+COPY --from=builder --chown=user /app/server.ts .
+COPY --from=builder --chown=user /app/posts.json .
+COPY --from=builder --chown=user /app/.env* ./
 
-# Environment setup
+# Install tsx to run server.ts in production if needed, or follow package.json start
+RUN npm install tsx
+
+ENV NODE_ENV=production
 ENV PORT=7860
 EXPOSE 7860
 
 # Run the server
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["npm", "start"]
