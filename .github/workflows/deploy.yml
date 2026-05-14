@@ -28,7 +28,7 @@ jobs:
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_SCAN_DEEPFAKE }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_SCANDEEPFAKE }}'
           projectId: scandeepfake-web-app
           channelId: live
 
@@ -39,5 +39,5 @@ jobs:
         run: |
           git config --global user.email "gundkatira007@gmail.com"
           git config --global user.name "Gund Katira"
-          git remote add hf https://gundkatira:$HF_TOKEN@huggingface.co/spaces/gundkatira/scandeepfake-scanner
+          git remote add hf https://gundkatira:$HF_TOKEN@huggingface.co/spaces/gundkatira/scandeepfake-scanner || git remote set-url hf https://gundkatira:$HF_TOKEN@huggingface.co/spaces/gundkatira/scandeepfake-scanner
           git push --force hf main
