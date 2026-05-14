@@ -1,0 +1,34 @@
+name: Sync to Hugging Face and Deploy to Firebase
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      # 1. Firebase Deployment (Frontend)
+      - name: Install & Build
+        run: |
+          npm install
+          npm run build
+      - name: Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_SCAN_DEEPFAKE }}'
+          projectId: scandeepfake-web-app
+
+      # 2. Hugging Face Sync (Full Docker App)
+      - name: Push to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git remote add hf https://gundkatira:$HF_TOKEN@huggingface.co/spaces/gundkatira/scandeepfake-scanner
+          git push --force hf main
