@@ -9,7 +9,7 @@ const getApiBaseUrl = () => {
   // 1. If running on Firebase, point to Hugging Face Backend
   if (hostname.includes('web.app') || hostname.includes('firebaseapp.com')) {
     // Replace with your actual Hugging Face Space URL
-    return 'https://scandeepfake-scanner.hf.space';
+    return 'https://gundkatira-scandeepfake-scanner.hf.space';
   }
 
   // 2. If running on Hugging Face or Local, use current origin

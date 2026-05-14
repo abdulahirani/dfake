@@ -16,18 +16,25 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Pre-install Python dependencies as root
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Copy backend files
-COPY app.py .
-COPY .env* ./
+# Create a non-root user and setup directories
+RUN useradd -m -u 1000 user
+ENV HOME=/home/user \
+    PATH=/home/user/.local/bin:$PATH
 
-# Copy built frontend from Stage 1
-COPY --from=frontend-builder /app/dist ./dist
+# Switch to the new user
+USER user
+WORKDIR /home/user/app
 
-# Create public folder if needed for local scripts
+# Copy backend files and built frontend
+COPY --chown=user app.py .
+COPY --chown=user .env* ./
+COPY --from=frontend-builder --chown=user /app/dist ./dist
+
+# Create public folder if needed
 RUN mkdir -p public
 
 # Environment setup
@@ -35,5 +42,4 @@ ENV PORT=7860
 EXPOSE 7860
 
 # Run the server
-# Use Uvicorn to serve app.py (FastAPI) on port 7860
-CMD ["uvicorn", "app.py:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]

@@ -1,0 +1,9 @@
+node_modules
+dist
+.git
+.github
+firebase-applet-config.json
+firestore.rules
+firebase.json
+.firebaserc
+README.md

@@ -57,7 +57,7 @@ async def detect(file: UploadFile = File(...)):
     
     # Simple deterministic logic for demo/baseline
     seed = len(contents) + len(file.filename)
-    is_fake = seed % 3 === 0
+    is_fake = seed % 3 == 0
     confidence = 85 + (seed % 14)
 
     # Simplified metadata extraction
