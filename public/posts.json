@@ -4,7 +4,7 @@
     "title": "How to detect deepfake video on WhatsApp: My hands-on guide.",
     "desc": "I saw my friend \"calling\" me from a number I didn't recognize. Here is how I knew it wasn't him.",
     "date": "May 12, 2026",
-    "imageUrl": "https://images.unsplash.com/photo-1633158829585-23bb8f628e3c",
+    "imageUrl": "https://drive.google.com/file/d/1eiL5e9_4evFDl1uNQPWEPDagYS511k6t/view?usp=sharing",
     "alt": "Cyber security concept illustration with glowing blue nodes",
     "content": "I was sitting in a coffee shop when a video call came through on WhatsApp. It was from a random international number, but the thumbnail showed my high school friend, Mark. \n\nI picked up. It was Mark's face. 100%. He looked worried, telling me he'd been mugged in London and needed a quick wire transfer. But something didn't \"feel\" human. \n\nIn my 10 years of AI forensics, I've learned that the gut is your first sensor. I started looking for the \"Forensic Legend\" artifacts. \n\n## The Skin Texture Trap\nHumans have pores. High-end deepfakes (like the one I was seeing) use diffusion hum that smooths out microscopic texture. When Mark moved his head, there was a slight \"ghosting\" near his jawline. AI struggle with the temporal consistency of hair against skin. Learn more in our [AI vs Reality Analysis](?p=blog&post=ai-vs-reality-psychology).\n\n## The Eye Reflection Logic\nI asked him to look at the \"camera\" (his phone). The light reflection in his eyes remained static even as he shifted. That's a classic signature. \n\n## My Advice to You\nDon't trust the video. Ask a random question that requires a specific physical reaction. \"Hey Mark, can you touch your ear?\" Deepfakes often glitch when an object (a hand) passes in front of the generated face. \n\nIf you're ever in doubt about a video or image you've received, don't guess. Verify it yourself at [ScanDeepFake](https://scandeepfake.web.app)."
   },
@@ -49,7 +49,7 @@
     "title": "Identity Theft Prevention: 5 steps for 2026.",
     "desc": "How to secure your digital footprint in the age of generative identity.",
     "date": "May 13, 2026",
-    "imageUrl": "https://images.unsplash.com/photo-1510511459019-5dee211c1827",
+    "imageUrl": "https://drive.google.com/file/d/1iIO_N89MnwMjPqgziMVZFx_Zf3q0vjcU/view?usp=sharing",
     "alt": "Security lock icon on a digital circuit board",
     "content": "The rules of identity have changed. Your face and voice are no longer private keys. They are public data that can be cloned in seconds. \n\n1. Use 'Shared Secrets': Create a code word with your family that only you know. \n2. Biometric 2FA: Move beyond SMS. Use hardware keys like YubiKey. \n3. Verify images on ScanDeepFake: Always run suspicious profiling through a digital analyst."
   },
@@ -58,7 +58,7 @@
     "title": "Forensic Metadata: How to check the digital DNA of an image.",
     "desc": "Beyond the pixels: Technical guide on EXIF and byte-level analysis for authentication.",
     "date": "May 08, 2026",
-    "imageUrl": "https://images.unsplash.com/photo-1620712943543-bcc4628c6757",
+    "imageUrl": "https://drive.google.com/file/d/1Bc8tx8WusbIu-t5aLgohEbB6UwbjwM0J/view?usp=sharing",
     "alt": "Abstract blockchain and data forensic visualization",
     "content": "Every digital image has a soul—or at least a DNA sequence in the form of metadata. When a Midjourney or DALL-E image is born, it carries a very specific latent structure.\n\n## The ICC Profile Clue\nMany AI generators default to generic sRGB profiles that differ slightly from the profiles used by Canon, Sony, or iPhone sensors. \n\n## Software Signatures\nEven if EXIF data is wiped, the \"Quantization Tables\" in the JPEG compression often reveal the software used to save the file. Photoshop leaves one mark; a generative neural network leaves another.\n\nScanDeepFake parses these hidden layers to give you a definitive verdict."
   },

@@ -128,6 +128,16 @@ export default function App() {
     }
   }, []);
 
+  const transformDriveUrl = (url: string) => {
+    if (!url) return url;
+    const driveRegex = /\/file\/d\/([a-zA-Z0-9_-]+)\/view/;
+    const match = url.match(driveRegex);
+    if (match && match[1]) {
+      return `https://lh3.googleusercontent.com/d/${match[1]}`;
+    }
+    return url;
+  };
+
   // Requirement 5: Security Shield (Anti-Theft)
   useEffect(() => {
     const disableDevTools = (e: KeyboardEvent) => {
@@ -955,7 +965,7 @@ ${pages.map(page => `  <url>
                       >
                         <div className="aspect-video bg-black/20 overflow-hidden">
                           <img 
-                            src={post.imageUrl.includes('?') ? post.imageUrl : `${post.imageUrl}?auto=format&fit=crop&q=80&w=800`} 
+                            src={transformDriveUrl(post.imageUrl).includes('?') ? transformDriveUrl(post.imageUrl) : `${transformDriveUrl(post.imageUrl)}?auto=format&fit=crop&q=80&w=800`} 
                             alt={post.alt} 
                             referrerPolicy="no-referrer"
                             className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" 
@@ -981,7 +991,7 @@ ${pages.map(page => `  <url>
                       </div>
                       <div className="aspect-video rounded-[2.5rem] overflow-hidden border border-white/10">
                         <img 
-                          src={post.imageUrl.includes('?') ? post.imageUrl : `${post.imageUrl}?auto=format&fit=crop&q=80&w=1200`} 
+                          src={transformDriveUrl(post.imageUrl).includes('?') ? transformDriveUrl(post.imageUrl) : `${transformDriveUrl(post.imageUrl)}?auto=format&fit=crop&q=80&w=1200`} 
                           alt={post.alt} 
                           referrerPolicy="no-referrer"
                           className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" 

@@ -31,6 +31,16 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
 
   const THEME_BLUE = '#00F3FF';
 
+  const transformDriveUrl = (url: string) => {
+    if (!url) return url;
+    const driveRegex = /\/file\/d\/([a-zA-Z0-9_-]+)\/view/;
+    const match = url.match(driveRegex);
+    if (match && match[1]) {
+      return `https://lh3.googleusercontent.com/d/${match[1]}`;
+    }
+    return url;
+  };
+
   useEffect(() => {
     const savedToken = localStorage.getItem('scandeepfake_admin_token');
     if (savedToken === 'scandeepfake2026') {
@@ -222,7 +232,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
                 <div className="flex items-center gap-6 flex-1 pr-6">
                   <div className="w-16 h-16 rounded-2xl overflow-hidden bg-black/40 flex-shrink-0">
                     <img 
-                      src={post.imageUrl.includes('?') ? post.imageUrl : `${post.imageUrl}?auto=format&fit=crop&q=40&w=200`} 
+                      src={transformDriveUrl(post.imageUrl).includes('?') ? transformDriveUrl(post.imageUrl) : `${transformDriveUrl(post.imageUrl)}?auto=format&fit=crop&q=40&w=200`} 
                       alt={post.alt} 
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" 
@@ -366,7 +376,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
                 </div>
               ) : (
                 <div className="space-y-6">
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     <label className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Featured Image URL</label>
                     <div className={`flex items-center gap-2 border rounded-xl px-3 py-2 ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'}`}>
                       <ImageIcon size={12} className="opacity-30" />
@@ -377,6 +387,17 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
                         onChange={(e) => setEditingPost(prev => prev ? { ...prev, imageUrl: e.target.value } : null)}
                       />
                     </div>
+                    {editingPost?.imageUrl && (
+                      <div className="relative aspect-video rounded-xl overflow-hidden bg-black/20 border border-white/10">
+                        <img 
+                          src={transformDriveUrl(editingPost.imageUrl)} 
+                          alt="Preview" 
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover" 
+                          onError={(e) => (e.currentTarget.style.display = 'none')}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-2">
