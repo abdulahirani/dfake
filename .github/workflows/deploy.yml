@@ -13,22 +13,31 @@ jobs:
           fetch-depth: 0
           lfs: true
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       # 1. Firebase Deployment (Frontend)
       - name: Install & Build
         run: |
           npm install
           npm run build
+
       - name: Deploy to Firebase
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_SCAN_DEEPFAKE }}'
           projectId: scandeepfake-web-app
+          channelId: live
 
       # 2. Hugging Face Sync (Full Docker App)
       - name: Push to Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          git config --global user.email "gundkatira007@gmail.com"
+          git config --global user.name "Gund Katira"
           git remote add hf https://gundkatira:$HF_TOKEN@huggingface.co/spaces/gundkatira/scandeepfake-scanner
           git push --force hf main
