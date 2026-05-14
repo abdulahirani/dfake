@@ -89,12 +89,21 @@ export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [posts, setPosts] = useState<any[]>([]);
 
-  // Fetch posts from backend
+  // Fetch posts from backend with fallback to static json
   useEffect(() => {
     fetch('/api/posts')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('API failed');
+        return res.json();
+      })
       .then(data => setPosts(data))
-      .catch(err => console.error('Failed to fetch posts:', err));
+      .catch(err => {
+        console.warn('API posts failed, trying static fallback:', err);
+        fetch('/posts.json')
+          .then(res => res.json())
+          .then(data => setPosts(data))
+          .catch(err2 => console.error('Final fallback failed:', err2));
+      });
   }, []);
 
   // Hidden admin access: ?admin=true

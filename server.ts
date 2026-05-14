@@ -61,6 +61,11 @@ async function generateSeoFiles() {
         const hfDomain = "https://scandeepfake-scanner.hf.space";
         const hfSitemap = sitemap.replace(new RegExp(domain, 'g'), hfDomain);
         await fs.writeFile(path.join(folderPath, 'sitemap-hf.xml'), hfSitemap);
+        
+        // Also sync posts.json to dist for static fallback
+        if (folder === 'dist') {
+          await fs.copy(POSTS_FILE, path.join(folderPath, 'posts.json'));
+        }
       } catch (err) {
         console.error(`Failed to write SEO files to ${folder}:`, err);
       }
