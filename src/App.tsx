@@ -44,14 +44,26 @@ const runForensicAnalysis = async (file: File) => {
   };
 };
 
-function AdSlot({ id, className }: { id: string; type: 'header' | 'side' | 'content' | 'footer' | 'anchor'; className?: string }) {
-  // Requirement 3: Ad-slot Suppression (Pre-approval)
+function AdSlot({ id, enabled, className, theme }: { id: string; enabled: boolean; className?: string; theme: 'dark' | 'light'; type?: string }) {
+  if (!enabled) return null;
   return (
     <div 
-      id={`ad-${id}`}
-      className={`hidden !hidden opacity-0 pointer-events-none ${className || ''}`}
-      aria-hidden="true"
-    />
+      className={`relative w-full overflow-hidden flex items-center justify-center p-4 border rounded-2xl ${
+        theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'
+      } ${className || ''}`}
+    >
+      <div className={`text-[10px] uppercase font-bold tracking-[0.2em] opacity-30 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+        ADVERTISEMENT
+      </div>
+      <ins 
+        className="adsbygoogle"
+        style={{ display: 'block' }}
+        data-ad-client={id}
+        data-ad-slot={id}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
+    </div>
   );
 }
 
@@ -88,36 +100,51 @@ export default function App() {
   const [currentPost, setCurrentPost] = useState<string | null>(null);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [posts, setPosts] = useState<any[]>([]);
+  const [config, setConfig] = useState<any>(null);
 
-  // Fetch posts from backend with fallback to static json
+  // Fetch config and posts
   useEffect(() => {
-    const loadPosts = async () => {
+    const loadData = async () => {
       try {
-        const res = await fetch('/api/posts');
-        if (!res.ok) throw new Error(`API status ${res.status}`);
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          setPosts(data);
-          return;
+        const [postsRes, configRes] = await Promise.all([
+          fetch('/api/posts'),
+          fetch('/api/config')
+        ]);
+        
+        if (postsRes.ok) {
+          const postsData = await postsRes.json();
+          setPosts(postsData);
         }
-        throw new Error('API did not return an array');
-      } catch (err) {
-        console.warn('API posts failed, trying static fallback:', err);
-        try {
-          const res = await fetch('/posts.json');
-          if (!res.ok) throw new Error(`Static status ${res.status}`);
-          const data = await res.json();
-          if (Array.isArray(data)) {
-            setPosts(data);
-          } else {
-            console.error('Static fallback was not an array');
+        
+        if (configRes.ok) {
+          const configData = await configRes.json();
+          setConfig(configData);
+          
+          // Apply favicon
+          if (configData.settings?.faviconUrl) {
+            let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
+            if (!link) {
+              link = document.createElement('link');
+              link.rel = 'icon';
+              document.getElementsByTagName('head')[0].appendChild(link);
+            }
+            link.href = configData.settings.faviconUrl;
           }
-        } catch (err2) {
-          console.error('Final fallback failed:', err2);
+
+          // Apply AdSense
+          if (configData.settings?.adsEnabled && configData.settings?.adsenseId) {
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${configData.settings.adsenseId}`;
+            script.crossOrigin = "anonymous";
+            document.head.appendChild(script);
+          }
         }
+      } catch (err) {
+        console.warn('Initial load failed, trying fallbacks:', err);
       }
     };
-    loadPosts();
+    loadData();
   }, []);
 
   // Hidden admin access: ?admin=true
@@ -543,13 +570,13 @@ ${pages.map(page => `  <url>
               className="max-w-7xl mx-auto"
             >
               {/* Header Ad Slot */}
-              <AdSlot id="header-high" type="header" className="w-full h-24 mb-12 rounded-2xl" />
+              <AdSlot id="header-high" enabled={config?.settings?.adsEnabled} theme={theme} className="w-full mb-12 rounded-2xl" />
 
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
                 {/* Left Side Rail (Ads) */}
                 <aside className="hidden xl:col-span-2 xl:flex flex-col gap-6">
-                  <AdSlot id="side-top" type="side" className="w-full h-80 rounded-2xl" />
-                  <AdSlot id="side-mid" type="side" className="w-full h-64 rounded-2xl" />
+                  <AdSlot id="side-top" enabled={config?.settings?.adsEnabled} theme={theme} className="w-full h-80 rounded-2xl" />
+                  <AdSlot id="side-mid" enabled={config?.settings?.adsEnabled} theme={theme} className="w-full h-64 rounded-2xl" />
                 </aside>
 
                 {/* Main Step Container */}
@@ -634,7 +661,7 @@ ${pages.map(page => `  <url>
                         key="step3" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }}
                         className="space-y-8"
                       >
-                        <AdSlot id="content-mid-1" type="content" className="w-full h-24 rounded-2xl" />
+                        <AdSlot id="content-mid-1" enabled={config?.settings?.adsEnabled} theme={theme} className="w-full mb-8 rounded-2xl" />
 
                         <div className="bg-white/5 border border-white/10 rounded-[40px] p-8 md:p-12 space-y-10">
                           <div className="flex flex-col items-center text-center space-y-4">
@@ -727,7 +754,7 @@ ${pages.map(page => `  <url>
                           </div>
                         </div>
 
-                        <AdSlot id="content-mid-2" type="content" className="w-full h-24 rounded-2xl" />
+                        <AdSlot id="content-mid-2" enabled={config?.settings?.adsEnabled} theme={theme} className="w-full mb-8 rounded-2xl" />
                         <button onClick={() => setCurrentStep(2)} className="opacity-80 hover:opacity-100 text-xs uppercase font-black tracking-widest block mx-auto transition-opacity">← Back</button>
                       </motion.div>
                     )}
@@ -928,9 +955,9 @@ ${pages.map(page => `  <url>
 
                 {/* Right Side Rail (Ads) */}
                 <aside className="hidden xl:col-span-2 xl:flex flex-col gap-6">
-                  <AdSlot id="side-tall" type="side" className="w-full h-[500px] rounded-2xl" />
+                  <AdSlot id="side-tall" enabled={config?.settings?.adsEnabled} theme={theme} className="w-full h-[500px] rounded-2xl" />
                   <div className="sticky top-32 space-y-6">
-                    <AdSlot id="side-sticky" type="side" className="w-full h-[300px] rounded-2xl" />
+                    <AdSlot id="side-sticky" enabled={config?.settings?.adsEnabled} theme={theme} className="w-full h-[300px] rounded-2xl" />
                   </div>
                 </aside>
               </div>
@@ -938,7 +965,8 @@ ${pages.map(page => `  <url>
               {/* Bottom Anchor Ad */}
               <AdSlot 
                 id="bottom-anchor" 
-                type="anchor" 
+                enabled={config?.settings?.adsEnabled} 
+                theme={theme} 
                 className={`fixed bottom-0 left-0 w-full h-16 backdrop-blur-md border-t z-[100] transition-colors duration-500 ${
                   theme === 'dark' ? 'bg-black/80 border-white/10' : 'bg-white/80 border-black/10'
                 }`} 
@@ -1103,116 +1131,14 @@ ${pages.map(page => `  <url>
                 <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-xs uppercase tracking-[0.4em] mt-2`}>Semantic Search & Knowledge Base</p>
               </div>
               <div className="space-y-6">
-                <FAQItem 
-                  q="How to spot deepfake videos in 2026?" 
-                  a="In 2026, spotting deepfakes requires looking for microscopic texture inconsistencies and the 'diffusion hum'—a specific frequency pattern found in generative synthesis. ScanDeepFake automates this forensic deep-scan."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="Free AI image integrity check: Is it reliable?" 
-                  a="Yes, our ScanDeepFake free-tier uses advanced neural fingerprints to verify image integrity. While no tool is 100% infallible, our system provides a 99.8% precision score on standard generative models."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="Detecting AI face swap online effortlessly." 
-                  a="Using our simplified 5-step workflow, you can drop any image or video to perform an instant face-swap detection. We analyze orbital integrity and pixel variance to find even subtle swaps."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="What are the signs of a manipulated AI image?" 
-                  a="Look for non-linear shadows, irregular textures in hair or fabric, and perfect geometric symmetry which rarely exists in nature. AI often fails to render lighting that matches the entire scene consistently."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="Can deepfakes be detected with 100% accuracy?" 
-                  a="No forensic tool can claim 100% accuracy because generative technology evolves daily. However, by combining multiple forensic layers (Pixel, Frequency, Temporal), we can identify almost all current synthetic media."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="How does neural forensic analysis identify fake media?" 
-                  a="It works by training a neural network on 'authentic' noise patterns vs 'generative' noise patterns. AI models leave specific statistical signatures that are invisible to the naked eye but clear to an analysis engine."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="Is my privacy protected during deepfake scanning?" 
-                  a="Absolutely. We employ a Zero-Retention policy. Files are processed in ephemeral browser memory and encrypted sandboxes, then permanently deleted after you close your session."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="Best tools for identifying AI-generated content." 
-                  a="ScanDeepFake stands out due to its local-first processing, high-confidence scoring, and comprehensive forensic legend that breaks down exactly why an image might be suspect."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="How to verify the authenticity of social media images." 
-                  a="Don't rely on visual inspection alone. Download the image and run it through a neural forensic scanner to check for hidden pixel artifacts that social media compression might hide."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="Can AI detect its own generated artifacts?" 
-                  a="Yes, often the most effective way to detect AI is for another AI to look for the specific mathematical 'tells' left behind during the generative process, such as repeating wavelets."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="Protecting yourself from misinformation and synthetic media." 
-                  a="Cultivate digital skepticism. Use verification tools before sharing viral content. ScanDeepFake is designed to be your first line of defense against online misinformation."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="What is pixel frequency analysis in digital forensics?" 
-                  a="It's a technique that looks at the high-frequency components of an image. Real cameras have a 'natural' grain, while AI generation creates 'structured' noise that shows up as distinct spikes in the frequency domain."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="How to report malicious deepfake content." 
-                  a="If you detect a deepfake used for harm, you should report it to the platform hosting it and consider using forensic reports from tools like ours as supporting evidence."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="Deepfake vs. CGI: What is the difference?" 
-                  a="CGI is hand-crafted or simulated via physics engines, while Deepfakes are generated by neural networks through diffusion or adversarial training. Deepfakes often contain 'latent artifacts' that hand-made CGI does not."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="Can smartphone cameras produce artifacts similar to AI?" 
-                  a="Computational photography in modern phones can sometimes create 'smooth' effects that look AI-like, but they don't produce the structured frequency artifacts found in generative AI models."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="How to check if a profile picture is AI-generated." 
-                  a="AI profile pictures often have perfectly centered faces, inconsistent earring symmetry, and 'blobby' backgrounds. Use our 'Image Analysis' mode for a definitive neural check."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="The role of EXIF metadata in image authentication." 
-                  a="EXIF data can show camera settings, timestamps, and device info. While it can be faked, its absence or inconsistency often indicates an image has been processed through a generative pipeline."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="Are video calls susceptible to real-time deepfakes?" 
-                  a="Yes, real-time face swaps are becoming more common. Look for edges of the face 'glitching' when the person moves quickly or puts a hand near their mouth."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="How to distinguish between professional editing and AI synthesis." 
-                  a="Professional editing (Photoshop) usually leaves cloning or healing artifacts. AI synthesis creates entirely new pixel data that lacks a 'source' texture, resulting in unique frequency domain signatures."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="Is it possible to detect deepfakes for free?" 
-                  a="ScanDeepFake offers a robust free-tier neural forensic scanner specifically tuned to identify the 'diffusion signatures' of modern AI models like Midjourney and Stable Diffusion."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="Professional AI detection tools for journalists." 
-                  a="Our platform provides high-authority forensic reports that journalists can use to verify viral media integrity. We focus on verifiable pixel-level evidence rather than simple probability scores."
-                  theme={theme}
-                />
-                <FAQItem 
-                  q="How to use forensic logic to protect digital assets." 
-                  a="By embedding ScanDeepFake verification into your content workflow, you create a layer of digital trust. Our forensic logic analyzes metadata inconsistencies and lighting mismatches automatically."
-                  theme={theme}
-                />
+                {(config?.faqs || []).map((faq: any, idx: number) => (
+                  <FAQItem 
+                    key={idx}
+                    q={faq.q} 
+                    a={faq.a}
+                    theme={theme}
+                  />
+                ))}
               </div>
             </motion.div>
           )}
@@ -1222,11 +1148,12 @@ ${pages.map(page => `  <url>
               <div className="text-center mt-8">
                 <h2 className="text-6xl font-black uppercase tracking-tighter italic">About Digital <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Integrity</span></h2>
               </div>
-              <div className={`space-y-6 text-lg leading-relaxed text-justify max-w-2xl mx-auto ${theme === 'dark' ? 'text-white/70' : 'text-[#0F172A]'}`}>
-                <p>Welcome to ScanDeepFake, a dedicated platform built to safeguard digital truth in an age of artificial synthesis. Our mission is to provide every individual with the tools needed to verify media authenticity instantly at <a href="https://scandeepfake.web.app" className="underline font-bold">https://scandeepfake.web.app</a>.</p>
-                <p>In a world where seeing is no longer necessarily believing, we use the same technology that creates AI to detect it. Our forensic engine uses local analysis to ensure your data never leaves your device. For professional grade deployment and Docker-based analysis, check out our official <a href="https://huggingface.co/spaces/gundkatira/scandeepfake-scanner" target="_blank" rel="noopener noreferrer" className="underline font-bold">Hugging Face Space</a>.</p>
-                <p>We are a self-funded project committed to transparency, privacy, and the preservation of authentic human expression on the internet. By creating a bridge between decentralized hosting on <a href="https://huggingface.co" className="underline">Hugging Face</a> and fast edge delivery on Firebase, we ensure maximum uptime and security for our global users.</p>
-                {/* Remove UI Clutter: Generate Sitemap button removed (Requirement 2.3) */}
+              <div className={`space-y-6 text-lg leading-relaxed text-left max-w-2xl mx-auto ${theme === 'dark' ? 'text-white/70' : 'text-[#0F172A]'}`}>
+                {config?.legal?.about ? (
+                  <p className="whitespace-pre-wrap">{config.legal.about}</p>
+                ) : (
+                  <p>Welcome to ScanDeepFake, a platform dedicated to media authenticity.</p>
+                )}
               </div>
             </motion.div>
           )}
@@ -1257,27 +1184,11 @@ ${pages.map(page => `  <url>
             </motion.div>
           )}
 
-          {currentPage === 'privacy' && <LegalPage key="privacy" title="Privacy Policy" theme={theme} content={`Our commitment to your privacy is absolute. Our ScanDeepFake tools are designed with "Privacy by Design" principles. 
-          
-1. Data Integrity: We do not store, upload, or transmit your media to our permanent servers. Processing happens in secure ephemeral cloud instances that are deleted immediately after result generation.
-2. Analytics: We use anonymized usage metrics to improve our detection algorithms. No personally identifiable information (PII) is ever linked to these metrics.
-3. Cookies: We use minimal cookies to maintain session states and for AdSense ad delivery. You can opt-out via your browser settings.
-4. Third Parties: Verified AI partners may receive transient data for processing, strictly governed by zero-retention policies.
-5. Advertising: This site uses Google AdSense. Google's use of advertising cookies enables it and its partners to serve ads based on your visit to this site and/or other sites on the Internet.`} />}
+          {currentPage === 'privacy' && <LegalPage key="privacy" title="Privacy Policy" theme={theme} content={config?.legal?.privacy || "Privacy policy content loading..."} />}
 
-          {currentPage === 'terms' && <LegalPage key="terms" title="Terms of Service" theme={theme} content={`By accessing ScanDeepFake, you agree to these legal terms:
+          {currentPage === 'terms' && <LegalPage key="terms" title="Terms of Service" theme={theme} content={config?.legal?.terms || "Terms content loading..."} />}
 
-1. Usage: You are granted a limited license to use our scanner for personal or professional verification.
-2. Prohibitions: You may not use this tool for illegal purposes, harassing individuals, or attempting to reverse-engineer our detection model.
-3. API Access: Automated requests (scripts) are prohibited without an official API key.
-4. Ownership: The detection output belongs to you, but the detection technology remains intellectual property of ScanDeepFake.
-5. Service: We reserve the right to modify or discontinue the service at any time without prior notice.`} />}
-
-          {currentPage === 'disclaimer' && <LegalPage key="disclaimer" title="Disclaimer" theme={theme} content={`While our AI models are among the most advanced in the industry, users must acknowledge:
-1. Probabilistic Results: Detection scores are estimates based on statistical probability. They are NOT definitive legal proof of authenticity or synthetic origin.
-2. False Positives: High-quality real images can sometimes be flagged as AI if they possess unusual lighting or camera artifacts.
-3. Evolution of AI: The technology used to create deepfakes advances daily. A "Real" result today does not guarantee that a more advanced AI did not create the image.
-4. No Liability: ScanDeepFake is not responsible for decisions made based on our analysis results. Use this tool as a supporting reference, not a final verdict.`} />}
+          {currentPage === 'disclaimer' && <LegalPage key="disclaimer" title="Disclaimer" theme={theme} content={config?.legal?.disclaimer || "Disclaimer content loading..."} />}
         </AnimatePresence>
 
         <AnimatePresence>
@@ -1324,20 +1235,16 @@ ${pages.map(page => `  <url>
           </div>
         </div>
         
-        <div className="mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-6">
+        <div className="mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
+          <div className="flex flex-col md:flex-row items-center gap-6">
             <div className={`px-4 py-2 border rounded-xl flex items-center gap-2 text-xs font-mono font-black uppercase tracking-[0.2em] shadow-lg ${
               theme === 'dark' ? 'bg-white/10 border-white/20 text-white' : 'bg-black/5 border-black/10 text-black'
             }`}>
               <Shield size={12} className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} /> Fully Encrypted & Sandbox Secure
             </div>
-            <p className={`text-xs font-bold uppercase tracking-widest ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>
-              System Stable V4.2.1
-            </p>
           </div>
-          <p className={`text-xs font-bold uppercase tracking-[0.2em] text-center md:text-right ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>
-            © 2026 ScanDeepFake. Digital Integrity Verified. <br className="md:hidden" />
-            Fully Encrypted & Sandbox Secure.
+          <p className={`text-xs font-bold uppercase tracking-[0.2em] opacity-60 ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>
+            © 2026 ScanDeepFake. Digital Integrity Verified.
           </p>
         </div>
       </footer>

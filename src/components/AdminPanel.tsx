@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
-import { X, Save, Trash2, Plus, LogOut, ChevronRight, Settings, Globe, FileText, Image as ImageIcon, Sun, Moon } from 'lucide-react';
+import { X, Save, Trash2, Plus, LogOut, ChevronRight, Settings, Globe, FileText, Image as ImageIcon, Sun, Moon, HelpCircle, Shield, Layout, MessageSquare, Megaphone } from 'lucide-react';
 
 interface Post {
   id: string;
@@ -15,6 +15,27 @@ interface Post {
   metaDesc?: string;
 }
 
+interface FAQ {
+  q: string;
+  a: string;
+}
+
+interface AppConfig {
+  faqs: FAQ[];
+  settings: {
+    faviconUrl: string;
+    adsEnabled: boolean;
+    adsClient: string;
+  };
+  legal: {
+    privacy: string;
+    terms: string;
+    disclaimer: string;
+    about: string;
+    docs: string;
+  };
+}
+
 interface AdminPanelProps {
   onClose: () => void;
   posts: Post[];
@@ -25,11 +46,28 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [token, setToken] = useState('');
   const [view, setView] = useState<'list' | 'edit'>('list');
+  const [mainTab, setMainTab] = useState<'posts' | 'faqs' | 'settings' | 'legal' | 'ads'>('posts');
   const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [config, setConfig] = useState<AppConfig | null>(null);
   const [sidebarTab, setSidebarTab] = useState<'settings' | 'seo'>('settings');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
   const THEME_BLUE = '#00F3FF';
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const res = await fetch('/api/config');
+        if (res.ok) {
+          const data = await res.json();
+          setConfig(data);
+        }
+      } catch (err) {
+        console.error('Failed to load config', err);
+      }
+    };
+    fetchConfig();
+  }, []);
 
   const transformDriveUrl = (url: string) => {
     if (!url) return url;
@@ -136,6 +174,29 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
     }
   };
 
+  const handleSaveConfig = async () => {
+    if (!config) return;
+    try {
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Admin-Token': 'scandeepfake2026'
+        },
+        body: JSON.stringify(config)
+      });
+      if (res.ok) {
+        alert('Configuration saved successfully!');
+      } else {
+        const errData = await res.json();
+        alert(`Failed to save config: ${errData.detail || 'Unknown error'}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error while saving config');
+    }
+  };
+
   if (!isLoggedIn) {
     return (
       <div className="fixed inset-0 z-[300] bg-black/95 flex items-center justify-center p-4 backdrop-blur-xl">
@@ -173,6 +234,31 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
             <Settings size={18} className={theme === 'dark' ? 'text-black' : 'text-white'} />
           </div>
           <h1 className="text-lg font-black uppercase tracking-tighter italic">ScanDeepFake <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>CMS</span></h1>
+          
+          <div className="h-6 w-px bg-white/10 mx-2 hidden md:block" />
+          
+          <nav className="hidden md:flex items-center gap-1">
+            {[
+              { id: 'posts', label: 'Reports', icon: FileText },
+              { id: 'faqs', label: 'FAQ', icon: HelpCircle },
+              { id: 'settings', label: 'Identity', icon: Shield },
+              { id: 'legal', label: 'Legal', icon: FileText },
+              { id: 'ads', label: 'Ads', icon: Megaphone }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => { setMainTab(tab.id as any); setView('list'); }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  mainTab === tab.id 
+                    ? (theme === 'dark' ? 'bg-[#00F3FF] text-black' : 'bg-[#1E40AF] text-white')
+                    : (theme === 'dark' ? 'text-white/40 hover:text-white hover:bg-white/5' : 'text-black/40 hover:text-black hover:bg-black/5')
+                }`}
+              >
+                <tab.icon size={12} />
+                {tab.label}
+              </button>
+            ))}
+          </nav>
         </div>
         
         <div className="flex items-center gap-4">
@@ -203,71 +289,259 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
 
       {view === 'list' ? (
         <div className="flex-1 overflow-y-auto p-8 max-w-6xl mx-auto w-full space-y-8">
-          <div className="flex justify-between items-end">
-            <div className="space-y-1">
-              <h2 className="text-4xl font-black uppercase italic tracking-tighter">Content <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Dashboard</span></h2>
-              <p className={`${theme === 'dark' ? 'text-white/40' : 'text-black/40'} font-mono text-xs uppercase tracking-widest`}>Managing {posts.length} published reports</p>
-            </div>
-            <button 
-              onClick={handleCreateNew}
-              className={`flex items-center gap-3 px-6 py-3 font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-lg ${
-                theme === 'dark' ? 'bg-[#00F3FF] text-black shadow-[#00F3FF]/20' : 'bg-[#1E40AF] text-white shadow-[#1E40AF]/20'
-              }`}
-            >
-              <Plus size={18} />
-              New Entry
-            </button>
-          </div>
-
-          <div className="grid gap-4">
-            {[...posts].map((post) => (
-              <div 
-                key={post.id}
-                className={`group border p-6 rounded-3xl flex items-center justify-between transition-all ${
-                  theme === 'dark' 
-                    ? 'bg-white/5 border-white/5 hover:bg-white/[0.08] hover:border-white/10' 
-                    : 'bg-white border-black/5 hover:border-black/10 shadow-sm'
-                }`}
-              >
-                <div className="flex items-center gap-6 flex-1 pr-6">
-                  <div className="w-16 h-16 rounded-2xl overflow-hidden bg-black/40 flex-shrink-0">
-                    <img 
-                      src={transformDriveUrl(post.imageUrl).includes('?') ? transformDriveUrl(post.imageUrl) : `${transformDriveUrl(post.imageUrl)}?auto=format&fit=crop&q=40&w=200`} 
-                      alt={post.alt} 
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" 
-                    />
-                  </div>
-                  <div className="space-y-1 overflow-hidden">
-                    <h3 className={`text-lg font-bold truncate ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h3>
-                    <div className="flex gap-4 text-[10px] font-mono uppercase tracking-widest opacity-40">
-                      <span>{post.date}</span>
-                      <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>{post.category || 'General'}</span>
-                    </div>
-                  </div>
+          {mainTab === 'posts' && (
+            <>
+              <div className="flex justify-between items-end">
+                <div className="space-y-1">
+                  <h2 className="text-4xl font-black uppercase italic tracking-tighter">Content <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Dashboard</span></h2>
+                  <p className={`${theme === 'dark' ? 'text-white/40' : 'text-black/40'} font-mono text-xs uppercase tracking-widest`}>Managing {posts.length} published reports</p>
                 </div>
-                
-                <div className="flex items-center gap-4">
-                  <button 
-                    onClick={() => handleEdit(post)}
-                    className={`flex items-center gap-2 px-4 py-2 border font-bold uppercase text-[10px] tracking-widest rounded-lg transition-all ${
+                <button 
+                  onClick={handleCreateNew}
+                  className={`flex items-center gap-3 px-6 py-3 font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-lg ${
+                    theme === 'dark' ? 'bg-[#00F3FF] text-black shadow-[#00F3FF]/20' : 'bg-[#1E40AF] text-white shadow-[#1E40AF]/20'
+                  }`}
+                >
+                  <Plus size={18} />
+                  New Entry
+                </button>
+              </div>
+
+              <div className="grid gap-4">
+                {[...posts].map((post) => (
+                  <div 
+                    key={post.id}
+                    className={`group border p-6 rounded-3xl flex items-center justify-between transition-all ${
                       theme === 'dark' 
-                        ? 'border-blue-400/20 text-blue-400 hover:bg-blue-400/10' 
-                        : 'border-blue-600/20 text-blue-600 hover:bg-blue-600/5'
+                        ? 'bg-white/5 border-white/5 hover:bg-white/[0.08] hover:border-white/10' 
+                        : 'bg-white border-black/5 hover:border-black/10 shadow-sm'
                     }`}
                   >
-                    Edit
+                    <div className="flex items-center gap-6 flex-1 pr-6">
+                      <div className="w-16 h-16 rounded-2xl overflow-hidden bg-black/40 flex-shrink-0">
+                        <img 
+                          src={transformDriveUrl(post.imageUrl).includes('?') ? transformDriveUrl(post.imageUrl) : `${transformDriveUrl(post.imageUrl)}?auto=format&fit=crop&q=40&w=200`} 
+                          alt={post.alt} 
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" 
+                        />
+                      </div>
+                      <div className="space-y-1 overflow-hidden">
+                        <h3 className={`text-lg font-bold truncate ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h3>
+                        <div className="flex gap-4 text-[10px] font-mono uppercase tracking-widest opacity-40">
+                          <span>{post.date}</span>
+                          <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>{post.category || 'General'}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-4">
+                      <button 
+                        onClick={() => handleEdit(post)}
+                        className={`flex items-center gap-2 px-4 py-2 border font-bold uppercase text-[10px] tracking-widest rounded-lg transition-all ${
+                          theme === 'dark' 
+                            ? 'border-blue-400/20 text-blue-400 hover:bg-blue-400/10' 
+                            : 'border-blue-600/20 text-blue-600 hover:bg-blue-600/5'
+                        }`}
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(post.id)}
+                        className="p-3 opacity-20 hover:text-red-400 hover:opacity-100 transition-all"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {mainTab === 'faqs' && config && (
+            <div className="space-y-8">
+              <div className="flex justify-between items-end">
+                <div className="space-y-1">
+                  <h2 className="text-4xl font-black uppercase italic tracking-tighter">Support <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Center</span></h2>
+                  <p className={`${theme === 'dark' ? 'text-white/40' : 'text-black/40'} font-mono text-xs uppercase tracking-widest`}>Managing {config.faqs.length} FAQ entries</p>
+                </div>
+                <div className="flex gap-4">
+                  <button 
+                    onClick={() => setConfig({...config, faqs: [...config.faqs, { q: 'New Question', a: 'Answer...' }]})}
+                    className={`flex items-center gap-3 px-6 py-3 font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-lg ${
+                      theme === 'dark' ? 'bg-[#00F3FF] text-black shadow-[#00F3FF]/20' : 'bg-[#1E40AF] text-white shadow-[#1E40AF]/20'
+                    }`}
+                  >
+                    <Plus size={18} />
+                    Add FAQ
                   </button>
                   <button 
-                    onClick={() => handleDelete(post.id)}
-                    className="p-3 opacity-20 hover:text-red-400 hover:opacity-100 transition-all"
+                    onClick={handleSaveConfig}
+                    className={`flex items-center gap-3 px-6 py-3 font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-lg ${
+                      theme === 'dark' ? 'bg-white/10 text-white' : 'bg-black/10 text-black'
+                    }`}
                   >
-                    <Trash2 size={16} />
+                    <Save size={18} />
+                    Save Changes
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
+
+              <div className="grid gap-6">
+                {config.faqs.map((faq, idx) => (
+                  <div key={idx} className={`border p-6 rounded-3xl space-y-4 ${theme === 'dark' ? 'bg-white/5 border-white/5' : 'bg-white border-black/5 shadow-sm'}`}>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-black uppercase opacity-30">Entry #{idx + 1}</span>
+                      <button 
+                        onClick={() => setConfig({...config, faqs: config.faqs.filter((_, i) => i !== idx)})}
+                        className="p-1 opacity-20 hover:opacity-100 hover:text-red-400"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                    <input 
+                      className="w-full bg-transparent text-xl font-bold border-b border-white/10 pb-2 focus:border-[#00F3FF] outline-none"
+                      value={faq.q}
+                      onChange={(e) => {
+                        const newFaqs = [...config.faqs];
+                        newFaqs[idx].q = e.target.value;
+                        setConfig({...config, faqs: newFaqs});
+                      }}
+                    />
+                    <textarea 
+                      className="w-full bg-transparent text-sm opacity-70 min-h-[80px] outline-none"
+                      value={faq.a}
+                      onChange={(e) => {
+                        const newFaqs = [...config.faqs];
+                        newFaqs[idx].a = e.target.value;
+                        setConfig({...config, faqs: newFaqs});
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {mainTab === 'settings' && config && (
+            <div className="space-y-8">
+              <div className="flex justify-between items-end">
+                <div className="space-y-1">
+                  <h2 className="text-4xl font-black uppercase italic tracking-tighter">System <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Config</span></h2>
+                  <p className={`${theme === 'dark' ? 'text-white/40' : 'text-black/40'} font-mono text-xs uppercase tracking-widest`}>Managing global application parameters</p>
+                </div>
+                <button 
+                  onClick={handleSaveConfig}
+                  className={`flex items-center gap-3 px-6 py-3 font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-lg ${
+                    theme === 'dark' ? 'bg-[#00F3FF] text-black shadow-[#00F3FF]/20' : 'bg-[#1E40AF] text-white shadow-[#1E40AF]/20'
+                  }`}
+                >
+                  <Save size={18} />
+                  Persist Settings
+                </button>
+              </div>
+
+              <div className={`border p-8 rounded-3xl space-y-8 ${theme === 'dark' ? 'bg-white/5 border-white/5' : 'bg-white border-black/5 shadow-sm'}`}>
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-xs font-black uppercase tracking-widest opacity-40">System Favicon URL</label>
+                    <div className="flex gap-4">
+                      <div className="w-12 h-12 bg-white/5 rounded-xl border border-white/10 p-2 overflow-hidden flex items-center justify-center">
+                        <img src={config.settings.faviconUrl} alt="Favicon" className="max-w-full max-h-full" />
+                      </div>
+                      <input 
+                        className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 outline-none focus:border-[#00F3FF]"
+                        value={config.settings.faviconUrl}
+                        onChange={(e) => setConfig({...config, settings: {...config.settings, faviconUrl: e.target.value}})}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {mainTab === 'legal' && config && (
+            <div className="space-y-8">
+              <div className="flex justify-between items-end">
+                <div className="space-y-1">
+                  <h2 className="text-4xl font-black uppercase italic tracking-tighter">Legal <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Framework</span></h2>
+                  <p className={`${theme === 'dark' ? 'text-white/40' : 'text-black/40'} font-mono text-xs uppercase tracking-widest`}>Authorized policy documentation</p>
+                </div>
+                <button 
+                  onClick={handleSaveConfig}
+                  className={`flex items-center gap-3 px-6 py-3 font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-lg ${
+                    theme === 'dark' ? 'bg-[#00F3FF] text-black shadow-[#00F3FF]/20' : 'bg-[#1E40AF] text-white shadow-[#1E40AF]/20'
+                  }`}
+                >
+                  <Save size={18} />
+                  Update Policies
+                </button>
+              </div>
+
+              <div className="grid gap-6">
+                {Object.entries(config.legal).map(([key, value]) => (
+                  <div key={key} className={`border p-8 rounded-3xl space-y-4 ${theme === 'dark' ? 'bg-white/5 border-white/5' : 'bg-white border-black/5 shadow-sm'}`}>
+                    <label className="text-lg font-black uppercase tracking-tighter italic">{key}</label>
+                    <textarea 
+                      className="w-full bg-transparent p-4 rounded-2xl border border-white/5 min-h-[200px] outline-none focus:border-[#00F3FF] text-sm opacity-80"
+                      value={value}
+                      onChange={(e) => setConfig({
+                        ...config, 
+                        legal: { ...config.legal, [key]: e.target.value }
+                      })}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {mainTab === 'ads' && config && (
+            <div className="space-y-8">
+              <div className="flex justify-between items-end">
+                <div className="space-y-1">
+                  <h2 className="text-4xl font-black uppercase italic tracking-tighter">Monetization <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Engine</span></h2>
+                  <p className={`${theme === 'dark' ? 'text-white/40' : 'text-black/40'} font-mono text-xs uppercase tracking-widest`}>Google AdSense Control System</p>
+                </div>
+                <button 
+                  onClick={handleSaveConfig}
+                  className={`flex items-center gap-3 px-6 py-3 font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-lg ${
+                    theme === 'dark' ? 'bg-[#00F3FF] text-black shadow-[#00F3FF]/20' : 'bg-[#1E40AF] text-white shadow-[#1E40AF]/20'
+                  }`}
+                >
+                  <Save size={18} />
+                  Push to Live
+                </button>
+              </div>
+
+              <div className={`border p-8 rounded-3xl space-y-8 ${theme === 'dark' ? 'bg-white/5 border-white/5' : 'bg-white border-black/5 shadow-sm'}`}>
+                <div className="flex items-center justify-between p-6 bg-white/5 rounded-3xl border border-white/5">
+                  <div>
+                    <h3 className="text-xl font-bold">Ad Delivery State</h3>
+                    <p className="text-xs opacity-50 uppercase tracking-widest font-mono">Enable or Disable global commercial placements</p>
+                  </div>
+                  <button 
+                    onClick={() => setConfig({...config, settings: {...config.settings, adsEnabled: !config.settings.adsEnabled}})}
+                    className={`w-16 h-8 rounded-full relative transition-all ${config.settings.adsEnabled ? 'bg-[#00F3FF]' : 'bg-white/10'}`}
+                  >
+                    <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${config.settings.adsEnabled ? 'left-9' : 'left-1'}`} />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-xs font-black uppercase tracking-widest opacity-40">AdSense Publisher ID (ca-pub-xxx)</label>
+                  <input 
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-[#00F3FF] font-mono"
+                    value={config.settings.adsClient}
+                    onChange={(e) => setConfig({...config, settings: {...config.settings, adsClient: e.target.value}})}
+                  />
+                  <p className="text-[10px] opacity-30 italic">Note: Changes here will propagate to the robots.txt and sitemap headers automatically.</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="flex-1 flex overflow-hidden">

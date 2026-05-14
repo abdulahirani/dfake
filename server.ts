@@ -14,9 +14,24 @@ const POSTS_FILE = fs.pathExistsSync(path.join(process.cwd(), "public", "posts.j
   ? path.join(process.cwd(), "public", "posts.json")
   : path.join(process.cwd(), "posts.json");
 
+const CONFIG_FILE = fs.pathExistsSync(path.join(process.cwd(), "public", "config.json")) 
+  ? path.join(process.cwd(), "public", "config.json")
+  : path.join(process.cwd(), "config.json");
+
 app.use(express.json());
 
 // --- Data Persistence ---
+async function loadConfig() {
+  if (await fs.pathExists(CONFIG_FILE)) {
+    return fs.readJson(CONFIG_FILE);
+  }
+  return {};
+}
+
+async function saveConfig(config: any) {
+  await fs.writeJson(CONFIG_FILE, config, { spaces: 2 });
+}
+
 async function loadPosts() {
   if (await fs.pathExists(POSTS_FILE)) {
     return fs.readJson(POSTS_FILE);
@@ -76,6 +91,20 @@ async function generateSeoFiles() {
 }
 
 // --- API Endpoints ---
+
+app.get("/api/config", async (req, res) => {
+  const config = await loadConfig();
+  res.json(config);
+});
+
+app.post("/api/config", async (req, res) => {
+  const adminToken = req.headers['x-admin-token'];
+  if (adminToken !== (process.env.ADMIN_TOKEN || "scandeepfake2026")) {
+    return res.status(401).json({ detail: "Unauthorized" });
+  }
+  await saveConfig(req.body);
+  res.json(req.body);
+});
 
 app.get("/api/posts", async (req, res) => {
   const posts = await loadPosts();
