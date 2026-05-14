@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://scandeepfake-scanner.hf.space/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://scandeepfake-scanner.hf.space/?p=blog</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://scandeepfake-scanner.hf.space/?p=docs</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://scandeepfake-scanner.hf.space/?p=faq</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://scandeepfake-scanner.hf.space/?p=blog&amp;post=whatsapp-deepfake-guide</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://scandeepfake-scanner.hf.space/?p=blog&amp;post=why-i-built-scandeepfake</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://scandeepfake-scanner.hf.space/?p=blog&amp;post=caught-a-scammer-video-call</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+</urlset>
