@@ -182,8 +182,8 @@ Don't guess. Verify it yourself at ScanDeepFake.web.app.`
       title: 'Signs of AI face swap in video calls: How I caught a scammer.',
       desc: 'They tried to use a face-swap on a Zoom interview. My forensic rig caught the temporal hum instantly.',
       date: 'May 10, 2026',
-      imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc4b',
-      alt: 'Encrypted server rack in a dark data center',
+      imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b',
+      alt: 'Encrypted server rack in a dark data center representing forensic security',
       content: `I was conducting a remote interview for a DevSecOps role. The candidate, "Alex," had a stellar resume. But 3 minutes into the call, I noticed the "temporal hum." 
 
 Temporal hum is the specific frequency pattern found in generative synthesis. It manifests as a slight rhythmic pulsing of pixels on the edges of the face.
@@ -196,7 +196,7 @@ Face-swaps are great at eyes and mouths. They are terrible at ears and hands. I 
 
 Identity theft in 2026 is a multi-billion dollar industry. Stay vigilant. If a recruiter or stranger seems too perfect, they might just be a prompt.
 
-Don't guess. Verify it yourself at ScanDeepFake.web.app.`
+Don't guess. Verify it yourself at [ScanDeepFake](https://scandeepfake.web.app). For high-performance backend analysis, visit our [Hugging Face Space](https://huggingface.co/spaces/gundkatira/scandeepfake-scanner).`
     },
     {
       id: 'audio-deepfakes-biometrics',
@@ -1268,9 +1268,9 @@ ${pages.map(page => `  <url>
                 <h2 className="text-6xl font-black uppercase tracking-tighter italic">About Digital <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Integrity</span></h2>
               </div>
               <div className={`space-y-6 text-lg leading-relaxed text-justify max-w-2xl mx-auto ${theme === 'dark' ? 'text-white/70' : 'text-[#0F172A]'}`}>
-                <p>Welcome to ScanDeepFake, a dedicated platform built to safeguard digital truth in an age of artificial synthesis. Our mission is to provide every individual with the tools needed to verify media authenticity instantly at https://scandeepfake.web.app.</p>
-                <p>In a world where seeing is no longer necessarily believing, we use the same technology that creates AI to detect it. Our forensic engine uses local analysis to ensure your data never leaves your device.</p>
-                <p>We are a self-funded project committed to transparency, privacy, and the preservation of authentic human expression on the internet.</p>
+                <p>Welcome to ScanDeepFake, a dedicated platform built to safeguard digital truth in an age of artificial synthesis. Our mission is to provide every individual with the tools needed to verify media authenticity instantly at <a href="https://scandeepfake.web.app" className="underline font-bold">https://scandeepfake.web.app</a>.</p>
+                <p>In a world where seeing is no longer necessarily believing, we use the same technology that creates AI to detect it. Our forensic engine uses local analysis to ensure your data never leaves your device. For professional grade deployment and Docker-based analysis, check out our official <a href="https://huggingface.co/spaces/gundkatira/scandeepfake-scanner" target="_blank" rel="noopener noreferrer" className="underline font-bold">Hugging Face Space</a>.</p>
+                <p>We are a self-funded project committed to transparency, privacy, and the preservation of authentic human expression on the internet. By creating a bridge between decentralized hosting on <a href="https://huggingface.co" className="underline">Hugging Face</a> and fast edge delivery on Firebase, we ensure maximum uptime and security for our global users.</p>
                 {/* Remove UI Clutter: Generate Sitemap button removed (Requirement 2.3) */}
               </div>
             </motion.div>
@@ -1345,7 +1345,8 @@ ${pages.map(page => `  <url>
             <FooterColumn title="Tool" theme={theme} links={[
               { label: 'Scanner', onClick: () => setCurrentPage('home') },
               { label: 'FAQ', onClick: () => setCurrentPage('faq') },
-              { label: 'About', onClick: () => setCurrentPage('about') }
+              { label: 'About', onClick: () => setCurrentPage('about') },
+              { label: 'Hugging Face Space', onClick: () => window.open('https://huggingface.co/spaces/gundkatira/scandeepfake-scanner', '_blank') }
             ]} />
             <FooterColumn title="Support" theme={theme} links={[
               { label: 'Contact', onClick: () => setCurrentPage('contact') },
