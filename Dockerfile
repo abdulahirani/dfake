@@ -8,6 +8,14 @@ RUN npm run build
 
 # --- Stage 2: Serve Backend & Frontend ---
 FROM python:3.9-slim
+
+# Set environment variables
+ENV HOME=/home/user \
+    PATH=/home/user/.local/bin:$PATH
+
+# Create non-root user
+RUN useradd -m -u 1000 user
+
 WORKDIR /app
 
 # Install system dependencies
@@ -16,25 +24,19 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Pre-install Python dependencies as root
+# Install Python dependencies as root then switch user
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Create a non-root user and setup directories
-RUN useradd -m -u 1000 user
-ENV HOME=/home/user \
-    PATH=/home/user/.local/bin:$PATH
-
-# Switch to the new user
+# Switch to non-root user
 USER user
-WORKDIR /home/user/app
 
-# Copy backend files and built frontend
+# Copy backend files and built frontend from builder stage
 COPY --chown=user app.py .
 COPY --chown=user .env* ./
 COPY --from=frontend-builder --chown=user /app/dist ./dist
 
-# Create public folder if needed
+# Create public folder
 RUN mkdir -p public
 
 # Environment setup

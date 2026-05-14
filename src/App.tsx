@@ -1015,7 +1015,7 @@ ${pages.map(page => `  <url>
               {!currentPost ? (
                 <>
                   <div className="text-center mt-8">
-                    <h1 className={`text-6xl font-black uppercase tracking-tighter italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>Forensic <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Insights</span></h1>
+                    <h2 className={`text-6xl font-black uppercase tracking-tighter italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>Forensic <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Insights</span></h2>
                     <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-xs uppercase tracking-[0.4em] mt-2 opacity-80`}>Expert Deepfake Analysis & Security Reports</p>
                   </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -1046,7 +1046,7 @@ ${pages.map(page => `  <url>
                     <article key={post.id} className="space-y-10">
                        <div className="space-y-4">
                         <div className={`text-xs font-mono uppercase tracking-[0.3em] font-bold ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>{post.date}</div>
-                        <h1 className={`text-5xl md:text-6xl font-black uppercase tracking-tighter leading-none italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h1>
+                        <h2 className={`text-5xl md:text-6xl font-black uppercase tracking-tighter leading-none italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h2>
                       </div>
                       <div className="aspect-video rounded-[2.5rem] overflow-hidden border border-white/10">
                          <img src={`${post.imageUrl}?auto=format&fit=crop&q=80&w=1200`} alt={post.alt} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
@@ -1072,7 +1072,7 @@ ${pages.map(page => `  <url>
           {currentPage === 'docs' && (
             <motion.div key="docs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-4xl mx-auto space-y-12 mb-20">
               <div className="text-center mt-8">
-                <h1 className="text-6xl font-black uppercase tracking-tighter italic">Forensic <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Manual</span></h1>
+                <h2 className="text-6xl font-black uppercase tracking-tighter italic">Forensic <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Manual</span></h2>
                 <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-xs uppercase tracking-[0.4em] mt-2`}>Neural Analysis Documentation v4.2</p>
               </div>
 
@@ -1144,7 +1144,7 @@ ${pages.map(page => `  <url>
           {currentPage === 'faq' && (
             <motion.div key="faq" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-4xl mx-auto space-y-12 mb-20">
               <div className="text-center mt-8">
-                <h1 className="text-6xl font-black uppercase tracking-tighter italic">Help & <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>FAQ</span></h1>
+                <h2 className="text-6xl font-black uppercase tracking-tighter italic">Help & <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>FAQ</span></h2>
                 <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-xs uppercase tracking-[0.4em] mt-2`}>Semantic Search & Knowledge Base</p>
               </div>
               <div className="space-y-6">
@@ -1265,7 +1265,7 @@ ${pages.map(page => `  <url>
           {currentPage === 'about' && (
             <motion.div key="about" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-4xl mx-auto space-y-12 mb-20">
               <div className="text-center mt-8">
-                <h1 className="text-6xl font-black uppercase tracking-tighter italic">About Digital <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Integrity</span></h1>
+                <h2 className="text-6xl font-black uppercase tracking-tighter italic">About Digital <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Integrity</span></h2>
               </div>
               <div className={`space-y-6 text-lg leading-relaxed text-justify max-w-2xl mx-auto ${theme === 'dark' ? 'text-white/70' : 'text-[#0F172A]'}`}>
                 <p>Welcome to ScanDeepFake, a dedicated platform built to safeguard digital truth in an age of artificial synthesis. Our mission is to provide every individual with the tools needed to verify media authenticity instantly at https://scandeepfake.web.app.</p>
@@ -1279,7 +1279,7 @@ ${pages.map(page => `  <url>
           {currentPage === 'contact' && (
             <motion.div key="contact" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-2xl mx-auto space-y-10 mt-8">
               <div className="text-center">
-                <h1 className="text-5xl font-black uppercase tracking-tighter italic">Contact Us</h1>
+                <h2 className="text-5xl font-black uppercase tracking-tighter italic">Contact Us</h2>
                 <p className="text-white/80 font-mono text-xs uppercase mt-2">We'd love to hear from you</p>
               </div>
               <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); alert('Message sent! We will get back to you soon.'); }}>
@@ -1518,7 +1518,7 @@ function LegalPage({ title, content, theme }: { title: string; content: string; 
   return (
     <div className="max-w-4xl mx-auto space-y-12 mb-20 px-4">
       <div className="text-center mt-8">
-        <h1 className={`text-6xl font-black uppercase tracking-tighter italic ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{title}</h1>
+        <h2 className={`text-6xl font-black uppercase tracking-tighter italic ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{title}</h2>
         <div className={`h-1 w-24 mx-auto mt-6 ${isDark ? 'bg-[#00F3FF]' : 'bg-[#1E40AF]'}`}></div>
       </div>
       <div className={`border rounded-[40px] p-8 md:p-16 relative overflow-hidden backdrop-blur-3xl transition-colors duration-500 ${
