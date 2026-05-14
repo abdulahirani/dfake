@@ -1,8 +1,0 @@
-fastapi
-uvicorn
-gunicorn
-python-multipart
-Pillow
-exifread
-google-generativeai
-python-dotenv

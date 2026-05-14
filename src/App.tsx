@@ -4,9 +4,10 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
-import { Upload, Shield, Activity, Cpu, CheckCircle2, ChevronRight, Info, FileVideo, FileImage, Loader2, BookOpen, Terminal, Sun, Moon } from 'lucide-react';
+import { Upload, Shield, Activity, Cpu, CheckCircle2, ChevronRight, Info, FileVideo, FileImage, Loader2, BookOpen, Terminal, Sun, Moon, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Markdown from 'react-markdown';
+import AdminPanel from './components/AdminPanel';
 
 // Forensic Simulation Engine (Local)
 const runForensicAnalysis = async (file: File) => {
@@ -85,15 +86,22 @@ function MatrixIllusion({ theme }: { theme: 'dark' | 'light' }) {
 export default function App() {
   const [currentPage, setCurrentPage] = useState<'home' | 'faq' | 'about' | 'contact' | 'privacy' | 'terms' | 'disclaimer' | 'docs' | 'blog'>('home');
   const [currentPost, setCurrentPost] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [adminPassword, setAdminPassword] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [posts, setPosts] = useState<any[]>([]);
+
+  // Fetch posts from backend
+  useEffect(() => {
+    fetch('/api/posts')
+      .then(res => res.json())
+      .then(data => setPosts(data))
+      .catch(err => console.error('Failed to fetch posts:', err));
+  }, []);
 
   // Hidden admin access: ?admin=true
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('admin') === 'true') {
-      setIsAdmin(true);
+      setIsAdminOpen(true);
     }
   }, []);
 
@@ -140,123 +148,6 @@ export default function App() {
     };
   }, []);
 
-  // Blog Posts Data (Human-Centric & Expanded)
-  const blogPosts = [
-    {
-      id: 'whatsapp-deepfake-guide',
-      title: 'How to detect deepfake video on WhatsApp: My hands-on guide.',
-      desc: 'I saw my friend "calling" me from a number I didn\'t recognize. Here is how I knew it wasn\'t him.',
-      date: 'May 12, 2026',
-      imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b',
-      alt: 'Cyber security concept illustration with glowing blue nodes',
-      content: `I was sitting in a coffee shop when a video call came through on WhatsApp. It was from a random international number, but the thumbnail showed my high school friend, Mark. 
-
-I picked up. It was Mark's face. 100%. He looked worried, telling me he'd been mugged in London and needed a quick wire transfer. But something didn't "feel" human. 
-
-In my 10 years of AI forensics, I've learned that the gut is your first sensor. I started looking for the "Forensic Legend" artifacts. 
-
-## The Skin Texture Trap
-Humans have pores. High-end deepfakes (like the one I was seeing) use diffusion hum that smooths out microscopic texture. When Mark moved his head, there was a slight "ghosting" near his jawline. AI struggle with the temporal consistency of hair against skin. Learn more in our [AI vs Reality Analysis](?p=blog&post=ai-vs-reality-psychology).
-
-## The Eye Reflection Logic
-I asked him to look at the "camera" (his phone). The light reflection in his eyes remained static even as he shifted. That's a classic signature. 
-
-## My Advice to You
-Don't trust the video. Ask a random question that requires a specific physical reaction. "Hey Mark, can you touch your ear?" Deepfakes often glitch when an object (a hand) passes in front of the generated face. 
-
-If you're ever in doubt about a video or image you've received, don't guess. Verify it yourself at [ScanDeepFake](https://scandeepfake.web.app).`
-    },
-    {
-      id: 'why-i-built-scandeepfake',
-      title: 'Free AI forensic tool for image verification: Why I built ScanDeepFake.',
-      desc: 'I got tired of seeing people lose their life savings to "synthetic" managers. So I coded a solution.',
-      date: 'May 11, 2026',
-      imageUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3',
-      alt: 'Digital screen showing complex data analytics and forensic code',
-      content: `Last year, my aunt lost $15,000 to a "crypto expert" who appeared in professional, 4K videos on Twitter. The videos were perfect. The voice was warm. But it was all generated in a basement in Eastern Europe.
-
-The tools to detect this stuff were either $500/month or locked behind corporate NDA walls. I decided that wasn't right. 
-
-I built ScanDeepFake to bring "Neural Forensic Legend" capabilities to everyone. 
-
-## How it works (under the hood)
-When you upload an image here, we don't just look at the pixels. We look at the metadata (Size, Dimensions, GPS, Signature). AI-generated images often have telltale "latent artifacts." For a deep dive, see our [Forensic Metadata Guide](?p=blog&post=forensic-metadata-guide).
-
-For example, a file might look like a 2MB JPEG, but its internal byte structure reveals it was reconstructed from a noise-seed. We use Pillow and ExifRead to strip these secrets. 
-
-My goal is a 99.8% precision rate accessible to everyone, for free. No storage, no tracking—just digital truth. 
-
-Don't guess. Verify it yourself with our [Online Deepfake Scanner](https://scandeepfake.web.app).`
-    },
-    {
-      id: 'caught-a-scammer-video-call',
-      title: 'Signs of AI face swap in video calls: How I caught a scammer.',
-      desc: 'They tried to use a face-swap on a Zoom interview. My forensic rig caught the temporal hum instantly.',
-      date: 'May 10, 2026',
-      imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b',
-      alt: 'Encrypted server rack in a dark data center representing forensic security',
-      content: `I was conducting a remote interview for a DevSecOps role. The candidate, "Alex," had a stellar resume. But 3 minutes into the call, I noticed the "temporal hum." 
-
-Temporal hum is the specific frequency pattern found in generative synthesis. It manifests as a slight rhythmic pulsing of pixels on the edges of the face.
-
-## The Metadata Give-Away
-I asked Alex to share his screen to show a local codebase. He hesitated. I used a local hook to check the streaming buffer. The "Dimensions" of the face layer didn't match the background noise.
-
-## The Ear-Check Trick
-Face-swaps are great at eyes and mouths. They are terrible at ears and hands. I asked "Alex" to adjust his headset. When his hand touched his ear, his face shifted 2 inches to the left for a split second. The mask slipped.
-
-Identity theft in 2026 is a multi-billion dollar industry. Stay vigilant. If a recruiter or stranger seems too perfect, they might just be a prompt.
-
-Don't guess. Verify it yourself at [ScanDeepFake](https://scandeepfake.web.app). For high-performance backend analysis, visit our [Hugging Face Space](https://huggingface.co/spaces/gundkatira/scandeepfake-scanner).`
-    },
-    {
-      id: 'audio-deepfakes-biometrics',
-      title: 'The Rise of Audio Deepfakes: Can you trust a voice note?',
-      desc: 'Vocal biometric spoofing is the new frontier of fraud. Here is how to listen for the artifacts.',
-      date: 'May 09, 2026',
-      imageUrl: 'https://images.unsplash.com/photo-1589254065878-42c9da997008',
-      alt: 'Robotic head with sound wave visualization',
-      content: `I received a voice note from my "boss" requesting an urgent password reset for an internal server. The voice was identical. The cadence, the slight stutter he has when he's stressed—it was all there.
-
-## The Breathing Gap
-AI models are excellent at phonemes but struggled with the biological rhythm of breathing. In this voice note, the "boss" spoke for 45 seconds without a single intake of air. That's physiologically impossible for a human.
-
-## Frequency Clipping
-When I ran the audio through a spectrum analyzer, I saw perfect 20kHz cutoffs. Real human speech recorded on a phone has messy tapers. 
-
-Be careful with voice notes. If it's about money or access, call them back on a verified line.`
-    },
-    {
-      id: 'forensic-metadata-guide',
-      title: 'Forensic Metadata: How to check the digital DNA of an image.',
-      desc: 'Beyond the pixels: Technical guide on EXIF and byte-level analysis for authentication.',
-      date: 'May 08, 2026',
-      imageUrl: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0',
-      alt: 'Abstract blockchain and data forensic visualization',
-      content: `Every digital image has a soul—or at least a DNA sequence in the form of metadata. When a Midjourney or DALL-E image is born, it carries a very specific latent structure.
-
-## The ICC Profile Clue
-Many AI generators default to generic sRGB profiles that differ slightly from the profiles used by Canon, Sony, or iPhone sensors. 
-
-## Software Signatures
-Even if EXIF data is wiped, the "Quantization Tables" in the JPEG compression often reveal the software used to save the file. Photoshop leaves one mark; a generative neural network leaves another.
-
-ScanDeepFake parses these hidden layers to give you a definitive verdict.`
-    },
-    {
-      id: 'ai-vs-reality-psychology',
-      title: 'AI vs. Reality: The psychological impact of hyper-realistic deepfakes.',
-      desc: 'Social commentary on digital trust and the erosion of "seeing is believing" in 2026.',
-      date: 'May 07, 2026',
-      imageUrl: 'https://images.unsplash.com/photo-1677442136019-21780ecad995',
-      alt: 'Futuristic AI neural network face visualization',
-      content: `We've entered the "Post-Truth" era of visual media. In 2026, a video of a world leader is as likely to be a prompt as it is a recording. 
-
-This creates a "Liar's Dividend"—where real people can claim real evidence against them is "just AI." The erosion of trust is the most dangerous artifact of the deepfake revolution.
-
-Our mission at ScanDeepFake isn't just technical; it's social. We want to restore the ability to trust what we see by providing objective, neural-backed proof of authenticity.`
-    }
-  ];
 
   // Routing with ?p=
   useEffect(() => {
@@ -289,33 +180,6 @@ Our mission at ScanDeepFake isn't just technical; it's social. We want to restor
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const [posts, setPosts] = useState(() => {
-    const saved = localStorage.getItem('scandeepfake_posts');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return blogPosts;
-      }
-    }
-    return blogPosts;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('scandeepfake_posts', JSON.stringify(posts));
-  }, [posts]);
-
-  const handleUpdatePost = (updatedPost: any) => {
-    setPosts(posts.map((p: any) => p.id === updatedPost.id ? updatedPost : p));
-  };
-
-  const handleDeletePost = (id: string) => {
-    setPosts(posts.filter((p: any) => p.id !== id));
-  };
-
-  const handleAddPost = (newPost: any) => {
-    setPosts([newPost, ...posts]);
-  };
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -1091,7 +955,11 @@ ${pages.map(page => `  <url>
                          <img src={`${post.imageUrl}?auto=format&fit=crop&q=80&w=1200`} alt={post.alt} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
                       </div>
                       <div className={`text-lg leading-relaxed text-left ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/90'} prose prose-invert max-w-none`}>
-                        <Markdown>{post.content}</Markdown>
+                        {post.content.trim().startsWith('<') ? (
+                          <div dangerouslySetInnerHTML={{ __html: post.content }} />
+                        ) : (
+                          <Markdown>{post.content}</Markdown>
+                        )}
                         <div className={`mt-12 p-8 rounded-3xl border border-dashed text-center ${
                           theme === 'dark' ? 'border-[#00F3FF]/20 bg-white/5' : 'border-[#1E40AF]/20 bg-[#F1F5F9]/50'
                         }`}>
@@ -1369,90 +1237,15 @@ ${pages.map(page => `  <url>
 4. No Liability: ScanDeepFake is not responsible for decisions made based on our analysis results. Use this tool as a supporting reference, not a final verdict.`} />}
         </AnimatePresence>
 
-        {/* --- Hidden Admin Panel --- */}
-        {isAdmin && (
-          <div className={`fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-3xl transition-colors duration-500 ${theme === 'dark' ? 'bg-black/90' : 'bg-white/90'}`}>
-            {!isLoggedIn ? (
-              <div className="max-w-md w-full p-8 border rounded-3xl space-y-6 shadow-2xl bg-black/40 border-white/10">
-                <h2 className="text-3xl font-black uppercase italic text-white text-center">System <span className="text-[#00F3FF]">Authentication</span></h2>
-                <div className="space-y-4">
-                  <input 
-                    type="password" 
-                    placeholder="Security Token" 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-[#00F3FF]"
-                    value={adminPassword}
-                    onChange={(e) => setAdminPassword(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && adminPassword === 'scandeepfake2026' && setIsLoggedIn(true)}
-                  />
-                  <button 
-                    onClick={() => adminPassword === 'scandeepfake2026' ? setIsLoggedIn(true) : alert('Invalid Token')}
-                    className="w-full py-4 bg-[#00F3FF] text-black font-black uppercase tracking-widest rounded-xl"
-                  >Authorize</button>
-                  <button onClick={() => setIsAdmin(false)} className="w-full text-white/50 text-xs uppercase font-bold">Cancel</button>
-                </div>
-              </div>
-            ) : (
-              <div className="w-full h-full max-w-6xl overflow-y-auto p-8 space-y-12">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-4xl font-black uppercase italic text-[#00F3FF]">Command <span className="text-white">Center</span></h2>
-                  <button onClick={() => setIsAdmin(false)} className="px-6 py-2 border border-white/20 rounded-xl text-white font-bold uppercase text-xs hover:bg-white/10">Exit Command</button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                  <div className="space-y-6">
-                    <h3 className="text-xl font-bold uppercase tracking-widest text-white/80">Manage Content</h3>
-                    <div className="space-y-4">
-                      {posts.map((post: any) => (
-                        <div key={post.id} className="p-4 border border-white/5 bg-white/5 rounded-xl flex justify-between items-center">
-                          <div className="truncate pr-4">
-                            <p className="text-white font-bold truncate">{post.title}</p>
-                            <p className="text-xs text-white/50">{post.date}</p>
-                          </div>
-                          <div className="flex gap-2">
-                             <button onClick={() => handleDeletePost(post.id)} className="text-red-400 text-xs font-bold uppercase p-2">Delete</button>
-                          </div>
-                        </div>
-                      ))}
-                      <button 
-                        onClick={() => handleAddPost({
-                          id: `post-${Date.now()}`,
-                          title: 'New Forensic Report',
-                          desc: 'Enter short description...',
-                          date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-                          imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b',
-                          alt: 'Generic forensic image',
-                          content: 'Enter markdown content here...'
-                        })}
-                        className="w-full py-4 border border-dashed border-[#00F3FF]/40 rounded-xl text-[#00F3FF] font-black uppercase text-xs hover:bg-[#00F3FF]/5"
-                      >
-                        + Add New Post
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-6">
-                    <h3 className="text-xl font-bold uppercase tracking-widest text-white/80">System Export</h3>
-                    <div className="p-8 border border-white/10 bg-white/5 rounded-3xl space-y-4">
-                      <p className="text-sm text-white/70">Download current configuration to persist changes in next deployment.</p>
-                      <button 
-                        onClick={() => {
-                          const data = JSON.stringify(posts, null, 2);
-                          const blob = new Blob([data], { type: 'application/json' });
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement('a');
-                          a.href = url;
-                          a.download = 'site_config.json';
-                          a.click();
-                        }}
-                        className="w-full py-4 bg-white text-black font-black uppercase text-xs rounded-xl"
-                      >Download site_config.json</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+        <AnimatePresence>
+          {isAdminOpen && (
+            <AdminPanel 
+              posts={posts} 
+              setPosts={setPosts} 
+              onClose={() => setIsAdminOpen(false)} 
+            />
+          )}
+        </AnimatePresence>
       </main>
 
       {/* Footer */}
