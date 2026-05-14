@@ -30,7 +30,6 @@ jobs:
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_SCANDEEPFAKE }}'
-          projectId: scandeepfake-web-app
           channelId: live
 
       # 3. Hugging Face Sync (Full Docker App)
