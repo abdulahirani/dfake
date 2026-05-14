@@ -46,7 +46,8 @@ async function savePosts(posts: any[]) {
 
 // --- SEO Generation Logic ---
 async function generateSeoFiles() {
-  const domain = "https://scandeepfake.web.app";
+  const config = await loadConfig();
+  const domain = config.settings?.domain || "https://scandeepfake.web.app";
   const pages = ['', 'docs', 'faq', 'about', 'contact', 'privacy', 'terms', 'disclaimer', 'blog'];
   const posts = await loadPosts();
   const blogPostIds = posts.map((p: any) => p.id);
@@ -62,7 +63,7 @@ async function generateSeoFiles() {
   }
   sitemap += '</urlset>';
   
-  const adsTxt = "google.com, pub-6085334458485233, DIRECT, f08c47fec0942fa0";
+  const adsTxt = `google.com, ${config.settings?.adsClient?.replace('ca-', '') || 'pub-6085334458485233'}, DIRECT, f08c47fec0942fa0`;
   const robotsTxt = `User-agent: *\nAllow: /\nSitemap: ${domain}/sitemap.xml`;
   
   const folders = ['public', 'dist', '.'];
@@ -232,7 +233,7 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*any', (req, res) => {
+    app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }

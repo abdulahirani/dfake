@@ -44,25 +44,38 @@ const runForensicAnalysis = async (file: File) => {
   };
 };
 
-function AdSlot({ id, enabled, className, theme }: { id: string; enabled: boolean; className?: string; theme: 'dark' | 'light'; type?: string }) {
+function AdSlot({ id, enabled, className, theme, config }: { id: string; enabled: boolean; className?: string; theme: 'dark' | 'light'; config?: any }) {
   if (!enabled) return null;
+
+  // Custom Ad Code Logic
+  const customCode = config?.settings?.customAdCode;
+
   return (
     <div 
       className={`relative w-full overflow-hidden flex items-center justify-center p-4 border rounded-2xl ${
         theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'
       } ${className || ''}`}
     >
-      <div className={`text-[10px] uppercase font-bold tracking-[0.2em] opacity-30 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
-        ADVERTISEMENT
-      </div>
-      <ins 
-        className="adsbygoogle"
-        style={{ display: 'block' }}
-        data-ad-client={id}
-        data-ad-slot={id}
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      />
+      {customCode ? (
+        <div 
+          className="w-full flex justify-center"
+          dangerouslySetInnerHTML={{ __html: customCode }} 
+        />
+      ) : (
+        <>
+          <div className={`text-[10px] uppercase font-bold tracking-[0.2em] opacity-30 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+            ADVERTISEMENT
+          </div>
+          <ins 
+            className="adsbygoogle"
+            style={{ display: 'block' }}
+            data-ad-client={id}
+            data-ad-slot={id}
+            data-ad-format="auto"
+            data-full-width-responsive="true"
+          />
+        </>
+      )}
     </div>
   );
 }
@@ -120,6 +133,20 @@ export default function App() {
           const configData = await configRes.json();
           setConfig(configData);
           
+          // Apply title and description
+          if (configData.settings?.siteName) {
+            document.title = configData.settings.siteName;
+          }
+          if (configData.settings?.siteDescription) {
+            let metaDesc: HTMLMetaElement | null = document.querySelector("meta[name='description']");
+            if (!metaDesc) {
+              metaDesc = document.createElement('meta');
+              metaDesc.name = 'description';
+              document.head.appendChild(metaDesc);
+            }
+            metaDesc.content = configData.settings.siteDescription;
+          }
+          
           // Apply favicon
           if (configData.settings?.faviconUrl) {
             let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
@@ -157,10 +184,17 @@ export default function App() {
 
   const transformDriveUrl = (url: string) => {
     if (!url) return url;
-    const driveRegex = /\/file\/d\/([a-zA-Z0-9_-]+)\/view/;
-    const match = url.match(driveRegex);
-    if (match && match[1]) {
-      return `https://lh3.googleusercontent.com/d/${match[1]}`;
+    const patterns = [
+      /\/file\/d\/([a-zA-Z0-9_-]+)/,
+      /id=([a-zA-Z0-9_-]+)/,
+      /\/open\?id=([a-zA-Z0-9_-]+)/,
+      /\/d\/([a-zA-Z0-9_-]+)/
+    ];
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) {
+        return `https://lh3.googleusercontent.com/d/${match[1]}`;
+      }
     }
     return url;
   };
@@ -570,13 +604,13 @@ ${pages.map(page => `  <url>
               className="max-w-7xl mx-auto"
             >
               {/* Header Ad Slot */}
-              <AdSlot id="header-high" enabled={config?.settings?.adsEnabled} theme={theme} className="w-full mb-12 rounded-2xl" />
+              <AdSlot id="header-high" enabled={config?.settings?.adsEnabled} theme={theme} config={config} className="w-full mb-12 rounded-2xl" />
 
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
                 {/* Left Side Rail (Ads) */}
                 <aside className="hidden xl:col-span-2 xl:flex flex-col gap-6">
-                  <AdSlot id="side-top" enabled={config?.settings?.adsEnabled} theme={theme} className="w-full h-80 rounded-2xl" />
-                  <AdSlot id="side-mid" enabled={config?.settings?.adsEnabled} theme={theme} className="w-full h-64 rounded-2xl" />
+                  <AdSlot id="side-top" enabled={config?.settings?.adsEnabled} theme={theme} config={config} className="w-full h-80 rounded-2xl" />
+                  <AdSlot id="side-mid" enabled={config?.settings?.adsEnabled} theme={theme} config={config} className="w-full h-64 rounded-2xl" />
                 </aside>
 
                 {/* Main Step Container */}
@@ -661,7 +695,7 @@ ${pages.map(page => `  <url>
                         key="step3" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }}
                         className="space-y-8"
                       >
-                        <AdSlot id="content-mid-1" enabled={config?.settings?.adsEnabled} theme={theme} className="w-full mb-8 rounded-2xl" />
+                        <AdSlot id="content-mid-1" enabled={config?.settings?.adsEnabled} theme={theme} config={config} className="w-full mb-8 rounded-2xl" />
 
                         <div className="bg-white/5 border border-white/10 rounded-[40px] p-8 md:p-12 space-y-10">
                           <div className="flex flex-col items-center text-center space-y-4">
@@ -754,7 +788,7 @@ ${pages.map(page => `  <url>
                           </div>
                         </div>
 
-                        <AdSlot id="content-mid-2" enabled={config?.settings?.adsEnabled} theme={theme} className="w-full mb-8 rounded-2xl" />
+                        <AdSlot id="content-mid-2" enabled={config?.settings?.adsEnabled} theme={theme} config={config} className="w-full mb-8 rounded-2xl" />
                         <button onClick={() => setCurrentStep(2)} className="opacity-80 hover:opacity-100 text-xs uppercase font-black tracking-widest block mx-auto transition-opacity">← Back</button>
                       </motion.div>
                     )}
@@ -955,9 +989,9 @@ ${pages.map(page => `  <url>
 
                 {/* Right Side Rail (Ads) */}
                 <aside className="hidden xl:col-span-2 xl:flex flex-col gap-6">
-                  <AdSlot id="side-tall" enabled={config?.settings?.adsEnabled} theme={theme} className="w-full h-[500px] rounded-2xl" />
+                  <AdSlot id="side-tall" enabled={config?.settings?.adsEnabled} theme={theme} config={config} className="w-full h-[500px] rounded-2xl" />
                   <div className="sticky top-32 space-y-6">
-                    <AdSlot id="side-sticky" enabled={config?.settings?.adsEnabled} theme={theme} className="w-full h-[300px] rounded-2xl" />
+                    <AdSlot id="side-sticky" enabled={config?.settings?.adsEnabled} theme={theme} config={config} className="w-full h-[300px] rounded-2xl" />
                   </div>
                 </aside>
               </div>
@@ -967,6 +1001,7 @@ ${pages.map(page => `  <url>
                 id="bottom-anchor" 
                 enabled={config?.settings?.adsEnabled} 
                 theme={theme} 
+                config={config}
                 className={`fixed bottom-0 left-0 w-full h-16 backdrop-blur-md border-t z-[100] transition-colors duration-500 ${
                   theme === 'dark' ? 'bg-black/80 border-white/10' : 'bg-white/80 border-black/10'
                 }`} 
@@ -1012,7 +1047,7 @@ ${pages.map(page => `  <url>
                 <div className="max-w-3xl mx-auto space-y-10">
                   <button onClick={() => setCurrentPost(null)} className={`text-xs font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white/80 hover:text-white' : 'text-[#0F172A] opacity-80 hover:opacity-100'}`}>← Back to Blog</button>
                   {posts.filter((p: any) => p.id === currentPost).map((post: any) => (
-                    <article key={post.id} className="space-y-10">
+                    <article key={post.id} className="space-y-10 w-full overflow-hidden break-words">
                        <div className="space-y-4">
                         <div className={`text-xs font-mono uppercase tracking-[0.3em] font-bold ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>{post.date}</div>
                         <h2 className={`text-5xl md:text-6xl font-black uppercase tracking-tighter leading-none italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h2>
@@ -1025,7 +1060,7 @@ ${pages.map(page => `  <url>
                           className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" 
                         />
                       </div>
-                      <div className={`text-lg leading-relaxed text-left ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/90'} prose prose-invert max-w-none`}>
+                      <div className={`text-lg leading-relaxed text-left ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/90'} prose prose-invert max-w-none break-words overflow-hidden`}>
                         {post.content.trim().startsWith('<') ? (
                           <div dangerouslySetInnerHTML={{ __html: post.content }} />
                         ) : (
@@ -1236,15 +1271,8 @@ ${pages.map(page => `  <url>
         </div>
         
         <div className="mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className={`px-4 py-2 border rounded-xl flex items-center gap-2 text-xs font-mono font-black uppercase tracking-[0.2em] shadow-lg ${
-              theme === 'dark' ? 'bg-white/10 border-white/20 text-white' : 'bg-black/5 border-black/10 text-black'
-            }`}>
-              <Shield size={12} className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} /> Fully Encrypted & Sandbox Secure
-            </div>
-          </div>
-          <p className={`text-xs font-bold uppercase tracking-[0.2em] opacity-60 ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>
-            © 2026 ScanDeepFake. Digital Integrity Verified.
+          <p className={`text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>
+            © 2026 {config?.settings?.siteName || 'ScanDeepFake'}. Digital Integrity Verified. Fully Encrypted & Sandbox Secure.
           </p>
         </div>
       </footer>

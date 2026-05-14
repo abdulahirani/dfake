@@ -23,9 +23,12 @@ interface FAQ {
 interface AppConfig {
   faqs: FAQ[];
   settings: {
+    siteName?: string;
+    siteDescription?: string;
     faviconUrl: string;
     adsEnabled: boolean;
     adsClient: string;
+    customAdCode?: string;
   };
   legal: {
     privacy: string;
@@ -71,10 +74,17 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
 
   const transformDriveUrl = (url: string) => {
     if (!url) return url;
-    const driveRegex = /\/file\/d\/([a-zA-Z0-9_-]+)\/view/;
-    const match = url.match(driveRegex);
-    if (match && match[1]) {
-      return `https://lh3.googleusercontent.com/d/${match[1]}`;
+    const patterns = [
+      /\/file\/d\/([a-zA-Z0-9_-]+)/,
+      /id=([a-zA-Z0-9_-]+)/,
+      /\/open\?id=([a-zA-Z0-9_-]+)/,
+      /\/d\/([a-zA-Z0-9_-]+)/
+    ];
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) {
+        return `https://lh3.googleusercontent.com/d/${match[1]}`;
+      }
     }
     return url;
   };
@@ -237,7 +247,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
           
           <div className="h-6 w-px bg-white/10 mx-2 hidden md:block" />
           
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="flex items-center gap-1 overflow-x-auto no-scrollbar pb-1 px-4 max-w-[calc(100vw-180px)] md:max-w-none">
             {[
               { id: 'posts', label: 'Reports', icon: FileText },
               { id: 'faqs', label: 'FAQ', icon: HelpCircle },
@@ -248,14 +258,14 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
               <button
                 key={tab.id}
                 onClick={() => { setMainTab(tab.id as any); setView('list'); }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                   mainTab === tab.id 
                     ? (theme === 'dark' ? 'bg-[#00F3FF] text-black' : 'bg-[#1E40AF] text-white')
                     : (theme === 'dark' ? 'text-white/40 hover:text-white hover:bg-white/5' : 'text-black/40 hover:text-black hover:bg-black/5')
                 }`}
               >
                 <tab.icon size={12} />
-                {tab.label}
+                <span className="whitespace-nowrap">{tab.label}</span>
               </button>
             ))}
           </nav>
@@ -311,14 +321,14 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
                 {[...posts].map((post) => (
                   <div 
                     key={post.id}
-                    className={`group border p-6 rounded-3xl flex items-center justify-between transition-all ${
+                    className={`group border p-4 md:p-6 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all ${
                       theme === 'dark' 
                         ? 'bg-white/5 border-white/5 hover:bg-white/[0.08] hover:border-white/10' 
                         : 'bg-white border-black/5 hover:border-black/10 shadow-sm'
                     }`}
                   >
-                    <div className="flex items-center gap-6 flex-1 pr-6">
-                      <div className="w-16 h-16 rounded-2xl overflow-hidden bg-black/40 flex-shrink-0">
+                    <div className="flex items-center gap-4 md:gap-6 flex-1 w-full overflow-hidden">
+                      <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl overflow-hidden bg-black/40 flex-shrink-0">
                         <img 
                           src={transformDriveUrl(post.imageUrl).includes('?') ? transformDriveUrl(post.imageUrl) : `${transformDriveUrl(post.imageUrl)}?auto=format&fit=crop&q=40&w=200`} 
                           alt={post.alt} 
@@ -326,8 +336,8 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
                           className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" 
                         />
                       </div>
-                      <div className="space-y-1 overflow-hidden">
-                        <h3 className={`text-lg font-bold truncate ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h3>
+                      <div className="space-y-1 overflow-hidden flex-1">
+                        <h3 className={`text-base md:text-lg font-bold truncate ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h3>
                         <div className="flex gap-4 text-[10px] font-mono uppercase tracking-widest opacity-40">
                           <span>{post.date}</span>
                           <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>{post.category || 'General'}</span>
@@ -335,20 +345,22 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3 w-full md:w-auto md:justify-end">
                       <button 
                         onClick={() => handleEdit(post)}
-                        className={`flex items-center gap-2 px-4 py-2 border font-bold uppercase text-[10px] tracking-widest rounded-lg transition-all ${
+                        className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-3 md:px-4 md:py-2 border font-black uppercase text-[10px] tracking-widest rounded-xl transition-all ${
                           theme === 'dark' 
                             ? 'border-blue-400/20 text-blue-400 hover:bg-blue-400/10' 
-                            : 'border-blue-600/20 text-blue-600 hover:bg-blue-600/5'
+                            : 'border-blue-600/20 text-blue-600 hover:bg-blue-600/5 shadow-sm'
                         }`}
                       >
-                        Edit
+                        Edit Report
                       </button>
                       <button 
                         onClick={() => handleDelete(post.id)}
-                        className="p-3 opacity-20 hover:text-red-400 hover:opacity-100 transition-all"
+                        className={`p-3 md:p-3 rounded-xl transition-all ${
+                          theme === 'dark' ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'bg-red-50 text-red-600 hover:bg-red-100'
+                        }`}
                       >
                         <Trash2 size={16} />
                       </button>
@@ -443,11 +455,20 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
               </div>
 
               <div className={`border p-8 rounded-3xl space-y-8 ${theme === 'dark' ? 'bg-white/5 border-white/5' : 'bg-white border-black/5 shadow-sm'}`}>
-                <div className="grid md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-xs font-black uppercase tracking-widest opacity-40">Website Title</label>
+                    <input 
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 outline-none focus:border-[#00F3FF]"
+                      placeholder="ScanDeepFake"
+                      value={config.settings.siteName || ''}
+                      onChange={(e) => setConfig({...config, settings: {...config.settings, siteName: e.target.value}})}
+                    />
+                  </div>
                   <div className="space-y-3">
                     <label className="text-xs font-black uppercase tracking-widest opacity-40">System Favicon URL</label>
                     <div className="flex gap-4">
-                      <div className="w-12 h-12 bg-white/5 rounded-xl border border-white/10 p-2 overflow-hidden flex items-center justify-center">
+                      <div className="w-10 h-10 bg-white/5 rounded-xl border border-white/10 p-2 overflow-hidden flex items-center justify-center shrink-0">
                         <img src={config.settings.faviconUrl} alt="Favicon" className="max-w-full max-h-full" />
                       </div>
                       <input 
@@ -457,6 +478,16 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
                       />
                     </div>
                   </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-xs font-black uppercase tracking-widest opacity-40">Website Description (SEO)</label>
+                  <textarea 
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-[#00F3FF] min-h-[100px]"
+                    placeholder="Professional deepfake detection tools..."
+                    value={config.settings.siteDescription || ''}
+                    onChange={(e) => setConfig({...config, settings: {...config.settings, siteDescription: e.target.value}})}
+                  />
                 </div>
               </div>
             </div>
@@ -537,16 +568,26 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
                     value={config.settings.adsClient}
                     onChange={(e) => setConfig({...config, settings: {...config.settings, adsClient: e.target.value}})}
                   />
-                  <p className="text-[10px] opacity-30 italic">Note: Changes here will propagate to the robots.txt and sitemap headers automatically.</p>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-xs font-black uppercase tracking-widest opacity-40">Custom Ad Unit / Script Code (HTML/JS)</label>
+                  <textarea 
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-[#00F3FF] font-mono min-h-[150px] text-xs"
+                    placeholder="<script>...</script> or <ins>...</ins>"
+                    value={config.settings.customAdCode || ''}
+                    onChange={(e) => setConfig({...config, settings: {...config.settings, customAdCode: e.target.value}})}
+                  />
+                  <p className="text-[10px] opacity-30 italic">Note: If custom code is provided, it will override the simple AdSense ID for standard slots. Use this for third-party platforms or custom banners.</p>
                 </div>
               </div>
             </div>
           )}
         </div>
       ) : (
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
           {/* Main Editor Section */}
-          <div className="flex-1 flex flex-col p-8 overflow-y-auto space-y-8">
+          <div className="flex-1 flex flex-col p-4 md:p-8 overflow-y-auto space-y-8 no-scrollbar">
             <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-white/40">
               <button 
                 onClick={() => setView('list')}
@@ -586,7 +627,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
           </div>
 
           {/* Sidebar Settings */}
-          <div className={`w-80 border-l flex flex-col transition-colors ${theme === 'dark' ? 'border-white/10 bg-[#0F172A]' : 'border-black/5 bg-white shadow-xl'}`}>
+          <div className={`w-full lg:w-80 border-t lg:border-t-0 lg:border-l flex flex-col transition-colors ${theme === 'dark' ? 'border-white/10 bg-[#0F172A]' : 'border-black/5 bg-white shadow-xl'}`}>
             <div className="flex border-b border-white/10 p-2">
               <button 
                 onClick={() => setSidebarTab('settings')}

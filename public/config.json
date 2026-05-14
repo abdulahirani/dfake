@@ -22,9 +22,12 @@
     }
   ],
   "settings": {
+    "siteName": "ScanDeepFake",
+    "siteDescription": "Professional AI Deepfake Detection & Forensic Analysis",
     "faviconUrl": "/favicon.ico",
     "adsEnabled": false,
-    "adsClient": "ca-pub-0000000000000000"
+    "adsClient": "ca-pub-0000000000000000",
+    "customAdCode": ""
   },
   "legal": {
     "privacy": "Our commitment to your privacy is absolute. Our ScanDeepFake tools are designed with \"Privacy by Design\" principles. \n\n1. Data Integrity: We do not store, upload, or transmit your media to our permanent servers. Processing happens in secure ephemeral cloud instances that are deleted immediately after result generation.\n2. Analytics: We use anonymized usage metrics to improve our detection algorithms. No personally identifiable information (PII) is ever linked to these metrics.\n3. Cookies: We use minimal cookies to maintain session states and for AdSense ad delivery. You can opt-out via your browser settings.\n4. Third Parties: Verified AI partners may receive transient data for processing, strictly governed by zero-retention policies.\n5. Advertising: This site uses Google AdSense. Google's use of advertising cookies enables it and its partners to serve ads based on your visit to this site and/or other sites on the Internet.",
