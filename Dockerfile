@@ -15,8 +15,8 @@ ENV HOME=/home/user \
 
 # Create non-root user
 RUN useradd -m -u 1000 user
-
 WORKDIR /app
+RUN chown user:user /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -24,14 +24,14 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies as root then switch user
+# Install Python dependencies
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Switch to non-root user
 USER user
 
-# Copy backend files and built frontend from builder stage
+# Copy backend files and built frontend
 COPY --chown=user app.py .
 COPY --chown=user .env* ./
 COPY --from=frontend-builder --chown=user /app/dist ./dist
