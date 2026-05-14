@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import { X, Save, Trash2, Plus, LogOut, ChevronRight, Settings, Globe, FileText, Image as ImageIcon } from 'lucide-react';
 
 interface Post {
@@ -69,6 +69,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
   };
 
   const handleEdit = (post: Post) => {
+    // Deep clone to avoid immediate state updates during typing in list view (if any)
     setEditingPost({ ...post });
     setView('edit');
   };
@@ -193,7 +194,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
           </div>
 
           <div className="grid gap-4">
-            {posts.map((post) => (
+            {[...posts].map((post) => (
               <div 
                 key={post.id}
                 className="group bg-white/5 border border-white/5 p-6 rounded-3xl flex items-center justify-between hover:bg-white/[0.08] hover:border-white/10 transition-all"
@@ -251,7 +252,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
                 onChange={(e) => setEditingPost(prev => prev ? { ...prev, title: e.target.value } : null)}
               />
               
-              <div className="bg-[#0F172A] border border-white/10 rounded-2xl overflow-hidden">
+              <div className="bg-[#0F172A] border border-white/10 rounded-2xl overflow-hidden min-h-[400px]">
                 <ReactQuill 
                   theme="snow"
                   value={editingPost?.content || ''}
@@ -359,7 +360,6 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
                       onChange={(e) => setEditingPost(prev => prev ? { ...prev, metaDesc: e.target.value } : null)}
                     />
                     <div className="flex justify-between text-[8px] font-black uppercase text-white/20">
-                      <span>Google Preview</span>
                       <span>{editingPost?.metaDesc?.length || 0}/160</span>
                     </div>
                   </div>

@@ -931,7 +931,11 @@ ${pages.map(page => `  <url>
                         }`}
                       >
                         <div className="aspect-video bg-black/20 overflow-hidden">
-                          <img src={`${post.imageUrl}?auto=format&fit=crop&q=80&w=800`} alt={post.alt} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                          <img 
+                            src={post.imageUrl.includes('?') ? post.imageUrl : `${post.imageUrl}?auto=format&fit=crop&q=80&w=800`} 
+                            alt={post.alt} 
+                            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" 
+                          />
                         </div>
                         <div className="p-8 space-y-4">
                           <div className={`text-xs font-mono uppercase tracking-[0.2em] font-bold ${theme === 'dark' ? 'text-[#00F3FF]/80' : 'text-[#1E40AF]/80'}`}>{post.date}</div>
@@ -952,7 +956,11 @@ ${pages.map(page => `  <url>
                         <h2 className={`text-5xl md:text-6xl font-black uppercase tracking-tighter leading-none italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h2>
                       </div>
                       <div className="aspect-video rounded-[2.5rem] overflow-hidden border border-white/10">
-                         <img src={`${post.imageUrl}?auto=format&fit=crop&q=80&w=1200`} alt={post.alt} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+                        <img 
+                          src={post.imageUrl.includes('?') ? post.imageUrl : `${post.imageUrl}?auto=format&fit=crop&q=80&w=1200`} 
+                          alt={post.alt} 
+                          className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" 
+                        />
                       </div>
                       <div className={`text-lg leading-relaxed text-left ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/90'} prose prose-invert max-w-none`}>
                         {post.content.trim().startsWith('<') ? (

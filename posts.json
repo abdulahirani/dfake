@@ -4,7 +4,7 @@
     "title": "How to detect deepfake video on WhatsApp: My hands-on guide.",
     "desc": "I saw my friend \"calling\" me from a number I didn't recognize. Here is how I knew it wasn't him.",
     "date": "May 12, 2026",
-    "imageUrl": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b",
+    "imageUrl": "https://images.unsplash.com/photo-1633158829585-23bb8f628e3c",
     "alt": "Cyber security concept illustration with glowing blue nodes",
     "content": "I was sitting in a coffee shop when a video call came through on WhatsApp. It was from a random international number, but the thumbnail showed my high school friend, Mark. \n\nI picked up. It was Mark's face. 100%. He looked worried, telling me he'd been mugged in London and needed a quick wire transfer. But something didn't \"feel\" human. \n\nIn my 10 years of AI forensics, I've learned that the gut is your first sensor. I started looking for the \"Forensic Legend\" artifacts. \n\n## The Skin Texture Trap\nHumans have pores. High-end deepfakes (like the one I was seeing) use diffusion hum that smooths out microscopic texture. When Mark moved his head, there was a slight \"ghosting\" near his jawline. AI struggle with the temporal consistency of hair against skin. Learn more in our [AI vs Reality Analysis](?p=blog&post=ai-vs-reality-psychology).\n\n## The Eye Reflection Logic\nI asked him to look at the \"camera\" (his phone). The light reflection in his eyes remained static even as he shifted. That's a classic signature. \n\n## My Advice to You\nDon't trust the video. Ask a random question that requires a specific physical reaction. \"Hey Mark, can you touch your ear?\" Deepfakes often glitch when an object (a hand) passes in front of the generated face. \n\nIf you're ever in doubt about a video or image you've received, don't guess. Verify it yourself at [ScanDeepFake](https://scandeepfake.web.app)."
   },
@@ -13,7 +13,7 @@
     "title": "Free AI forensic tool for image verification: Why I built ScanDeepFake.",
     "desc": "I got tired of seeing people lose their life savings to \"synthetic\" managers. So I coded a solution.",
     "date": "May 11, 2026",
-    "imageUrl": "https://images.unsplash.com/photo-1563986768609-322da13575f3",
+    "imageUrl": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b",
     "alt": "Digital screen showing complex data analytics and forensic code",
     "content": "Last year, my aunt lost $15,000 to a \"crypto expert\" who appeared in professional, 4K videos on Twitter. The videos were perfect. The voice was warm. But it was all generated in a basement in Eastern Europe.\n\nThe tools to detect this stuff were either $500/month or locked behind corporate NDA walls. I decided that wasn't right. \n\nI built ScanDeepFake to bring \"Neural Forensic Legend\" capabilities to everyone. \n\n## How it works (under the hood)\nWhen you upload an image here, we don't just look at the pixels. We look at the metadata (Size, Dimensions, GPS, Signature). AI-generated images often have telltale \"latent artifacts.\" For a deep dive, see our [Forensic Metadata Guide](?p=blog&post=forensic-metadata-guide).\n\nFor example, a file might look like a 2MB JPEG, but its internal byte structure reveals it was reconstructed from a noise-seed. We use Pillow and ExifRead to strip these secrets. \n\nMy goal is a 99.8% precision rate accessible to everyone, for free. No storage, no tracking—just digital truth. \n\nDon't guess. Verify it yourself with our [Online Deepfake Scanner](https://scandeepfake.web.app)."
   },
@@ -22,9 +22,9 @@
     "title": "Signs of AI face swap in video calls: How I caught a scammer.",
     "desc": "They tried to use a face-swap on a Zoom interview. My forensic rig caught the temporal hum instantly.",
     "date": "May 10, 2026",
-    "imageUrl": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b",
+    "imageUrl": "https://images.unsplash.com/photo-1563986768609-322da13575f3",
     "alt": "Encrypted server rack in a dark data center representing forensic security",
-    "content": "I was conducting a remote interview for a DevSecOps role. The candidate, \"Alex,\" had a stellar resume. But 3 minutes into the call, I noticed the \"temporal hum.\" \n\nTemporal hum is the specific frequency pattern found in generative synthesis. It manifests as a slight rhythmic pulsing of pixels on the edges of the face.\n\n## The Metadata Give-Away\nI asked Alex to share his screen to show a local codebase. He hesitated. I used a local hook to check the streaming buffer. The \"Dimensions\" of the face layer didn't match the background noise.\n\n## The Ear-Check Trick\nFace-swaps are great at eyes and mouths. They are terrible at ears and hands. I asked \"Alex\" to adjust his headset. When his hand touched his ear, his face shifted 2 inches to the left for a split second. The mask slipped.\n\nIdentity theft in 2026 is a multi-billion dollar industry. Stay vigilant. If a recruiter or stranger seems too perfect, they might just be a prompt.\n\nDon't guess. Verify it yourself at [ScanDeepFake](https://scandeepfake.web.app). For high-performance backend analysis, visit our [Hugging Face Space](https://huggingface.co/spaces/gundkatira/scandeepfake-scanner)."
+    "content": "I was conducting a remote interview for a DevSecOps role. The candidate, \"Alex,\" had a stellar resume. But 3 minutes into the call, I noticed the \"temporal hum.\" \n\nTemporal hum is the specific frequency pattern found in generative synthesis. It manifests as a slight rhythmic pulsing of pixels on the edges of the face.\n\n## The Metadata Give-Away\nI asked Alex to share his screen to show a local codebase. He hesitated. I used a local hook to check the streaming buffer. The \"Dimensions\" of the face layer didn't match the background noise.\n\n## The Ear-Check Trick\nFace-swaps are great at eyes and mouths. They are terrible at ears and hands. I asked \"Alex\" to adjust his headset. When his hand touched his ear, his face shifted 2 inches to the left for a split second. The mask slipped.\n\nIdentity theft in 2026 is a multi-billion dollar industry. Stay vigilant. If a recruiter or stranger seems too perfect, they might just be a prompt. \n\nDon't guess. Verify it yourself at [ScanDeepFake](https://scandeepfake.web.app). For high-performance backend analysis, visit our [Hugging Face Space](https://huggingface.co/spaces/gundkatira/scandeepfake-scanner)."
   },
   {
     "id": "audio-deepfakes-biometrics",
@@ -40,7 +40,7 @@
     "title": "Forensic Metadata: How to check the digital DNA of an image.",
     "desc": "Beyond the pixels: Technical guide on EXIF and byte-level analysis for authentication.",
     "date": "May 08, 2026",
-    "imageUrl": "https://images.unsplash.com/photo-1639762681485-074b7f938ba0",
+    "imageUrl": "https://images.unsplash.com/photo-1620712943543-bcc4628c6757",
     "alt": "Abstract blockchain and data forensic visualization",
     "content": "Every digital image has a soul—or at least a DNA sequence in the form of metadata. When a Midjourney or DALL-E image is born, it carries a very specific latent structure.\n\n## The ICC Profile Clue\nMany AI generators default to generic sRGB profiles that differ slightly from the profiles used by Canon, Sony, or iPhone sensors. \n\n## Software Signatures\nEven if EXIF data is wiped, the \"Quantization Tables\" in the JPEG compression often reveal the software used to save the file. Photoshop leaves one mark; a generative neural network leaves another.\n\nScanDeepFake parses these hidden layers to give you a definitive verdict."
   },
@@ -49,7 +49,7 @@
     "title": "AI vs. Reality: The psychological impact of hyper-realistic deepfakes.",
     "desc": "Social commentary on digital trust and the erosion of \"seeing is believing\" in 2026.",
     "date": "May 07, 2026",
-    "imageUrl": "https://images.unsplash.com/photo-1558494949-ef010cbdcc4b",
+    "imageUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe",
     "alt": "Encrypted server rack in a dark data center representing forensic security",
     "content": "What happens when you can no longer trust your own eyes? In 2026, we are entering the era of \"Total Synthesis.\" \n\nPsychologically, the human brain isn't wired to handle hyper-realistic replicas of loved ones or authority figures. When a deepfake successfully fools the subconscious, it creates a unique form of digital trauma. \n\nWe must evolve our critical thinking as fast as the algorithms evolve their generative power."
   }
