@@ -4,7 +4,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
-import { Upload, Shield, Activity, Cpu, CheckCircle2, ChevronRight, Info, FileVideo, FileImage, Loader2, BookOpen, Terminal, Sun, Moon, Settings, WifiOff, AlertTriangle, Menu, X } from 'lucide-react';
+import { Upload, Shield, Activity, Cpu, CheckCircle2, ChevronRight, Info, FileVideo, FileImage, Loader2, BookOpen, Sun, Moon, Settings, WifiOff, AlertTriangle, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Markdown from 'react-markdown';
 import AdminPanel from './components/AdminPanel';
@@ -211,10 +211,11 @@ export default function App() {
       try {
         await StatusBar.setOverlaysWebView({ overlay: true });
         await StatusBar.hide();
+        await StatusBar.setBackgroundColor({ color: '#000000' });
         // Ensure it stays hidden even after resume
-        window.addEventListener('focus', () => StatusBar.hide());
-        CapApp.addListener('appRestoredResult', () => StatusBar.hide());
-        CapApp.addListener('resume', () => StatusBar.hide());
+        window.addEventListener('focus', () => { StatusBar.hide().catch(() => {}); });
+        CapApp.addListener('appRestoredResult', () => { StatusBar.hide().catch(() => {}); });
+        CapApp.addListener('resume', () => { StatusBar.hide().catch(() => {}); });
       } catch (e) {
         console.warn('StatusBar hide failed', e);
       }
@@ -339,10 +340,10 @@ export default function App() {
     }
   }, []);
 
-  // Hidden admin access: ?admin=true or /admin path
+  // Hidden admin access: ?admin=true
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('admin') === 'true' || window.location.pathname === '/admin') {
+    if (params.get('admin') === 'true') {
       setIsAdminOpen(true);
     }
   }, []);
@@ -1230,36 +1231,8 @@ ${pages.map(page => `  <url>
                     )}
                   </AnimatePresence>
 
-                  {/* Shared SEO / Why Content */}
-                  <div className="pt-24 space-y-16">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-16 pt-12 border-t border-white/5">
-                      <div className="space-y-8">
-                        <h2 className={`text-4xl font-black uppercase tracking-tighter leading-none italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>
-                          Why <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>ScanDeepFake?</span>
-                        </h2>
-                        <div className="space-y-6">
-                            <p className={`text-lg leading-relaxed ${theme === 'dark' ? 'text-white/60' : 'text-[#0F172A]'}`}>
-                              Our forensic engine provides military-grade detection for digital assets. We focus on three core pillars:
-                            </p>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              <BenefitCard title="Privacy Protocol" desc="Processing happens locally. No media is ever sent to our cloud." theme={theme} />
-                              <BenefitCard title="Instant Scan" desc="Get high-confidence forensic results in under 10 seconds." theme={theme} />
-                              <BenefitCard title="99.8% Precision" desc="Trained on massive adversarial datasets for max accuracy." theme={theme} />
-                              <BenefitCard title="Multi-Format" desc="Expert verification for images and complex video sequences." theme={theme} />
-                            </div>
-                        </div>
-                      </div>
-                      <div className={`p-8 rounded-[2rem] border space-y-6 transition-colors duration-500 ${
-                        theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-[#F1F5F9] border-black/10'
-                      }`}>
-                        <h3 className={`text-2xl font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>System FAQ</h3>
-                        <div className="space-y-4">
-                          <p className={`text-xs font-mono tracking-widest uppercase ${theme === 'dark' ? 'text-[#00F3FF]/80' : 'text-[#1E40AF]/90'}`}>Q: Is it accurate?</p>
-                          <p className={`text-sm ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>A: Our neural engine has a 99.8% precision rate on standard generative models including Midjourney v6 and SVD. <button onClick={() => { setCurrentPage('blog'); setCurrentPost('whatsapp-deepfake-guide'); }} className="underline hover:text-[#1E40AF]">Read our full forensic guide here</button>.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  {/* Content removed as requested */}
+                  <div className="pt-24 min-h-[100px]"></div>
                 </div>
 
                 {/* Right Side Rail (Ads) */}
@@ -1587,13 +1560,13 @@ ${pages.map(page => `  <url>
       {/* Hamburger Tab Menu Overlay */}
       <AnimatePresence>
         {isMenuOpen && (
-          <div className="fixed inset-0 z-[9998]">
+          <div className="fixed inset-0 z-[9999]">
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }}
               onClick={() => setIsMenuOpen(false)}
-              className="absolute inset-0 bg-black/95 backdrop-blur-md"
+              className="absolute inset-0 bg-black backdrop-blur-none"
             />
             <motion.div 
               initial={{ x: '100%' }} 
@@ -1601,8 +1574,8 @@ ${pages.map(page => `  <url>
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className={`absolute top-0 right-0 h-full w-full md:w-[380px] p-8 flex flex-col shadow-2xl transition-colors duration-500 overflow-y-auto ${
-                theme === 'dark' ? '!bg-[#050608]' : '!bg-white'
-              } border-l ${theme === 'dark' ? 'border-white/10' : 'border-black/10'}`}
+                theme === 'dark' ? 'bg-[#000000]' : 'bg-white'
+              } border-l ${theme === 'dark' ? 'border-white/20' : 'border-black/20'}`}
             >
               <div className="flex justify-between items-center mb-12">
                 <div className="flex flex-col">
@@ -1623,7 +1596,7 @@ ${pages.map(page => `  <url>
                   { id: 'blog', label: 'Forensic Blog' },
                   { id: 'docs', label: 'Documentation' },
                   { id: 'faq', label: 'Support Center' },
-                  { id: 'about', label: 'Executive Intel' }
+                  { id: 'about', label: 'About Project' }
                 ].map((item) => (
                   <button 
                     key={item.id}

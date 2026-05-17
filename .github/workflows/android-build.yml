@@ -35,7 +35,11 @@ jobs:
         npm run assets:generate
 
     - name: Sync Capacitor
-      run: npx cap sync android
+      run: |
+        if [ ! -d "android" ]; then
+          npx cap add android
+        fi
+        npx cap sync android
 
     - name: Build with Gradle
       run: |
