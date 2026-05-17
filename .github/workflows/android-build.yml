@@ -2,64 +2,49 @@ name: Android Build
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
+    - name: set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
 
-      - name: Install Dependencies
-        run: npm install
+    - name: Install dependencies
+      run: npm install
 
-      - name: Build Web Application
-        run: npm run build
+    - name: Generate Frontend Assets
+      run: npm run build
 
-      - name: Prepare and Generate Assets
-        run: |
-          npm run assets:prepare
-          npx capacitor-assets generate --android
+    - name: Prepare Native Assets
+      run: |
+        npm run assets:prepare
+        npm run assets:generate
 
-      - name: Capacitor Sync
-        run: |
-          npx cap add android || true
-          npx cap sync android
+    - name: Sync Capacitor
+      run: npx cap sync android
 
-      - name: Inject AdMob App ID into AndroidManifest
-        run: |
-          # Ensure the meta-data tag is in AndroidManifest.xml within the <application> tag
-          MANIFEST_PATH="android/app/src/main/AndroidManifest.xml"
-          APP_ID="ca-app-pub-5955602053283707~3790849033"
-          if ! grep -q "com.google.android.gms.ads.APPLICATION_ID" "$MANIFEST_PATH"; then
-            sed -i "/<\/application>/i \        <meta-data android:name=\"com.google.android.gms.ads.APPLICATION_ID\" android:value=\"$APP_ID\"\/>" "$MANIFEST_PATH"
-          fi
+    - name: Build with Gradle
+      run: |
+        cd android
+        chmod +x gradlew
+        ./gradlew assembleDebug
 
-      - name: Build Android APK
-        run: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
-
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: scandeepfake-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 7
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: scandeepfake-binary-debug
+        path: android/app/build/outputs/apk/debug/app-debug.apk

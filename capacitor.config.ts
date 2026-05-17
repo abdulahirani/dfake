@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.scandeepfake.app',
-  appName: 'ScanDeepFake',
+  appName: 'ScanDeepFake: AI Forensic Scanner',
   webDir: 'dist',
   server: {
     androidScheme: 'https'

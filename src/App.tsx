@@ -550,20 +550,18 @@ export default function App() {
   const startAnalysis = async () => {
     if (!selectedFile) return;
 
-    // Interstitial/Rewarded Ad Trigger for Scan
-    if (Capacitor.isNativePlatform()) {
-      if (scansCount > 0) {
-        // Require rewarded for subsequent scans
-        await showRewardedAd();
-        await prepareRewardedAd();
-      } else {
-        // Show interstitial for first scan completion prep
-        await showInterstitialAd();
-        await prepareInterstitialAd();
+      if (Capacitor.isNativePlatform()) {
+        if (scansCount > 0) {
+          // Require Interstitial for subsequent scans
+          await showInterstitialAd();
+          await prepareInterstitialAd();
+        } else {
+          // Just prepare for first scan
+          await prepareInterstitialAd();
+        }
       }
-    }
-    
-    setCurrentStep(4);
+      
+      setCurrentStep(4);
     setIsAnalyzing(true);
     setResult(null);
     setError(null);
@@ -599,10 +597,11 @@ export default function App() {
       setScansCount(prev => prev + 1);
 
       if (Capacitor.isNativePlatform()) {
-        await showInterstitialAd();
-        // Background load the next one for future scans
-        await prepareInterstitialAd();
-        await prepareRewardedAd();
+        // Delay ad slightly to ensure result is rendered
+        setTimeout(async () => {
+          await showInterstitialAd();
+          await prepareInterstitialAd();
+        }, 800);
       }
 
     } catch (err) {
@@ -858,8 +857,8 @@ ${pages.map(page => `  <url>
               />
               <motion.div 
                 initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-                className={`fixed top-0 right-0 h-full w-full md:w-[320px] z-[1000] p-8 flex flex-col shadow-2xl transition-colors duration-500 ${
-                  theme === 'dark' ? 'bg-[#050608]' : 'bg-white'
+                className={`fixed top-0 right-0 h-full w-full md:w-[320px] z-[2000] p-8 flex flex-col shadow-2xl transition-colors duration-500 ${
+                  theme === 'dark' ? 'bg-[#050608] bg-opacity-100' : 'bg-white bg-opacity-100'
                 } border-l ${theme === 'dark' ? 'border-white/10' : 'border-black/10'}`}
               >
                 <div className="flex justify-between items-center mb-12">
@@ -971,9 +970,7 @@ ${pages.map(page => `  <url>
                               <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Forensic Engine</span>
                             </h1>
                             <div 
-                              className={`text-xl md:text-2xl font-black uppercase tracking-widest opacity-60 cursor-pointer select-none ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}
-                              onContextMenu={(e) => { e.preventDefault(); setIsAdminOpen(true); }}
-                              onDoubleClick={() => setIsAdminOpen(true)}
+                              className={`text-xl md:text-2xl font-black uppercase tracking-widest opacity-60 select-none ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}
                             >
                               Truth matters. Verify everything.
                             </div>
@@ -1644,7 +1641,7 @@ ${pages.map(page => `  <url>
           </div>
           
           <div className={`mt-20 pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-6 ${theme === 'dark' ? 'border-white/5' : 'border-black/5'}`}>
-            <p className="text-[9px] font-black uppercase tracking-[0.5em] opacity-20 text-center md:text-left" onDoubleClick={() => setIsAdminOpen(true)}>
+            <p className="text-[9px] font-black uppercase tracking-[0.5em] opacity-20 text-center md:text-left">
               © 2026 SCANDEEPFAKE TECHNOLOGIES. ALL RIGHTS RESERVED. AMAZON APPSTORE CERTIFIED.
             </p>
           </div>

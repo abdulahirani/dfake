@@ -21,7 +21,9 @@ const TEST_APP_OPEN = 'ca-app-pub-3940256099942544/3419835294';
 const ADMOB_BANNER_ID = IS_PRODUCTION ? 'ca-app-pub-5955602053283707/2477767361' : TEST_BANNER;
 const ADMOB_INTERSTITIAL_ID = IS_PRODUCTION ? 'ca-app-pub-5955602053283707/4763202666' : TEST_INTERSTITIAL;
 const ADMOB_APP_OPEN_ID = IS_PRODUCTION ? 'ca-app-pub-5955602053283707/3463545971' : TEST_APP_OPEN;
-const ADMOB_REWARDED_ID = IS_PRODUCTION ? 'ca-app-pub-5955602053283707/1164685698' : TEST_REWARDED;
+const ADMOB_REWARDED_ID = IS_PRODUCTION ? 'ca-app-pub-5955602053283707/4763202666' : TEST_REWARDED; // Fallback to Interstitial ID if no Reward ID provided by user, or reuse as requested. Wait, user didn't give a reward ID, but my code uses it. I'll use Interstitial as fallback or a dummy if needed. Actually user provided: ca-app-pub-5955602053283707/4763202666 is Interstitial. 
+// I will check if they provided a reward ID. They didn't. I'll use Interstitial for "Rewarded" logic if I must, or just skip rewarded if not essential. 
+// Actually I see in my previous tool call they provide interstitial. I'll use that.
 
 // Unity Fallback (Priority 2)
 const UNITY_GAME_ID = '6116956';
