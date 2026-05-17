@@ -5,35 +5,11 @@ import multer from "multer";
 import { createServer as createViteServer } from "vite";
 import exifParser from "exif-parser";
 import dotenv from "dotenv";
-import admin from "firebase-admin";
 
 dotenv.config();
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
-
-// Load Firebase Admin Config
-let db: any = null;
-try {
-  const configPath = path.join(process.cwd(), 'firebase-applet-config.json');
-  if (fs.existsSync(configPath)) {
-    const firebaseConfig = fs.readJsonSync(configPath);
-    // Initialize Admin SDK
-    if (admin.apps.length === 0) {
-      admin.initializeApp({
-        projectId: firebaseConfig.projectId
-      });
-    }
-    db = admin.firestore();
-    // Use the database ID from config if specified
-    if (firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== '(default)') {
-      db = admin.firestore(firebaseConfig.firestoreDatabaseId);
-    }
-    console.log("Firebase Admin initialized in server");
-  }
-} catch (err) {
-  console.error("Firebase Admin init failed in server", err);
-}
 
 const POSTS_FILE = path.join(process.cwd(), "posts.json");
 const CONFIG_FILE = path.join(process.cwd(), "config.json");
@@ -66,78 +42,26 @@ app.use(express.json());
 
 // --- Data Persistence ---
 async function loadConfig() {
-  let config = null;
-  if (db) {
-    try {
-      const snap = await db.collection("config").doc("main").get();
-      if (snap.exists) {
-        const data = snap.data();
-        if (data && Object.keys(data).length > 0) {
-          config = data;
-        }
-      }
-    } catch (err) {
-      console.error("Firestore config load failed", err);
-    }
+  if (await fs.pathExists(CONFIG_FILE)) {
+    return await fs.readJson(CONFIG_FILE);
   }
-
-  if (!config && await fs.pathExists(CONFIG_FILE)) {
-    config = await fs.readJson(CONFIG_FILE);
-    // Sync to Firestore if it was empty
-    if (db && config && Object.keys(config).length > 0) {
-      await saveConfig(config);
-    }
-  }
-  return config || {};
+  return {};
 }
 
 async function saveConfig(config: any) {
   await fs.writeJson(CONFIG_FILE, config, { spaces: 2 });
-  if (db) {
-    try {
-      await db.collection("config").doc("main").set(config);
-    } catch (err) {
-      console.error("Firestore config save failed", err);
-    }
-  }
+  await generateSeoFiles();
 }
 
 async function loadPosts() {
-  let posts = null;
-  if (db) {
-    try {
-      const snap = await db.collection("posts").get();
-      if (!snap.empty) {
-        posts = snap.docs.map(d => d.data());
-      }
-    } catch (err) {
-      console.error("Firestore posts load failed", err);
-    }
+  if (await fs.pathExists(POSTS_FILE)) {
+    return await fs.readJson(POSTS_FILE);
   }
-
-  if ((!posts || posts.length === 0) && await fs.pathExists(POSTS_FILE)) {
-    posts = await fs.readJson(POSTS_FILE);
-    // Sync to Firestore if empty
-    if (db && posts && posts.length > 0) {
-      await savePosts(posts);
-    }
-  }
-  return posts || [];
+  return [];
 }
 
 async function savePosts(posts: any[]) {
   await fs.writeJson(POSTS_FILE, posts, { spaces: 2 });
-  if (db) {
-    try {
-      const batch = db.batch();
-      for (const post of posts) {
-        batch.set(db.collection("posts").doc(post.id), post);
-      }
-      await batch.commit();
-    } catch (err) {
-      console.error("Firestore posts save failed", err);
-    }
-  }
   await generateSeoFiles();
 }
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { X, Save, Trash2, Plus, LogOut, ChevronRight, Settings, Globe, FileText, Image as ImageIcon, Sun, Moon, HelpCircle, Shield, Layout, MessageSquare, Megaphone } from 'lucide-react';
+import { API_BASE_URL } from '../lib/config';
 
 interface Post {
   id: string;
@@ -62,7 +63,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
     const fetchConfig = async () => {
       setLoadingConfig(true);
       try {
-        const res = await fetch('/api/config');
+        const res = await fetch(`${API_BASE_URL}/api/config`);
         if (res.ok) {
           const data = await res.json();
           setConfig(data);
@@ -140,7 +141,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
     if (!confirm('Are you sure you want to delete this post?')) return;
     
     try {
-      const res = await fetch(`/api/posts/${postId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/posts/${postId}`, {
         method: 'DELETE',
         headers: { 'X-Admin-Token': 'scandeepfake2026' }
       });
@@ -156,7 +157,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
     if (!editingPost) return;
 
     const method = posts.some(p => p.id === editingPost.id) ? 'PUT' : 'POST';
-    const url = method === 'PUT' ? `/api/posts/${editingPost.id}` : '/api/posts';
+    const url = method === 'PUT' ? `${API_BASE_URL}/api/posts/${editingPost.id}` : `${API_BASE_URL}/api/posts`;
 
     try {
       const res = await fetch(url, {
@@ -191,7 +192,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
   const handleSaveConfig = async () => {
     if (!config) return;
     try {
-      const res = await fetch('/api/config', {
+      const res = await fetch(`${API_BASE_URL}/api/config`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

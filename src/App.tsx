@@ -10,6 +10,7 @@ import Markdown from 'react-markdown';
 import AdminPanel from './components/AdminPanel';
 import { Capacitor } from '@capacitor/core';
 import { initializeAdMob, showAppOpenAd, showBannerAd, prepareInterstitialAd, showInterstitialAd } from './lib/admob';
+import { API_BASE_URL } from './lib/config';
 
 // Forensic Simulation Engine (Local)
 const runForensicAnalysis = async (file: File) => {
@@ -121,13 +122,9 @@ export default function App() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const baseUrl = Capacitor.isNativePlatform() 
-          ? 'https://gundkatira-scandeepfake-scanner.hf.space' 
-          : '';
-        
         const [postsRes, configRes] = await Promise.all([
-          fetch(`${baseUrl}/api/posts`),
-          fetch(`${baseUrl}/api/config`)
+          fetch(`${API_BASE_URL}/api/posts`),
+          fetch(`${API_BASE_URL}/api/config`)
         ]);
         
         if (postsRes.ok) {
