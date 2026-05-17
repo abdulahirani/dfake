@@ -112,7 +112,17 @@ async function generateSeoFiles() {
   }
 }
 
-// --- API Endpoints ---
+// API Endpoints
+app.get("/api/health", (req, res) => {
+  const appId = req.headers['x-app-id'];
+  // Verification logic for original app
+  if (appId && appId === 'scandeepfake-original-p77') {
+    return res.json({ status: "verified", integrity: "high" });
+  }
+  // If no ID or wrong ID, it could be a modded version
+  // We can return 403 to trigger the anti-piracy notice in the frontend
+  res.status(403).json({ status: "unauthorized", detail: "Package integrity check failed" });
+});
 
 app.get("/api/config", async (req, res) => {
   const config = await loadConfig();

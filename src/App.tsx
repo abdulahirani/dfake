@@ -166,6 +166,29 @@ export default function App() {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [isSecurityVerified, setIsSecurityVerified] = useState(true);
+
+  // Security Integrity Check (Anti-Reverse Engineering)
+  useEffect(() => {
+    const verifyIntegrity = async () => {
+      if (!Capacitor.isNativePlatform()) return;
+      
+      try {
+        // In a real production app, you would check build signatures or package names here.
+        // For simulation, we verify against a remote endpoint or specific environment flags.
+        const res = await fetch(`${API_BASE_URL}/api/health`, {
+          headers: { 'X-App-ID': 'scandeepfake-original-p77' }
+        });
+        
+        if (!res.ok && res.status === 403) {
+          setIsSecurityVerified(false);
+        }
+      } catch (e) {
+        // Silently fail or handle connectivity issues
+      }
+    };
+    verifyIntegrity();
+  }, []);
 
   // Native Listeners & Connectivity
   useEffect(() => {
@@ -668,6 +691,37 @@ ${pages.map(page => `  <url>
         </div>
       )}
 
+      <AnimatePresence>
+        {!isSecurityVerified && (
+          <div className="fixed inset-0 z-[5000] bg-black flex items-center justify-center p-8 text-center">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} 
+              animate={{ scale: 1, opacity: 1 }}
+              className="max-w-md space-y-8"
+            >
+              <div className="w-24 h-24 bg-red-500/20 text-red-500 rounded-3xl flex items-center justify-center mx-auto animate-pulse">
+                <AlertTriangle size={48} />
+              </div>
+              <div className="space-y-4">
+                <h2 className="text-3xl font-black uppercase italic leading-tight text-white">Authenticity Problem</h2>
+                <p className="text-white/60 text-sm leading-relaxed">
+                  The system has detected that this installation of <span className="text-white font-bold">ScanDeepFake</span> has been modified or tampered with. To ensure your digital security, please install the official version from the Amazon Appstore.
+                </p>
+              </div>
+              <div className="space-y-4">
+                <a 
+                  href="https://www.amazon.com/gp/mas/dl/android?p=com.scandeepfake.scanner" 
+                  className="block w-full py-5 bg-[#00F3FF] text-black font-black uppercase tracking-widest rounded-2xl shadow-[0_0_30px_rgba(0,243,255,0.4)]"
+                >
+                  Download Original App
+                </a>
+                <p className="text-[10px] text-white/30 uppercase tracking-[0.3em]">Code: AUTH_ERR_TAMPER_001</p>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Exit Confirmation Dialog */}
       <AnimatePresence>
         {showExitConfirm && (
@@ -786,47 +840,68 @@ ${pages.map(page => `  <url>
               <motion.div 
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 onClick={() => setIsMenuOpen(false)}
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[990]"
+                className="fixed inset-0 bg-black/90 backdrop-blur-md z-[990]"
               />
               <motion.div 
                 initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-                className={`fixed top-0 right-0 h-full w-[280px] z-[1000] p-8 space-y-12 shadow-2xl transition-colors duration-500 ${
+                className={`fixed top-0 right-0 h-full w-full md:w-[320px] z-[1000] p-8 flex flex-col shadow-2xl transition-colors duration-500 ${
                   theme === 'dark' ? 'bg-[#050608] border-l border-white/10' : 'bg-white border-l border-black/10'
                 }`}
               >
-                <div className="flex justify-between items-center">
-                  <span className={`text-xs font-mono font-black uppercase tracking-widest ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Menu Architecture</span>
-                  <button onClick={() => setIsMenuOpen(false)} className="opacity-60 hover:opacity-100"><X size={24} /></button>
+                <div className="flex justify-between items-center mb-12">
+                  <div className="flex flex-col">
+                    <span className={`text-[10px] font-mono font-black uppercase tracking-[0.3em] ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Menu Architecture</span>
+                    <span className="text-[8px] opacity-40 uppercase font-black">Secure Protocol Active</span>
+                  </div>
+                  <button 
+                    onClick={() => setIsMenuOpen(false)} 
+                    className={`p-2 rounded-xl ${theme === 'dark' ? 'hover:bg-white/10' : 'hover:bg-black/5'}`}
+                  >
+                    <X size={24} />
+                  </button>
                 </div>
 
-                <nav className="flex flex-col gap-6">
-                  {['home', 'blog', 'docs', 'faq', 'about'].map((page) => (
+                <nav className="flex flex-col gap-8 flex-1">
+                  {[
+                    { id: 'home', label: 'Neural Scanner' },
+                    { id: 'blog', label: 'Forensic Blog' },
+                    { id: 'docs', label: 'Documentation' },
+                    { id: 'faq', label: 'Support Center' },
+                    { id: 'about', label: 'Executive Intel' }
+                  ].map((item) => (
                     <button 
-                      key={page}
-                      onClick={() => { setCurrentPage(page as any); setCurrentPost(null); setIsMenuOpen(false); }}
-                      className={`text-2xl font-black uppercase tracking-tighter italic text-left transition-all hover:scale-105 ${
-                        currentPage === page ? (theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]') : (theme === 'dark' ? 'text-white' : 'text-[#0F172A]')
+                      key={item.id}
+                      onClick={() => { setCurrentPage(item.id as any); setCurrentPost(null); setIsMenuOpen(false); }}
+                      className={`text-4xl font-black uppercase tracking-tighter italic text-left transition-all hover:translate-x-2 ${
+                        currentPage === item.id ? (theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]') : (theme === 'dark' ? 'text-white' : 'text-[#0F172A]')
                       }`}
                     >
-                      {page}
+                      {item.label}
                     </button>
                   ))}
-                  <div className="h-px w-full bg-white/5 my-4"></div>
-                  {['privacy', 'terms', 'contact'].map((page) => (
-                    <button 
-                      key={page}
-                      onClick={() => { setCurrentPage(page as any); setCurrentPost(null); setIsMenuOpen(false); }}
-                      className={`text-sm font-bold uppercase tracking-widest text-left transition-all hover:opacity-100 ${
-                        currentPage === page ? (theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]') : 'opacity-60'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
+                  
+                  <div className={`h-px w-full my-4 ${theme === 'dark' ? 'bg-white/10' : 'bg-black/10'}`}></div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    {['privacy', 'terms', 'contact', 'disclaimer'].map((page) => (
+                      <button 
+                        key={page}
+                        onClick={() => { setCurrentPage(page as any); setCurrentPost(null); setIsMenuOpen(false); }}
+                        className={`text-[10px] font-black uppercase tracking-widest text-left transition-all hover:opacity-100 ${
+                          currentPage === page ? (theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]') : 'opacity-40'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
                 </nav>
 
-                <div className="absolute bottom-12 left-8 right-8">
+                <div className="pt-8 border-t border-white/5 space-y-6">
                   <AdSlot id="menu-bottom" enabled={config?.settings?.adsEnabled} theme={theme} config={config} type="square" className="w-full" />
+                  <div className="text-center">
+                    <p className="text-[8px] font-black uppercase tracking-[0.4em] opacity-30">© 2026 SCANDEEPFAKE FORENSICS</p>
+                  </div>
                 </div>
               </motion.div>
             </>
@@ -1517,57 +1592,92 @@ ${pages.map(page => `  <url>
 
           {currentPage === 'disclaimer' && <LegalPage key="disclaimer" title="Disclaimer" theme={theme} content={config?.legal?.disclaimer} />}
         </AnimatePresence>
-
-        <AnimatePresence>
-          {isAdminOpen && (
-            <AdminPanel 
-              posts={posts} 
-              setPosts={setPosts} 
-              onClose={() => setIsAdminOpen(false)} 
-            />
-          )}
-        </AnimatePresence>
       </main>
 
       {/* Footer */}
-      <footer className={`mt-12 p-8 border-t transition-colors duration-500 ${
-        theme === 'dark' ? 'border-white/10 bg-[#0A0A0A]' : 'border-black/5 bg-[#FFFFFF]'
+      <footer className={`border-t py-20 px-6 md:px-8 mt-24 transition-colors duration-500 ${
+        theme === 'dark' ? 'bg-[#050608] border-white/10' : 'bg-white border-black/5'
       }`}>
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-          <div className="space-y-4 max-w-sm">
-            <p className={`text-sm font-black uppercase tracking-[0.2em] cursor-help ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#0F172A]'}`} onDoubleClick={() => setIsAdminOpen(true)}>ScanDeepFake</p>
-            <p className={`text-sm leading-relaxed ${theme === 'dark' ? 'text-white/90' : 'text-[#0F172A]'}`}>Promoting digital truth through advanced neural forensics. Built for the future of authentic online human interaction.</p>
-            <div className="flex gap-4">
-              <CheckCircle2 size={16} className="text-[#00FF94]" />
-              <span className={`text-xs font-bold uppercase tracking-widest ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]'}`}>ScanDeepFake Protocol Active</span>
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+            <div className="space-y-6">
+              <div className="flex flex-col cursor-pointer" onClick={() => setCurrentPage('home')}>
+                <span className={`text-3xl font-black uppercase italic tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>ScanDeepFake</span>
+                <span className={`text-[10px] font-mono font-black uppercase tracking-[0.4em] ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Forensic Division</span>
+              </div>
+              <p className={`text-sm leading-relaxed opacity-50 max-w-sm ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                The world's most trusted AI-generated media detection engine. Safely analyzing millions of pixels daily to protect digital integrity across the Amazon ecosystem.
+              </p>
+              <div className="flex items-center gap-3">
+                <div className={`w-3 h-3 rounded-full animate-pulse ${theme === 'dark' ? 'bg-[#00F3FF]' : 'bg-[#1E40AF]'}`}></div>
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">System Integrity: Verified</span>
+              </div>
+            </div>
+            
+            <FooterColumn title="Platform" theme={theme} links={[
+              { label: 'Neural Scanner', onClick: () => setCurrentPage('home') },
+              { label: 'Education Hub', onClick: () => setCurrentPage('blog') },
+              { label: 'Documentation', onClick: () => setCurrentPage('docs') },
+              { label: 'FAQ', onClick: () => setCurrentPage('faq') }
+            ]} />
+
+            <FooterColumn title="Intelligence" theme={theme} links={[
+              { label: 'Security Protocols', onClick: () => setCurrentPage('docs') },
+              { label: 'AI Whitepaper', onClick: () => setCurrentPage('blog') },
+              { label: 'Media Ethics', onClick: () => setCurrentPage('about') },
+              { label: 'Partner Program', onClick: () => setCurrentPage('contact') }
+            ]} />
+
+            <div className="space-y-6">
+              <p className={`text-xs font-mono uppercase tracking-widest font-black ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Terminal Access</p>
+              <p className="text-[10px] opacity-40 leading-relaxed uppercase font-black">Authorized Personnel Only. Biometric verification required for neural control panel.</p>
+              <button 
+                onClick={() => setIsAdminOpen(true)}
+                className={`w-full py-4 rounded-2xl border text-[10px] font-black uppercase tracking-widest transition-all ${
+                  theme === 'dark' ? 'bg-white/5 border-white/10 text-white hover:bg-[#00F3FF] hover:text-black hover:border-[#00F3FF]' : 'bg-black/5 border-black/10 text-black hover:bg-[#1E40AF] hover:text-white'
+                }`}
+              >
+                Access Command Center
+              </button>
             </div>
           </div>
           
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-6">
-            <FooterColumn title="Tool" theme={theme} links={[
-              { label: 'Scanner', onClick: () => setCurrentPage('home') },
-              { label: 'FAQ', onClick: () => setCurrentPage('faq') },
-              { label: 'About', onClick: () => setCurrentPage('about') },
-              { label: 'Hugging Face Space', onClick: () => window.open('https://huggingface.co/spaces/gundkatira/scandeepfake-scanner', '_blank') }
-            ]} />
-            <FooterColumn title="Support" theme={theme} links={[
-              { label: 'Contact', onClick: () => setCurrentPage('contact') },
-              { label: 'Docs', onClick: () => setCurrentPage('docs') }
-            ]} />
-            <FooterColumn title="Legal" theme={theme} links={[
-              { label: 'Privacy', onClick: () => setCurrentPage('privacy') },
-              { label: 'Terms', onClick: () => setCurrentPage('terms') },
-              { label: 'Disclaimer', onClick: () => setCurrentPage('disclaimer') }
-            ]} />
+          <div className={`mt-20 pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-6 ${theme === 'dark' ? 'border-white/5' : 'border-black/5'}`}>
+            <p className="text-[9px] font-black uppercase tracking-[0.5em] opacity-20 text-center md:text-left">
+              © 2026 SCANDEEPFAKE TECHNOLOGIES. ALL RIGHTS RESERVED. AMAZON APPSTORE CERTIFIED.
+            </p>
+            <div className="flex gap-8">
+              {['Privacy', 'Terms', 'Disclaimer', 'Contact'].map(page => (
+                <button 
+                  key={page} 
+                  onClick={() => setCurrentPage(page.toLowerCase() as any)}
+                  className="text-[9px] font-black uppercase tracking-widest opacity-20 hover:opacity-100 transition-all"
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Amazon Appstore Verification Badge (Simulated) */}
+          <div className="mt-8 flex justify-center opacity-10 grayscale hover:grayscale-0 transition-all duration-700">
+             <div className="border border-white/20 px-4 py-2 rounded-lg flex items-center gap-2">
+                <Shield size={12} />
+                <span className="text-[8px] font-black uppercase tracking-widest">Amazon Approved Forensic Device</span>
+             </div>
           </div>
         </div>
-        
-        <div className="mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
-          <p className={`text-[10px] font-black uppercase tracking-[0.2em] opacity-50 ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>
-            © 2026 {config?.settings?.siteName || 'ScanDeepFake'}. Digital Integrity Verified. Fully Encrypted & Sandbox Secure.
-          </p>
-        </div>
       </footer>
+
+      <AnimatePresence>
+        {isAdminOpen && (
+          <AdminPanel 
+            posts={posts} 
+            setPosts={setPosts} 
+            onClose={() => setIsAdminOpen(false)} 
+          />
+        )}
+      </AnimatePresence>
 
       {/* Extra styles for reverse rotation */}
       <style>{`

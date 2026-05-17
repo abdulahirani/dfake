@@ -6,26 +6,28 @@
 import { Capacitor } from '@capacitor/core';
 
 const getApiBaseUrl = () => {
-  // If running on native mobile app (Capacitor), always point to production backend
+  // If running on native mobile app (Capacitor), default to a production endpoint
+  // but allow override via window.location if testing in a web-view pointing to a specific dev server
   if (Capacitor.isNativePlatform()) {
     return 'https://gundkatira-scandeepfake-scanner.hf.space';
   }
 
   const hostname = window.location.hostname;
 
-  // 1. If running on Firebase, point to Hugging Face Backend
-  if (hostname.includes('web.app') || hostname.includes('firebaseapp.com')) {
-    return 'https://gundkatira-scandeepfake-scanner.hf.space';
-  }
-
-  // 2. If running on Hugging Face or Local, use current origin
-  // This allows the Dockerized FastAPI server to handle requests relative to the frontend
-  if (hostname.includes('hf.space') || hostname === 'localhost' || hostname === '127.0.0.1') {
+  // 1. If running on standard cloud platforms, use the relative path to the current server
+  // This is the most reliable way to target the server.ts endpoints
+  if (
+    hostname.includes('asia-southeast1.run.app') || 
+    hostname.includes('web.app') || 
+    hostname.includes('hf.space') || 
+    hostname === 'localhost' || 
+    hostname === '127.0.0.1'
+  ) {
     return '';
   }
 
-  // Fallback
-  return '';
+  // Fallback to production HF space
+  return 'https://gundkatira-scandeepfake-scanner.hf.space';
 };
 
 export const API_BASE_URL = getApiBaseUrl();
