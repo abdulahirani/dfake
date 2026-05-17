@@ -1596,7 +1596,7 @@ ${pages.map(page => `  <url>
                   { id: 'blog', label: 'Forensic Blog' },
                   { id: 'docs', label: 'Documentation' },
                   { id: 'faq', label: 'Support Center' },
-                  { id: 'about', label: 'About Project' }
+                  { id: 'about', label: 'Forensic Lab' }
                 ].map((item) => (
                   <button 
                     key={item.id}
