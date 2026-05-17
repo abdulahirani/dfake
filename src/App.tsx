@@ -4,7 +4,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
-import { Upload, Shield, Activity, Cpu, CheckCircle2, ChevronRight, Info, FileVideo, FileImage, Loader2, BookOpen, Terminal, Sun, Moon, Settings, WifiOff, AlertTriangle } from 'lucide-react';
+import { Upload, Shield, Activity, Cpu, CheckCircle2, ChevronRight, Info, FileVideo, FileImage, Loader2, BookOpen, Terminal, Sun, Moon, Settings, WifiOff, AlertTriangle, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Markdown from 'react-markdown';
 import AdminPanel from './components/AdminPanel';
@@ -50,7 +50,7 @@ const runForensicAnalysis = async (file: File) => {
   };
 };
 
-function AdSlot({ id, enabled, className, theme, config }: { id: string; enabled: boolean; className?: string; theme: 'dark' | 'light'; config?: any }) {
+function AdSlot({ id, enabled, className, theme, config, type = 'banner' }: { id: string; enabled: boolean; className?: string; theme: 'dark' | 'light'; config?: any; type?: 'banner' | 'square' | 'short' }) {
   if (!enabled) return null;
 
   // On native, the bottom-anchor is handled by Capacitor AdMob plugin directly
@@ -61,31 +61,43 @@ function AdSlot({ id, enabled, className, theme, config }: { id: string; enabled
   // Custom Ad Code Logic
   const customCode = config?.settings?.customAdCode;
 
+  const getContainerStyle = () => {
+    switch (type) {
+      case 'square': return 'aspect-square max-w-[300px]';
+      case 'short': return 'h-20';
+      default: return 'min-h-[100px]';
+    }
+  };
+
   return (
     <div 
-      className={`relative w-full overflow-hidden flex items-center justify-center p-4 border rounded-2xl ${
+      className={`relative w-full overflow-hidden flex flex-col items-center justify-center border rounded-2xl transition-all hover:border-[#00F3FF]/40 ${
         theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'
-      } ${className || ''}`}
+      } ${getContainerStyle()} ${className || ''}`}
     >
+      <div className={`absolute top-1 right-2 text-[8px] font-black tracking-widest opacity-40 flex items-center gap-1 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+        <Info size={8} /> SPONSORED
+      </div>
+      
       {customCode ? (
         <div 
-          className="w-full flex justify-center"
+          className="w-full flex justify-center p-4"
           dangerouslySetInnerHTML={{ __html: customCode }} 
         />
       ) : (
-        <>
+        <div className="w-full h-full flex flex-col items-center justify-center p-6 space-y-4">
           <div className={`text-[10px] uppercase font-bold tracking-[0.2em] opacity-30 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
-            ADVERTISEMENT
+            {type === 'square' ? 'Native Content' : 'Premium Advertisement'}
           </div>
           <ins 
             className="adsbygoogle"
             style={{ display: 'block' }}
             data-ad-client={id}
             data-ad-slot={id}
-            data-ad-format="auto"
+            data-ad-format={type === 'square' ? 'rectangle' : 'auto'}
             data-full-width-responsive="true"
           />
-        </>
+        </div>
       )}
     </div>
   );
@@ -152,6 +164,9 @@ export default function App() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+
   // Native Listeners & Connectivity
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -176,10 +191,12 @@ export default function App() {
       setIsOffline(!status.connected);
     });
 
-    // Back Button Contextual Handling with Ad Trigger
+    // Back Button Contextual Handling with Ad Trigger & Exit Confirmation
     const backHandler = CapApp.addListener('backButton', async ({ canGoBack }) => {
       if (isAdminOpen) {
         setIsAdminOpen(false);
+      } else if (isMenuOpen) {
+        setIsMenuOpen(false);
       } else if (currentPost) {
         setCurrentPost(null);
       } else if (currentPage !== 'home') {
@@ -193,15 +210,24 @@ export default function App() {
       } else if (currentStep > 1) {
         setCurrentStep(prev => prev - 1);
       } else {
-        CapApp.exitApp();
+        // Confirm Exit for Landing Page
+        setShowExitConfirm(true);
+      }
+    });
+
+    // App Resume Ad Logic
+    const resumeHandler = CapApp.addListener('appStateChange', ({ isActive }) => {
+      if (isActive) {
+        showAppOpenAd();
       }
     });
 
     return () => {
       handler.remove();
       backHandler.remove();
+      resumeHandler.remove();
     };
-  }, [theme, currentPage, currentStep, currentPost, isAdminOpen, tabChangeCount]);
+  }, [theme, currentPage, currentStep, currentPost, isAdminOpen, tabChangeCount, isMenuOpen]);
 
   // Global Tab Change Ad Logic
   useEffect(() => {
@@ -642,6 +668,42 @@ ${pages.map(page => `  <url>
         </div>
       )}
 
+      {/* Exit Confirmation Dialog */}
+      <AnimatePresence>
+        {showExitConfirm && (
+          <div className="fixed inset-0 z-[2000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} 
+              animate={{ scale: 1, opacity: 1 }} 
+              exit={{ scale: 0.9, opacity: 0 }}
+              className={`max-w-sm w-full p-8 rounded-3xl border shadow-2xl space-y-8 ${theme === 'dark' ? 'bg-[#0F172A] border-white/10' : 'bg-white border-black/10'}`}
+            >
+              <div className="text-center space-y-4">
+                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto ${theme === 'dark' ? 'bg-[#00F3FF]/10 text-[#00F3FF]' : 'bg-[#1E40AF]/10 text-[#1E40AF]'}`}>
+                  <Shield size={32} />
+                </div>
+                <h3 className="text-2xl font-black uppercase italic tracking-tight leading-tight">Exit Forensic Protocol?</h3>
+                <p className={`text-sm ${theme === 'dark' ? 'text-white/60' : 'text-black/60'}`}>Are you sure you want to terminate the secure scanning environment?</p>
+              </div>
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setShowExitConfirm(false)}
+                  className={`flex-1 py-4 font-black uppercase tracking-widest text-xs rounded-xl border ${theme === 'dark' ? 'border-white/10 text-white hover:bg-white/5' : 'border-black/10 text-black hover:bg-black/5'}`}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => CapApp.exitApp()}
+                  className={`flex-1 py-4 font-black uppercase tracking-widest text-xs rounded-xl text-white ${theme === 'dark' ? 'bg-[#FF3E3E]' : 'bg-red-600'}`}
+                >
+                  Terminate
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* AdBlock Barrier Placeholder (Native Policy Compliance) */}
       <AnimatePresence>
         {isAdBlocked && (
@@ -682,7 +744,7 @@ ${pages.map(page => `  <url>
       />
 
       {/* Header */}
-      <header className={`flex flex-col md:flex-row justify-between items-start md:items-end border-b pb-6 mb-8 gap-4 px-6 md:px-8 pt-safe-top sticky top-0 backdrop-blur-xl z-50 transition-colors duration-500 ${
+      <header className={`flex items-center justify-between border-b pb-6 mb-8 gap-4 px-6 md:px-8 pt-safe-top sticky top-0 backdrop-blur-xl z-[1000] transition-colors duration-500 ${
         theme === 'dark' ? 'border-white/10 bg-[#050608]/80' : 'border-black/5 bg-[#F8FAFC]/80'
       }`}>
         <div className="flex flex-col cursor-pointer" onClick={() => setCurrentPage('home')}>
@@ -690,60 +752,86 @@ ${pages.map(page => `  <url>
             <Cpu size={10} className="animate-spin-slow" />
             Neural Engine {config?.settings?.version || 'v4.2.1'}
           </div>
-          <div className={`text-3xl md:text-5xl font-black tracking-tighter uppercase leading-none transition-colors duration-500 ${
+          <div className={`text-xl md:text-3xl font-black tracking-tighter uppercase leading-none transition-colors duration-500 ${
             theme === 'dark' ? 'text-white' : 'text-[#0F172A]'
           }`}>
             {config?.settings?.siteName || 'ScanDeepFake'}
           </div>
         </div>
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-          <nav className={`flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>
-              <button 
-                onClick={() => { setCurrentPage('home'); setCurrentPost(null); }} 
-                aria-label="View Scanner page"
-                className={`transition-colors ${theme === 'dark' ? (currentPage === 'home' ? 'text-[#00F3FF]' : 'text-white/80 hover:text-[#00F3FF]') : (currentPage === 'home' ? 'text-[#0F172A]' : 'text-[#0F172A]/80 hover:text-[#1E40AF]')}`}
-              >
-                Scanner
-              </button>
-              <button 
-                onClick={() => { setCurrentPage('blog'); setCurrentPost(null); }} 
-                aria-label="View Blog page"
-                className={`transition-colors ${theme === 'dark' ? (currentPage === 'blog' ? 'text-[#00F3FF]' : 'text-white/80 hover:text-[#00F3FF]') : (currentPage === 'blog' ? 'text-[#0F172A]' : 'text-[#0F172A]/80 hover:text-[#1E40AF]')}`}
-              >
-                Blog
-              </button>
-              <button 
-                onClick={() => { setCurrentPage('docs'); setCurrentPost(null); }} 
-                aria-label="View Documentation page"
-                className={`transition-colors ${theme === 'dark' ? (currentPage === 'docs' ? 'text-[#00F3FF]' : 'text-white/80 hover:text-[#00F3FF]') : (currentPage === 'docs' ? 'text-[#0F172A]' : 'text-[#0F172A]/80 hover:text-[#1E40AF]')}`}
-              >
-                Docs
-              </button>
-              <button 
-                onClick={() => { setCurrentPage('faq'); setCurrentPost(null); }} 
-                aria-label="View FAQ page"
-                className={`transition-colors ${theme === 'dark' ? (currentPage === 'faq' ? 'text-[#00F3FF]' : 'text-white/80 hover:text-[#00F3FF]') : (currentPage === 'faq' ? 'text-[#0F172A]' : 'text-[#0F172A]/80 hover:text-[#1E40AF]')}`}
-              >
-                FAQ
-              </button>
-              <button 
-                onClick={() => { setCurrentPage('about'); setCurrentPost(null); }} 
-                aria-label="View About page"
-                className={`transition-colors ${theme === 'dark' ? (currentPage === 'about' ? 'text-[#00F3FF]' : 'text-white/80 hover:text-[#00F3FF]') : (currentPage === 'about' ? 'text-[#0F172A]' : 'text-[#0F172A]/80 hover:text-[#1E40AF]')}`}
-              >
-                About
-              </button>
-          </nav>
+
+        <div className="flex items-center gap-4">
           <button 
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             className={`p-2.5 rounded-xl border transition-all ${
-              theme === 'dark' ? 'bg-white/10 border-white/20 text-white hover:bg-white/20' : 'bg-black/5 border-black/10 text-black hover:bg-black/10'
+              theme === 'dark' ? 'bg-white/10 border-white/20 text-white' : 'bg-black/5 border-black/10 text-black'
             }`}
           >
             {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
           </button>
+          
+          <button 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className={`p-3 rounded-2xl border transition-all ${
+              theme === 'dark' ? 'bg-[#00F3FF] text-black border-[#00F3FF]' : 'bg-[#1E40AF] text-white border-[#1E40AF]'
+            } shadow-lg shadow-[#00F3FF]/20`}
+          >
+            {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
+
+        {/* Hamburger Tab Menu */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <>
+              <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                onClick={() => setIsMenuOpen(false)}
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[990]"
+              />
+              <motion.div 
+                initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+                className={`fixed top-0 right-0 h-full w-[280px] z-[1000] p-8 space-y-12 shadow-2xl transition-colors duration-500 ${
+                  theme === 'dark' ? 'bg-[#050608] border-l border-white/10' : 'bg-white border-l border-black/10'
+                }`}
+              >
+                <div className="flex justify-between items-center">
+                  <span className={`text-xs font-mono font-black uppercase tracking-widest ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Menu Architecture</span>
+                  <button onClick={() => setIsMenuOpen(false)} className="opacity-60 hover:opacity-100"><X size={24} /></button>
+                </div>
+
+                <nav className="flex flex-col gap-6">
+                  {['home', 'blog', 'docs', 'faq', 'about'].map((page) => (
+                    <button 
+                      key={page}
+                      onClick={() => { setCurrentPage(page as any); setCurrentPost(null); setIsMenuOpen(false); }}
+                      className={`text-2xl font-black uppercase tracking-tighter italic text-left transition-all hover:scale-105 ${
+                        currentPage === page ? (theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]') : (theme === 'dark' ? 'text-white' : 'text-[#0F172A]')
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                  <div className="h-px w-full bg-white/5 my-4"></div>
+                  {['privacy', 'terms', 'contact'].map((page) => (
+                    <button 
+                      key={page}
+                      onClick={() => { setCurrentPage(page as any); setCurrentPost(null); setIsMenuOpen(false); }}
+                      className={`text-sm font-bold uppercase tracking-widest text-left transition-all hover:opacity-100 ${
+                        currentPage === page ? (theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]') : 'opacity-60'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </nav>
+
+                <div className="absolute bottom-12 left-8 right-8">
+                  <AdSlot id="menu-bottom" enabled={config?.settings?.adsEnabled} theme={theme} config={config} type="square" className="w-full" />
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </header>
 
       {/* Main Content */}
@@ -966,7 +1054,7 @@ ${pages.map(page => `  <url>
                         key="step4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         className="space-y-6"
                       >
-                        <AdSlot id="scanning-native-top" enabled={config?.settings?.adsEnabled} theme={theme} config={config} className="h-24 md:h-32 mb-4" />
+                        <AdSlot key={`scanning-top-${scansCount}`} id="scanning-native-top" enabled={config?.settings?.adsEnabled} theme={theme} config={config} type="banner" className="mb-4" />
                         
                         <div className="bg-white/5 border border-white/10 rounded-[40px] p-8 md:p-16 text-center space-y-12 relative overflow-hidden h-[400px] flex flex-col justify-center">
                           <MatrixIllusion theme={theme} />
@@ -990,7 +1078,7 @@ ${pages.map(page => `  <url>
                           </div>
                         </div>
 
-                        <AdSlot id="scanning-native-bottom" enabled={config?.settings?.adsEnabled} theme={theme} config={config} className="h-24 md:h-32 mt-4" />
+                        <AdSlot key={`scanning-bottom-${scansCount}`} id="scanning-native-bottom" enabled={config?.settings?.adsEnabled} theme={theme} config={config} type="banner" className="mt-4" />
                       </motion.div>
                     )}
 
@@ -1196,28 +1284,32 @@ ${pages.map(page => `  <url>
                     <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-xs uppercase tracking-[0.4em] mt-2 opacity-80`}>Expert Deepfake Analysis & Security Reports</p>
                   </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {posts.map((post: any) => (
-                      <button 
-                        key={post.id} 
-                        onClick={() => setCurrentPost(post.id)}
-                        className={`text-left rounded-[2rem] border transition-all overflow-hidden group ${
-                          theme === 'dark' ? 'bg-white/5 border-white/10 hover:border-[#00F3FF]/50' : 'bg-[#F1F5F9] border-black/10 hover:border-[#1E40AF]/50 shadow-sm'
-                        }`}
-                      >
-                        <div className="aspect-video bg-black/20 overflow-hidden">
-                          <img 
-                            src={transformDriveUrl(post.imageUrl).includes('?') ? transformDriveUrl(post.imageUrl) : `${transformDriveUrl(post.imageUrl)}?auto=format&fit=crop&q=80&w=800`} 
-                            alt={post.alt} 
-                            referrerPolicy="no-referrer"
-                            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" 
-                          />
-                        </div>
-                        <div className="p-8 space-y-4">
-                          <div className={`text-xs font-mono uppercase tracking-[0.2em] font-bold ${theme === 'dark' ? 'text-[#00F3FF]/80' : 'text-[#1E40AF]/80'}`}>{post.date}</div>
-                          <h3 className={`text-xl font-black uppercase tracking-tight leading-tight ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h3>
-                          <p className={`text-sm leading-relaxed ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/80'}`}>{post.desc}</p>
-                        </div>
-                      </button>
+                    {posts.map((post: any, idx: number) => (
+                      <div key={post.id} className="contents">
+                        <button 
+                          onClick={() => setCurrentPost(post.id)}
+                          className={`text-left rounded-[2rem] border transition-all overflow-hidden group ${
+                            theme === 'dark' ? 'bg-white/5 border-white/10 hover:border-[#00F3FF]/50' : 'bg-[#F1F5F9] border-black/10 hover:border-[#1E40AF]/50 shadow-sm'
+                          }`}
+                        >
+                          <div className="aspect-video bg-black/20 overflow-hidden">
+                            <img 
+                              src={transformDriveUrl(post.imageUrl).includes('?') ? transformDriveUrl(post.imageUrl) : `${transformDriveUrl(post.imageUrl)}?auto=format&fit=crop&q=80&w=800`} 
+                              alt={post.alt} 
+                              referrerPolicy="no-referrer"
+                              className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" 
+                            />
+                          </div>
+                          <div className="p-8 space-y-4">
+                            <div className={`text-xs font-mono uppercase tracking-[0.2em] font-bold ${theme === 'dark' ? 'text-[#00F3FF]/80' : 'text-[#1E40AF]/80'}`}>{post.date}</div>
+                            <h3 className={`text-xl font-black uppercase tracking-tight leading-tight ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h3>
+                            <p className={`text-sm leading-relaxed ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/80'}`}>{post.desc}</p>
+                          </div>
+                        </button>
+                        {idx % 4 === 3 && (
+                          <AdSlot id={`blog-list-mid-${idx}`} enabled={config?.settings?.adsEnabled} theme={theme} config={config} type="square" className="h-full" />
+                        )}
+                      </div>
                     ))}
                   </div>
                 </>
@@ -1238,6 +1330,9 @@ ${pages.map(page => `  <url>
                           className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" 
                         />
                       </div>
+                      
+                      <AdSlot id="blog-post-top" enabled={config?.settings?.adsEnabled} theme={theme} config={config} type="banner" className="my-8" />
+
                       <div className={`text-base md:text-lg leading-relaxed text-left ${theme === 'dark' ? 'text-white/80' : 'text-[#0F172A]/90'} prose prose-invert max-w-none break-words overflow-hidden px-1`}>
                         {post.content.trim().startsWith('<') ? (
                           <div dangerouslySetInnerHTML={{ __html: post.content }} />
@@ -1247,11 +1342,15 @@ ${pages.map(page => `  <url>
                               h1: ({ ...props }) => <h2 className="text-2xl font-black uppercase italic mt-8 mb-4" {...props} />,
                               h2: ({ ...props }) => <h2 className="text-xl font-bold uppercase mt-6 mb-3" {...props} />,
                               h3: ({ ...props }) => <h3 className="text-lg font-bold uppercase mt-4 mb-2" {...props} />,
+                              p: ({ ...props }) => <p className="mb-6" {...props} />,
                             }}
                           >
                             {post.content}
                           </Markdown>
                         )}
+                        
+                        <AdSlot id="blog-post-bottom" enabled={config?.settings?.adsEnabled} theme={theme} config={config} type="square" className="my-12" />
+
                         <div className={`mt-12 p-8 rounded-3xl border border-dashed text-center ${
                           theme === 'dark' ? 'border-[#00F3FF]/20 bg-white/5' : 'border-[#1E40AF]/20 bg-[#F1F5F9]/50'
                         }`}>
@@ -1352,16 +1451,20 @@ ${pages.map(page => `  <url>
                 <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-xs uppercase tracking-[0.4em] mt-2`}>Semantic Search & Knowledge Base</p>
               </div>
               
-              <AdSlot id="faq-top-native-sim" enabled={config?.settings?.adsEnabled} theme={theme} config={config} className="h-32 mb-8" />
+              <AdSlot id="faq-top-native-sim" enabled={config?.settings?.adsEnabled} theme={theme} config={config} type="short" className="mb-8" />
 
               <div className="space-y-6">
                 {(config?.faqs || []).map((faq: any, idx: number) => (
-                  <FAQItem 
-                    key={idx}
-                    q={faq.q} 
-                    a={faq.a}
-                    theme={theme}
-                  />
+                  <div key={idx}>
+                    <FAQItem 
+                      q={faq.q} 
+                      a={faq.a}
+                      theme={theme}
+                    />
+                    {idx % 3 === 2 && (
+                      <AdSlot id={`faq-mid-${idx}`} enabled={config?.settings?.adsEnabled} theme={theme} config={config} type="short" className="mt-6" />
+                    )}
+                  </div>
                 ))}
               </div>
             </motion.div>

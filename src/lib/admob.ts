@@ -11,7 +11,7 @@ import {
 import { Capacitor } from '@capacitor/core';
 
 // Production AdMob IDs (fallback to test IDs if requested or live fail)
-const IS_PRODUCTION = false; // Set to false to show test ads for verification
+const IS_PRODUCTION = true; // Set to true for real ads as requested by user
 
 const TEST_BANNER = 'ca-app-pub-3940256099942544/6300978111';
 const TEST_INTERSTITIAL = 'ca-app-pub-3940256099942544/1033173712';
@@ -63,11 +63,11 @@ export async function showAppOpenAd() {
 /**
  * 2. Banner Ad Logic
  */
-export async function showBannerAd() {
+export async function showBannerAd(size: BannerAdSize = BannerAdSize.ADAPTIVE_BANNER) {
   if (!Capacitor.isNativePlatform()) return;
   const options: BannerAdOptions = {
     adId: ADMOB_BANNER_ID,
-    adSize: BannerAdSize.ADAPTIVE_BANNER,
+    adSize: size,
     position: BannerAdPosition.BOTTOM_CENTER,
     margin: 0,
     isTesting: !IS_PRODUCTION,
@@ -75,7 +75,7 @@ export async function showBannerAd() {
   try {
     await AdMob.showBanner(options);
   } catch (e) {
-    console.warn('Banner Ad failed via AdMob, Unity fallback would trigger here for Game ID:', UNITY_GAME_ID);
+    console.warn('Banner Ad failed via AdMob, Unity fallback for Game ID:', UNITY_GAME_ID);
   }
 }
 
