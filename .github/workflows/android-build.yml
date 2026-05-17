@@ -32,6 +32,11 @@ jobs:
       - name: Build Web Application
         run: npm run build
 
+      - name: Prepare and Generate Assets
+        run: |
+          npm run assets:prepare
+          npx capacitor-assets generate --android
+
       - name: Capacitor Sync
         run: |
           npx cap add android || true

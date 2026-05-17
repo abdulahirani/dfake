@@ -53,6 +53,11 @@ const runForensicAnalysis = async (file: File) => {
 function AdSlot({ id, enabled, className, theme, config }: { id: string; enabled: boolean; className?: string; theme: 'dark' | 'light'; config?: any }) {
   if (!enabled) return null;
 
+  // On native, the bottom-anchor is handled by Capacitor AdMob plugin directly
+  if (id === 'bottom-anchor' && Capacitor.isNativePlatform()) {
+    return null;
+  }
+
   // Custom Ad Code Logic
   const customCode = config?.settings?.customAdCode;
 
@@ -115,6 +120,7 @@ function MatrixIllusion({ theme }: { theme: 'dark' | 'light' }) {
 }
 
 export default function App() {
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [currentPage, setCurrentPage] = useState<'home' | 'faq' | 'about' | 'contact' | 'privacy' | 'terms' | 'disclaimer' | 'docs' | 'blog'>('home');
   const [currentPost, setCurrentPost] = useState<string | null>(null);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
@@ -124,6 +130,26 @@ export default function App() {
   const [scansCount, setScansCount] = useState(0);
   const [isOffline, setIsOffline] = useState(false);
   const [isAdBlocked, setIsAdBlocked] = useState(false);
+
+  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [analysisType, setAnalysisType] = useState<'image' | 'video' | null>(null);
+  const [privacyAgreed, setPrivacyAgreed] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [progressText, setProgressText] = useState("");
+  const [result, setResult] = useState<{ 
+    detected: boolean; 
+    confidence: number;
+    metrics: { [key: string]: { value: string; status: string; isError: boolean } };
+  } | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Native Listeners & Connectivity
   useEffect(() => {
@@ -189,42 +215,18 @@ export default function App() {
           const configData = await configRes.json();
           setConfig(configData);
           
-          // Apply title and description
           if (configData.settings?.siteName) {
             document.title = configData.settings.siteName;
           }
-          if (configData.settings?.siteDescription) {
-            let metaDesc: HTMLMetaElement | null = document.querySelector("meta[name='description']");
-            if (!metaDesc) {
-              metaDesc = document.createElement('meta');
-              metaDesc.name = 'description';
-              document.head.appendChild(metaDesc);
-            }
-            metaDesc.content = configData.settings.siteDescription;
-          }
-          
-          // Apply favicon
-          if (configData.settings?.faviconUrl) {
-            let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
-            if (!link) {
-              link = document.createElement('link');
-              link.rel = 'icon';
-              document.getElementsByTagName('head')[0].appendChild(link);
-            }
-            link.href = transformDriveUrl(configData.settings.faviconUrl);
-          }
-
-          // Apply AdSense
-          if (configData.settings?.adsEnabled && configData.settings?.adsenseId) {
-            const script = document.createElement('script');
-            script.async = true;
-            script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${configData.settings.adsenseId}`;
-            script.crossOrigin = "anonymous";
-            document.head.appendChild(script);
-          }
+        } else {
+          // Fallback to local config if any
+          const localConfig = await fetch('/config.json').then(r => r.json()).catch(() => null);
+          if (localConfig) setConfig(localConfig);
         }
       } catch (err) {
-        console.warn('Initial load failed, trying fallbacks:', err);
+        console.warn('Initial load failed, trying local fallbacks:', err);
+        const localConfig = await fetch('/config.json').then(r => r.json()).catch(() => null);
+        if (localConfig) setConfig(localConfig);
       }
     };
     loadData();
@@ -402,27 +404,6 @@ export default function App() {
       window.history.pushState({ page: currentPage, post: currentPost }, '', url.toString());
     }
   }, [currentPage, currentPost, posts]);
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
-  const [currentStep, setCurrentStep] = useState<number>(1);
-  const [analysisType, setAnalysisType] = useState<'image' | 'video' | null>(null);
-  const [privacyAgreed, setPrivacyAgreed] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [progressText, setProgressText] = useState("");
-  const [result, setResult] = useState<{ 
-    detected: boolean; 
-    confidence: number;
-    metrics: { [key: string]: { value: string; status: string; isError: boolean } };
-  } | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null);
-
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Scroll to top on step or page change
   useEffect(() => {
@@ -786,7 +767,11 @@ ${pages.map(page => `  <url>
                               {config?.settings?.siteName || 'ScanDeepFake'}<br/>
                               <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Forensic Engine</span>
                             </h1>
-                            <div className={`text-xl md:text-2xl font-black uppercase tracking-widest opacity-60 ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>
+                            <div 
+                              className={`text-xl md:text-2xl font-black uppercase tracking-widest opacity-60 cursor-pointer select-none ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}
+                              onContextMenu={(e) => { e.preventDefault(); setIsAdminOpen(true); }}
+                              onDoubleClick={() => setIsAdminOpen(true)}
+                            >
                               Truth matters. Verify everything.
                             </div>
                           </div>
@@ -851,7 +836,7 @@ ${pages.map(page => `  <url>
                         key="step3" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }}
                         className="space-y-8"
                       >
-                        <AdSlot id="content-mid-1" enabled={config?.settings?.adsEnabled} theme={theme} config={config} className="w-full mb-8 rounded-2xl" />
+                        <AdSlot id="native-upload-top" enabled={config?.settings?.adsEnabled} theme={theme} config={config} className="w-full mb-8 rounded-2xl" />
 
                         <div className="bg-white/5 border border-white/10 rounded-[40px] p-8 md:p-12 space-y-10">
                           <div className="flex flex-col items-center text-center space-y-4">
@@ -944,7 +929,7 @@ ${pages.map(page => `  <url>
                           </div>
                         </div>
 
-                        <AdSlot id="content-mid-2" enabled={config?.settings?.adsEnabled} theme={theme} config={config} className="w-full mb-8 rounded-2xl" />
+                        <AdSlot id="native-upload-bottom" enabled={config?.settings?.adsEnabled} theme={theme} config={config} className="w-full mb-8 rounded-2xl" />
                         <button onClick={() => setCurrentStep(2)} className="opacity-80 hover:opacity-100 text-xs uppercase font-black tracking-widest block mx-auto transition-opacity">← Back</button>
                       </motion.div>
                     )}
@@ -1584,6 +1569,9 @@ function FooterColumn({ title, links, theme }: { title: string; links: { label: 
 
 function LegalPage({ title, content, theme }: { title: string; content: string; theme?: 'dark' | 'light' }) {
   const isDark = theme === 'dark';
+  // Use config values directly if content is generic or empty
+  const displayContent = content || "Loading forensic legal metadata...";
+  
   return (
     <div className="max-w-4xl mx-auto space-y-12 mb-20 px-4">
       <div className="text-center mt-8">
@@ -1595,7 +1583,7 @@ function LegalPage({ title, content, theme }: { title: string; content: string; 
       }`}>
         <div className={`absolute top-0 right-0 p-8 font-mono text-8xl font-black select-none opacity-20 ${isDark ? 'text-[#00F3FF]/10' : 'text-[#1E40AF]/10'}`}>LEGAL</div>
         <div className={`relative z-10 leading-loose text-justify text-lg space-y-8 whitespace-pre-wrap font-sans ${isDark ? 'text-white/70' : 'text-[#0F172A]'}`}>
-          {content}
+          {displayContent}
         </div>
       </div>
     </div>
