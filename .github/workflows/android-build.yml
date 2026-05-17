@@ -31,10 +31,24 @@ jobs:
 
     - name: Sync Capacitor
       run: |
-        # If android folder exists but is broken (missing gradlew), remove it
-        if [ -d "android" ] && [ ! -f "android/gradlew" ]; then
-          echo "Android folder exists but is missing gradlew. Recreating..."
-          rm -rf android
+        # If android folder exists but is broken (missing gradlew or corrupt wrapper jar), remove it
+        if [ -d "android" ]; then
+          BROKEN=false
+          if [ ! -f "android/gradlew" ]; then BROKEN=true; fi
+          if [ ! -f "android/gradle/wrapper/gradle-wrapper.jar" ]; then BROKEN=true; fi
+          
+          # Check jar integrity
+          if [ "$BROKEN" = "false" ]; then
+            if ! java -jar android/gradle/wrapper/gradle-wrapper.jar --version > /dev/null 2>&1; then
+              echo "Gradle wrapper jar is corrupt."
+              BROKEN=true
+            fi
+          fi
+
+          if [ "$BROKEN" = "true" ]; then
+            echo "Android folder is broken. Recreating..."
+            rm -rf android
+          fi
         fi
 
         if [ ! -d "android" ]; then
