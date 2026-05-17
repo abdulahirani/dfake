@@ -8,7 +8,7 @@
     "start": "node dist/server.cjs",
     "lint": "eslint .",
     "assets:prepare": "npx tsx scripts/prepare-assets.js",
-    "assets:generate": "npx capacitor-assets generate --android",
+    "assets:generate": "npx @capacitor/assets generate --android",
     "preview": "vite preview"
   },
   "dependencies": {

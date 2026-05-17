@@ -11,16 +11,16 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: set up JDK 21
+    - name: set up JDK 17
       uses: actions/setup-java@v4
       with:
-        java-version: '21'
+        java-version: '17'
         distribution: 'temurin'
 
     - name: Set up Node
       uses: actions/setup-node@v4
       with:
-        node-version: 22
+        node-version: 20
         cache: 'npm'
 
     - name: Install dependencies
@@ -40,21 +40,25 @@ jobs:
           npx cap add android
         fi
         
-        # Inject AdMob App ID into AndroidManifest.xml
         MANIFEST_PATH="android/app/src/main/AndroidManifest.xml"
         ADMOB_APP_ID="ca-app-pub-5955602053283707~3790849033"
         
-        # Check if meta-data already exists, if not, inject before </application>
+        # 1. Inject AdMob App ID
         if ! grep -q "com.google.android.gms.ads.APPLICATION_ID" "$MANIFEST_PATH"; then
           sed -i "/<\/application>/i \        <meta-data android:name=\"com.google.android.gms.ads.APPLICATION_ID\" android:value=\"$ADMOB_APP_ID\"\/>" "$MANIFEST_PATH"
         fi
 
-        # Ensure Internet and Network State permissions
-        if ! grep -q "android.permission.INTERNET" "$MANIFEST_PATH"; then
-          sed -i "/<manifest/a \    <uses-permission android:name=\"android.permission.INTERNET\" \/>" "$MANIFEST_PATH"
-        fi
-        if ! grep -q "android.permission.ACCESS_NETWORK_STATE" "$MANIFEST_PATH"; then
-          sed -i "/<manifest/a \    <uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" \/>" "$MANIFEST_PATH"
+        # 2. Add Runtime Permissions
+        # Remove existing Internet/NetworkState if they exist (standard) then add all to be sure
+        for perm in "INTERNET" "ACCESS_NETWORK_STATE" "CAMERA" "READ_EXTERNAL_STORAGE" "WRITE_EXTERNAL_STORAGE" "READ_MEDIA_IMAGES" "READ_MEDIA_VIDEO"; do
+          if ! grep -q "android.permission.$perm" "$MANIFEST_PATH"; then
+            sed -i "/<manifest/a \    <uses-permission android:name=\"android.permission.$perm\" \/>" "$MANIFEST_PATH"
+          fi
+        done
+
+        # 3. Enable Hardware Acceleration
+        if ! grep -q "android:hardwareAccelerated" "$MANIFEST_PATH"; then
+          sed -i 's/<application/<application android:hardwareAccelerated="true"/' "$MANIFEST_PATH"
         fi
 
         npx cap sync android
