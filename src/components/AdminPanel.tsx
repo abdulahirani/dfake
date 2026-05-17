@@ -509,7 +509,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
                     <label className="text-xs font-black uppercase tracking-widest opacity-40">System Favicon URL</label>
                     <div className="flex gap-4">
                       <div className="w-10 h-10 bg-white/5 rounded-xl border border-white/10 p-2 overflow-hidden flex items-center justify-center shrink-0">
-                        <img src={config.settings.faviconUrl} alt="Favicon" className="max-w-full max-h-full" />
+                        <img src={transformDriveUrl(config.settings.faviconUrl)} alt="Favicon" className="max-w-full max-h-full" />
                       </div>
                       <input 
                         className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 outline-none focus:border-[#00F3FF]"
@@ -520,14 +520,44 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                  <div className="space-y-3">
+                    <label className="text-xs font-black uppercase tracking-widest opacity-40">Primary Domain (for Sitemap/SEO)</label>
+                    <input 
+                      className={`w-full border rounded-xl px-4 py-2 outline-none focus:border-[#00F3FF] ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'}`}
+                      placeholder="https://scandeepfake.web.app"
+                      value={config.settings.domain || ''}
+                      onChange={(e) => setConfig({...config, settings: {...config.settings, domain: e.target.value}})}
+                    />
+                  </div>
+
+                  <div className="space-y-3">
                   <label className="text-xs font-black uppercase tracking-widest opacity-40">Website Description (SEO)</label>
                   <textarea 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-[#00F3FF] min-h-[100px]"
+                    className={`w-full border rounded-xl px-4 py-3 outline-none focus:border-[#00F3FF] min-h-[100px] ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'}`}
                     placeholder="Professional deepfake detection tools..."
                     value={config.settings.siteDescription || ''}
                     onChange={(e) => setConfig({...config, settings: {...config.settings, siteDescription: e.target.value}})}
                   />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-xs font-black uppercase tracking-widest opacity-40">AdSense Publisher ID (ca-pub-xxx)</label>
+                    <input 
+                      className={`w-full border rounded-xl px-4 py-2 outline-none focus:border-[#00F3FF] font-mono ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'}`}
+                      value={config.settings.adsClient}
+                      onChange={(e) => setConfig({...config, settings: {...config.settings, adsClient: e.target.value}})}
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-xs font-black uppercase tracking-widest opacity-40">System Version Tag</label>
+                    <input 
+                      className={`w-full border rounded-xl px-4 py-2 outline-none focus:border-[#00F3FF] ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'}`}
+                      placeholder="ENGINE V4.2.1"
+                      value={config.settings.version || ''}
+                      onChange={(e) => setConfig({...config, settings: {...config.settings, version: e.target.value}})}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -626,7 +656,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
         </>
       )}
     </div>
-  ) : (
+    ) : (
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
           {/* Main Editor Section */}
           <div className="flex-1 flex flex-col p-4 md:p-8 overflow-y-auto space-y-8 no-scrollbar">

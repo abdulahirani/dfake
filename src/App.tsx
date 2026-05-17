@@ -8,6 +8,8 @@ import { Upload, Shield, Activity, Cpu, CheckCircle2, ChevronRight, Info, FileVi
 import { motion, AnimatePresence } from 'motion/react';
 import Markdown from 'react-markdown';
 import AdminPanel from './components/AdminPanel';
+import { Capacitor } from '@capacitor/core';
+import { initializeAdMob, showAppOpenAd, showBannerAd, prepareInterstitialAd, showInterstitialAd } from './lib/admob';
 
 // Forensic Simulation Engine (Local)
 const runForensicAnalysis = async (file: File) => {
@@ -119,9 +121,13 @@ export default function App() {
   useEffect(() => {
     const loadData = async () => {
       try {
+        const baseUrl = Capacitor.isNativePlatform() 
+          ? 'https://gundkatira-scandeepfake-scanner.hf.space' 
+          : '';
+        
         const [postsRes, configRes] = await Promise.all([
-          fetch('/api/posts'),
-          fetch('/api/config')
+          fetch(`${baseUrl}/api/posts`),
+          fetch(`${baseUrl}/api/config`)
         ]);
         
         if (postsRes.ok) {
@@ -155,7 +161,7 @@ export default function App() {
               link.rel = 'icon';
               document.getElementsByTagName('head')[0].appendChild(link);
             }
-            link.href = configData.settings.faviconUrl;
+            link.href = transformDriveUrl(configData.settings.faviconUrl);
           }
 
           // Apply AdSense
@@ -174,10 +180,27 @@ export default function App() {
     loadData();
   }, []);
 
-  // Hidden admin access: ?admin=true
+  // AdMob Setup (Native Only - Protected Policy Compliance)
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      const setupAds = async () => {
+        try {
+          await initializeAdMob();
+          await showAppOpenAd(); // Shown on mount (splash)
+          await showBannerAd();  // Locked to bottom center
+          await prepareInterstitialAd(); // Background load
+        } catch (err) {
+          console.error("AdMob initialization error:", err);
+        }
+      };
+      setupAds();
+    }
+  }, []);
+
+  // Hidden admin access: ?admin=true or /admin path
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('admin') === 'true') {
+    if (params.get('admin') === 'true' || window.location.pathname === '/admin') {
       setIsAdminOpen(true);
     }
   }, []);
@@ -256,6 +279,34 @@ export default function App() {
     if (post) {
       setCurrentPost(post);
     }
+
+    // Dynamic Title & Meta Description for SEO
+    let baseTitle = config?.settings?.siteName || "ScanDeepFake";
+    let desc = config?.settings?.siteDescription || "Professional AI Deepfake Detection & Forensic Reports";
+
+    if (currentPage === 'blog' && post) {
+      const p = posts.find(item => item.id === post);
+      if (p) {
+        const fullTitle = `${p.title} | ${baseTitle}`;
+        document.title = fullTitle.length > 60 ? fullTitle.substring(0, 57) + "..." : fullTitle;
+        if (p.metaDesc) desc = p.metaDesc;
+      }
+    } else if (currentPage !== 'home') {
+      const pageTitle = currentPage.charAt(0).toUpperCase() + currentPage.slice(1) + " | " + baseTitle;
+      document.title = pageTitle.length > 60 ? pageTitle.substring(0, 57) + "..." : pageTitle;
+    } else {
+      const homeTitle = `${baseTitle} | #1 Professional AI Forensic & Deepfake Detector`;
+      document.title = homeTitle.length > 60 ? homeTitle.substring(0, 57) + "..." : homeTitle;
+    }
+
+    // Dynamic Meta Description
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement('meta');
+      metaDesc.setAttribute('name', 'description');
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute('content', desc);
 
     const handlePopState = () => {
       const newParams = new URLSearchParams(window.location.search);
@@ -415,6 +466,12 @@ export default function App() {
       setResult(analysis);
       setCurrentStep(5);
 
+      if (Capacitor.isNativePlatform()) {
+        await showInterstitialAd();
+        // Background load the next one for future scans
+        await prepareInterstitialAd();
+      }
+
     } catch (err) {
       console.error("Analysis failed:", err);
       setError("Analysis failed. Local engine timeout.");
@@ -536,12 +593,12 @@ ${pages.map(page => `  <url>
         <div className="flex flex-col cursor-pointer" onClick={() => setCurrentPage('home')}>
           <div className="text-xs font-mono tracking-[0.3em] text-[#00F3FF] uppercase mb-1 flex items-center gap-2">
             <Cpu size={12} className="animate-spin-slow" />
-            ScanDeepFake Engine v4.2.1
+            {config?.settings?.siteName || 'ScanDeepFake'} Engine {config?.settings?.version || 'v4.2.1'}
           </div>
           <div className={`text-4xl md:text-5xl font-black tracking-tighter uppercase leading-none transition-colors duration-500 ${
             theme === 'dark' ? 'text-white' : 'text-[#0F172A]'
           }`}>
-            ScanDeepFake
+            {config?.settings?.siteName || 'ScanDeepFake'}
           </div>
         </div>
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
@@ -632,11 +689,11 @@ ${pages.map(page => `  <url>
                             <Activity size={12} className="animate-pulse" /> System Online - v4.2
                           </div>
                           <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">
-                            ScanDeepFake: The World's Most <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Accurate AI Forensic Engine</span>
+                            {config?.settings?.siteName || 'ScanDeepFake'}: The World's Most <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Accurate AI Forensic Engine</span>
                           </h1>
-                          <h2 className={`text-lg max-w-2xl mx-auto font-medium transition-opacity ${theme === 'dark' ? 'opacity-80' : 'text-[#0F172A] opacity-90'}`}>
+                          <p className={`text-lg max-w-2xl mx-auto font-medium transition-opacity ${theme === 'dark' ? 'opacity-80' : 'text-[#0F172A] opacity-90'}`}>
                             Detect <strong>Deepfake Detection Online</strong>, verify <strong>AI Face Swap Checker</strong>, and ensure <strong>Video Authenticity Verification</strong> with our <strong>Free AI Forensic Tool</strong>.
-                          </h2>
+                          </p>
                         </div>
 
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
@@ -1048,10 +1105,10 @@ ${pages.map(page => `  <url>
                   <button onClick={() => setCurrentPost(null)} className={`text-xs font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white/80 hover:text-white' : 'text-[#0F172A] opacity-80 hover:opacity-100'}`}>← Back to Blog</button>
                   {posts.filter((p: any) => p.id === currentPost).map((post: any) => (
                     <article key={post.id} className="space-y-10 w-full overflow-hidden break-words">
-                       <div className="space-y-4">
-                        <div className={`text-xs font-mono uppercase tracking-[0.3em] font-bold ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>{post.date}</div>
-                        <h2 className={`text-3xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-none italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h2>
-                      </div>
+                        <div className="space-y-4">
+                          <div className={`text-xs font-mono uppercase tracking-[0.3em] font-bold ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>{post.date}</div>
+                          <h1 className={`text-3xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-none italic ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>{post.title}</h1>
+                        </div>
                       <div className="aspect-video rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border border-white/10">
                         <img 
                           src={transformDriveUrl(post.imageUrl).includes('?') ? transformDriveUrl(post.imageUrl) : `${transformDriveUrl(post.imageUrl)}?auto=format&fit=crop&q=80&w=1200`} 
@@ -1064,7 +1121,15 @@ ${pages.map(page => `  <url>
                         {post.content.trim().startsWith('<') ? (
                           <div dangerouslySetInnerHTML={{ __html: post.content }} />
                         ) : (
-                          <Markdown>{post.content}</Markdown>
+                          <Markdown
+                            components={{
+                              h1: ({ ...props }) => <h2 className="text-2xl font-black uppercase italic mt-8 mb-4" {...props} />,
+                              h2: ({ ...props }) => <h2 className="text-xl font-bold uppercase mt-6 mb-3" {...props} />,
+                              h3: ({ ...props }) => <h3 className="text-lg font-bold uppercase mt-4 mb-2" {...props} />,
+                            }}
+                          >
+                            {post.content}
+                          </Markdown>
                         )}
                         <div className={`mt-12 p-8 rounded-3xl border border-dashed text-center ${
                           theme === 'dark' ? 'border-[#00F3FF]/20 bg-white/5' : 'border-[#1E40AF]/20 bg-[#F1F5F9]/50'

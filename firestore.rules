@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'gundkatira007@gmail.com' && request.auth.token.email_verified == true
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(postId) && isValidPost(incoming());
+      allow update: if isAdmin() && isValidPost(incoming()) && incoming().id == existing().id;
+      allow delete: if isAdmin();
+    }
+
+    match /config/{configId} {
+      allow read: if true;
+      allow write: if isAdmin() && configId == 'main';
+    }
+
+    function isValidPost(data) {
+      return data.keys().hasAll(['id', 'title', 'content']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.title is string && data.title.size() <= 200 &&
+             data.content is string && data.content.size() <= 50000;
+    }
+  }
+}

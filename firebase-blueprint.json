@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "Post": {
+      "title": "Post",
+      "description": "A blog post or report entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "desc": { "type": "string" },
+        "date": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "alt": { "type": "string" },
+        "content": { "type": "string" }
+      },
+      "required": ["id", "title", "content"]
+    },
+    "Config": {
+      "title": "Config",
+      "description": "Global application configuration",
+      "type": "object",
+      "properties": {
+        "faqs": { "type": "array" },
+        "settings": { "type": "object" },
+        "legal": { "type": "object" }
+      }
+    }
+  },
+  "firestore": {
+    "/posts/{postId}": {
+      "schema": "Post",
+      "description": "Collection of blog posts"
+    },
+    "/config/main": {
+      "schema": "Config",
+      "description": "Singleton configuration document"
+    }
+  }
+}

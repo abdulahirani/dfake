@@ -3,12 +3,18 @@
  * Automatically switches API endpoints based on hosting provider.
  */
 
+import { Capacitor } from '@capacitor/core';
+
 const getApiBaseUrl = () => {
+  // If running on native mobile app (Capacitor), always point to production backend
+  if (Capacitor.isNativePlatform()) {
+    return 'https://gundkatira-scandeepfake-scanner.hf.space';
+  }
+
   const hostname = window.location.hostname;
 
   // 1. If running on Firebase, point to Hugging Face Backend
   if (hostname.includes('web.app') || hostname.includes('firebaseapp.com')) {
-    // Replace with your actual Hugging Face Space URL
     return 'https://gundkatira-scandeepfake-scanner.hf.space';
   }
 
