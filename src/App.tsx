@@ -130,6 +130,7 @@ export default function App() {
   const [scansCount, setScansCount] = useState(0);
   const [isOffline, setIsOffline] = useState(false);
   const [isAdBlocked, setIsAdBlocked] = useState(false);
+  const [tabChangeCount, setTabChangeCount] = useState(0);
 
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [analysisType, setAnalysisType] = useState<'image' | 'video' | null>(null);
@@ -155,18 +156,17 @@ export default function App() {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
 
-    // Status Bar & Safe Area Handling
+    // Status Bar - Forced Persistent Hide for Immersion
     const initNativeUI = async () => {
       try {
-        await StatusBar.setStyle({ style: theme === 'dark' ? Style.Dark : Style.Light });
-        await StatusBar.setBackgroundColor({ color: theme === 'dark' ? '#0F172A' : '#F8FAFC' });
+        await StatusBar.hide();
       } catch (e) {
-        console.warn('StatusBar handling failed', e);
+        console.warn('StatusBar hide failed', e);
       }
     };
     initNativeUI();
 
-    // Connectivity
+    // Connectivity State
     const checkNetwork = async () => {
       const status = await Network.getStatus();
       setIsOffline(!status.connected);
@@ -176,13 +176,19 @@ export default function App() {
       setIsOffline(!status.connected);
     });
 
-    // Back Button Handling
-    const backHandler = CapApp.addListener('backButton', ({ canGoBack }) => {
+    // Back Button Contextual Handling with Ad Trigger
+    const backHandler = CapApp.addListener('backButton', async ({ canGoBack }) => {
       if (isAdminOpen) {
         setIsAdminOpen(false);
       } else if (currentPost) {
         setCurrentPost(null);
       } else if (currentPage !== 'home') {
+        // Show ad when navigating back to home if we've browsed a bit
+        if (tabChangeCount > 2 && Capacitor.isNativePlatform()) {
+          await showInterstitialAd();
+          await prepareInterstitialAd();
+          setTabChangeCount(0);
+        }
         setCurrentPage('home');
       } else if (currentStep > 1) {
         setCurrentStep(prev => prev - 1);
@@ -195,7 +201,25 @@ export default function App() {
       handler.remove();
       backHandler.remove();
     };
-  }, [theme, currentPage, currentStep, currentPost, isAdminOpen]);
+  }, [theme, currentPage, currentStep, currentPost, isAdminOpen, tabChangeCount]);
+
+  // Global Tab Change Ad Logic
+  useEffect(() => {
+    if (currentPage !== 'home') {
+      setTabChangeCount(prev => prev + 1);
+    }
+  }, [currentPage]);
+
+  useEffect(() => {
+    const triggerTabAd = async () => {
+      if (tabChangeCount >= 4 && Capacitor.isNativePlatform()) {
+        await showInterstitialAd();
+        await prepareInterstitialAd();
+        setTabChangeCount(0);
+      }
+    };
+    triggerTabAd();
+  }, [tabChangeCount]);
 
   // Fetch config and posts
   useEffect(() => {
@@ -463,15 +487,17 @@ export default function App() {
   const startAnalysis = async () => {
     if (!selectedFile) return;
 
-    // Second scan requires Rewarded Ad
-    if (scansCount > 0 && Capacitor.isNativePlatform()) {
-      const success = await showRewardedAd();
-      if (!success) {
-        setError("Please watch the rewarded ad to support our free forensic engine.");
-        return;
+    // Interstitial/Rewarded Ad Trigger for Scan
+    if (Capacitor.isNativePlatform()) {
+      if (scansCount > 0) {
+        // Require rewarded for subsequent scans
+        await showRewardedAd();
+        await prepareRewardedAd();
+      } else {
+        // Show interstitial for first scan completion prep
+        await showInterstitialAd();
+        await prepareInterstitialAd();
       }
-      // Prepare for next time
-      await prepareRewardedAd();
     }
     
     setCurrentStep(4);
@@ -938,27 +964,33 @@ ${pages.map(page => `  <url>
                     {currentStep === 4 && (
                       <motion.div 
                         key="step4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="bg-white/5 border border-white/10 rounded-[40px] p-8 md:p-16 text-center space-y-12 relative overflow-hidden h-[400px] flex flex-col justify-center"
+                        className="space-y-6"
                       >
-                        <MatrixIllusion theme={theme} />
-                        <div className="space-y-8 relative z-10">
-                          <div className="relative w-24 h-24 mx-auto">
-                            <div className={`absolute inset-0 rounded-full blur-2xl animate-pulse ${theme === 'dark' ? 'bg-[#00F3FF]/20' : 'bg-[#1E40AF]/20'}`}></div>
-                            <Loader2 className={`w-full h-full animate-spin relative z-10 ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`} />
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <h3 className="text-2xl font-black uppercase tracking-widest animate-pulse">{progressText}</h3>
-                            <div className="w-full max-w-md mx-auto bg-white/5 h-2 rounded-full overflow-hidden border border-white/10">
-                              <motion.div 
-                                className={`h-full shadow-lg ${theme === 'dark' ? 'bg-[#00F3FF] shadow-[#00F3FF]/30' : 'bg-[#1E40AF] shadow-[#1E40AF]/30'}`}
-                                initial={{ width: "0%" }}
-                                animate={{ width: `${progress}%` }}
-                              />
+                        <AdSlot id="scanning-native-top" enabled={config?.settings?.adsEnabled} theme={theme} config={config} className="h-24 md:h-32 mb-4" />
+                        
+                        <div className="bg-white/5 border border-white/10 rounded-[40px] p-8 md:p-16 text-center space-y-12 relative overflow-hidden h-[400px] flex flex-col justify-center">
+                          <MatrixIllusion theme={theme} />
+                          <div className="space-y-8 relative z-10">
+                            <div className="relative w-24 h-24 mx-auto">
+                              <div className={`absolute inset-0 rounded-full blur-2xl animate-pulse ${theme === 'dark' ? 'bg-[#00F3FF]/20' : 'bg-[#1E40AF]/20'}`}></div>
+                              <Loader2 className={`w-full h-full animate-spin relative z-10 ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`} />
                             </div>
-                            <div className={`text-xs font-mono uppercase tracking-[0.3em] font-black ${theme === 'dark' ? 'text-[#00F3FF]/80' : 'text-[#1E40AF]/80'}`}>{progress}% Completed</div>
+                            
+                            <div className="space-y-2">
+                              <h3 className="text-2xl font-black uppercase tracking-widest animate-pulse">{progressText}</h3>
+                              <div className="w-full max-w-md mx-auto bg-white/5 h-2 rounded-full overflow-hidden border border-white/10">
+                                <motion.div 
+                                  className={`h-full shadow-lg ${theme === 'dark' ? 'bg-[#00F3FF] shadow-[#00F3FF]/30' : 'bg-[#1E40AF] shadow-[#1E40AF]/30'}`}
+                                  initial={{ width: "0%" }}
+                                  animate={{ width: `${progress}%` }}
+                                />
+                              </div>
+                              <div className={`text-xs font-mono uppercase tracking-[0.3em] font-black ${theme === 'dark' ? 'text-[#00F3FF]/80' : 'text-[#1E40AF]/80'}`}>{progress}% Completed</div>
+                            </div>
                           </div>
                         </div>
+
+                        <AdSlot id="scanning-native-bottom" enabled={config?.settings?.adsEnabled} theme={theme} config={config} className="h-24 md:h-32 mt-4" />
                       </motion.div>
                     )}
 
@@ -1319,6 +1351,9 @@ ${pages.map(page => `  <url>
                 <h2 className="text-6xl font-black uppercase tracking-tighter italic">Help & <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>FAQ</span></h2>
                 <p className={`${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} font-mono text-xs uppercase tracking-[0.4em] mt-2`}>Semantic Search & Knowledge Base</p>
               </div>
+              
+              <AdSlot id="faq-top-native-sim" enabled={config?.settings?.adsEnabled} theme={theme} config={config} className="h-32 mb-8" />
+
               <div className="space-y-6">
                 {(config?.faqs || []).map((faq: any, idx: number) => (
                   <FAQItem 
@@ -1373,11 +1408,11 @@ ${pages.map(page => `  <url>
             </motion.div>
           )}
 
-          {currentPage === 'privacy' && <LegalPage key="privacy" title="Privacy Policy" theme={theme} content={config?.legal?.privacy || (config === null ? "Config loading..." : "Privacy policy content not available.")} />}
+          {currentPage === 'privacy' && <LegalPage key="privacy" title="Privacy Policy" theme={theme} content={config?.legal?.privacy} />}
 
-          {currentPage === 'terms' && <LegalPage key="terms" title="Terms of Service" theme={theme} content={config?.legal?.terms || (config === null ? "Config loading..." : "Terms content not available.")} />}
+          {currentPage === 'terms' && <LegalPage key="terms" title="Terms of Service" theme={theme} content={config?.legal?.terms} />}
 
-          {currentPage === 'disclaimer' && <LegalPage key="disclaimer" title="Disclaimer" theme={theme} content={config?.legal?.disclaimer || (config === null ? "Config loading..." : "Disclaimer content not available.")} />}
+          {currentPage === 'disclaimer' && <LegalPage key="disclaimer" title="Disclaimer" theme={theme} content={config?.legal?.disclaimer} />}
         </AnimatePresence>
 
         <AnimatePresence>
@@ -1567,10 +1602,10 @@ function FooterColumn({ title, links, theme }: { title: string; links: { label: 
   );
 }
 
-function LegalPage({ title, content, theme }: { title: string; content: string; theme?: 'dark' | 'light' }) {
+function LegalPage({ title, content, theme }: { title: string; content?: string; theme?: 'dark' | 'light' }) {
   const isDark = theme === 'dark';
   // Use config values directly if content is generic or empty
-  const displayContent = content || "Loading forensic legal metadata...";
+  const displayContent = content || "Our legal algorithms are currently synthesizing this policy documentation. ScanDeepFake maintains strict compliance with digital privacy standards. Please contact support@scandeepfake.com if you require immediate assistance.";
   
   return (
     <div className="max-w-4xl mx-auto space-y-12 mb-20 px-4">

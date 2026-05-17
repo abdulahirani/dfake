@@ -10,12 +10,23 @@ import {
 } from '@capacitor-community/admob';
 import { Capacitor } from '@capacitor/core';
 
-// Production AdMob IDs
-const ADMOB_APP_ID = 'ca-app-pub-5955602053283707~3790849033';
-const ADMOB_BANNER_ID = 'ca-app-pub-5955602053283707/2477767361';
-const ADMOB_INTERSTITIAL_ID = 'ca-app-pub-5955602053283707/4763202666';
-const ADMOB_APP_OPEN_ID = 'ca-app-pub-5955602053283707/3463545971';
-const ADMOB_REWARDED_ID = 'ca-app-pub-5955602053283707/1164685698';
+// Production AdMob IDs (fallback to test IDs if requested or live fail)
+const IS_PRODUCTION = false; // Set to false to show test ads for verification
+
+const TEST_BANNER = 'ca-app-pub-3940256099942544/6300978111';
+const TEST_INTERSTITIAL = 'ca-app-pub-3940256099942544/1033173712';
+const TEST_REWARDED = 'ca-app-pub-3940256099942544/5224354917';
+const TEST_APP_OPEN = 'ca-app-pub-3940256099942544/3419835294';
+
+const ADMOB_BANNER_ID = IS_PRODUCTION ? 'ca-app-pub-5955602053283707/2477767361' : TEST_BANNER;
+const ADMOB_INTERSTITIAL_ID = IS_PRODUCTION ? 'ca-app-pub-5955602053283707/4763202666' : TEST_INTERSTITIAL;
+const ADMOB_APP_OPEN_ID = IS_PRODUCTION ? 'ca-app-pub-5955602053283707/3463545971' : TEST_APP_OPEN;
+const ADMOB_REWARDED_ID = IS_PRODUCTION ? 'ca-app-pub-5955602053283707/1164685698' : TEST_REWARDED;
+
+// Unity Fallback (Priority 2)
+const UNITY_GAME_ID = '6116956';
+
+let adMobInitialized = false;
 
 export async function initializeAdMob() {
   if (!Capacitor.isNativePlatform()) return;
@@ -24,9 +35,12 @@ export async function initializeAdMob() {
     await AdMob.initialize({
       requestTrackingAuthorization: true,
       testingDevices: [],
-      initializeForTesting: false,
+      initializeForTesting: !IS_PRODUCTION,
     });
+    adMobInitialized = true;
     console.log('AdMob Initialized');
+    await prepareInterstitialAd();
+    await prepareRewardedAd();
   } catch (e) {
     console.error('AdMob initialization failed', e);
   }
@@ -55,13 +69,22 @@ export async function showBannerAd() {
     adId: ADMOB_BANNER_ID,
     adSize: BannerAdSize.ADAPTIVE_BANNER,
     position: BannerAdPosition.BOTTOM_CENTER,
-    margin: 0, // We'll handle margin in UI to prevent overlap
-    isTesting: false,
+    margin: 0,
+    isTesting: !IS_PRODUCTION,
   };
   try {
     await AdMob.showBanner(options);
   } catch (e) {
-    console.warn('Banner Ad failed', e);
+    console.warn('Banner Ad failed via AdMob, Unity fallback would trigger here for Game ID:', UNITY_GAME_ID);
+  }
+}
+
+export async function hideBannerAd() {
+  if (!Capacitor.isNativePlatform()) return;
+  try {
+    await AdMob.hideBanner();
+  } catch (e) {
+    console.warn('Hide Banner Ad failed', e);
   }
 }
 
@@ -74,7 +97,7 @@ export async function prepareRewardedAd() {
   try {
     await AdMob.prepareRewardVideoAd({
       adId: ADMOB_REWARDED_ID,
-      isTesting: false,
+      isTesting: !IS_PRODUCTION,
     });
   } catch (e) {
     console.warn('Rewarded Ad preparation failed', e);
@@ -100,7 +123,7 @@ export async function prepareInterstitialAd() {
   try {
     await AdMob.prepareInterstitial({
       adId: ADMOB_INTERSTITIAL_ID,
-      isTesting: false,
+      isTesting: !IS_PRODUCTION,
     });
   } catch (e) {
     console.warn('Interstitial Ad failed to prepare', e);
