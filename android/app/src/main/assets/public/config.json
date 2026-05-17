@@ -1,0 +1,39 @@
+{
+  "faqs": [
+    {
+      "q": "How to spot deepfake videos in 2026?",
+      "a": "In 2026, spotting deepfakes requires looking for microscopic texture inconsistencies and the 'diffusion hum'—a specific frequency pattern found in generative synthesis. ScanDeepFake automates this forensic deep-scan."
+    },
+    {
+      "q": "Free AI image integrity check: Is it reliable?",
+      "a": "Yes, our ScanDeepFake free-tier uses advanced neural fingerprints to verify image integrity. While no tool is 100% infallible, our system provides a 99.8% precision score on standard generative models."
+    },
+    {
+      "q": "Detecting AI face swap online effortlessly.",
+      "a": "Using our simplified 5-step workflow, you can drop any image or video to perform an instant face-swap detection. We analyze orbital integrity and pixel variance to find even subtle swaps."
+    },
+    {
+      "q": "What are the signs of a manipulated AI image?",
+      "a": "Look for non-linear shadows, irregular textures in hair or fabric, and perfect geometric symmetry which rarely exists in nature. AI often fails to render lighting that matches the entire scene consistently."
+    },
+    {
+      "q": "Can deepfakes be detected with 100% accuracy?",
+      "a": "No forensic tool can claim 100% accuracy because generative technology evolves daily. However, by combining multiple forensic layers (Pixel, Frequency, Temporal), we can identify almost all current synthetic media."
+    }
+  ],
+  "settings": {
+    "siteName": "ScanDeepFake",
+    "siteDescription": "Professional AI Deepfake Detection & Forensic Analysis",
+    "faviconUrl": "/favicon.ico",
+    "adsEnabled": false,
+    "adsClient": "ca-pub-0000000000000000",
+    "customAdCode": ""
+  },
+  "legal": {
+    "privacy": "Our commitment to your privacy is absolute. Our ScanDeepFake tools are designed with \"Privacy by Design\" principles. \n\n1. Data Integrity: We do not store, upload, or transmit your media to our permanent servers. Processing happens in secure ephemeral cloud instances that are deleted immediately after result generation.\n2. Analytics: We use anonymized usage metrics to improve our detection algorithms. No personally identifiable information (PII) is ever linked to these metrics.\n3. Cookies: We use minimal cookies to maintain session states and for AdSense ad delivery. You can opt-out via your browser settings.\n4. Third Parties: Verified AI partners may receive transient data for processing, strictly governed by zero-retention policies.\n5. Advertising: This site uses Google AdSense. Google's use of advertising cookies enables it and its partners to serve ads based on your visit to this site and/or other sites on the Internet.",
+    "terms": "By accessing ScanDeepFake, you agree to these legal terms:\n\n1. Usage: You are granted a limited license to use our scanner for personal or professional verification.\n2. Prohibitions: You may not use this tool for illegal purposes, harassing individuals, or attempting to reverse-engineer our detection model.\n3. API Access: Automated requests (scripts) are prohibited without an official API key.\n4. Ownership: The detection output belongs to you, but the detection technology remains intellectual property of ScanDeepFake.\n5. Service: We reserve the right to modify or discontinue the service at any time without prior notice.",
+    "disclaimer": "While our AI models are among the most advanced in the industry, users must acknowledge:\n1. Probabilistic Results: Detection scores are estimates based on statistical probability. They are NOT definitive legal proof of authenticity or synthetic origin.\n2. False Positives: High-quality real images can sometimes be flagged as AI if they possess unusual lighting or camera artifacts.\n3. Evolution of AI: The technology used to create deepfakes advances daily. A \"Real\" result today does not guarantee that a more advanced AI did not create the image.\n4. No Liability: ScanDeepFake is not responsible for decisions made based on our analysis results. Use this tool as a supporting reference, not a final verdict.",
+    "about": "Welcome to ScanDeepFake, a dedicated platform built to safeguard digital truth in an age of artificial synthesis. Our mission is to provide every individual with the tools needed to verify media authenticity instantly.\n\nIn a world where seeing is no longer necessarily believing, we use the same technology that creates AI to detect it. Our forensic engine uses local analysis to ensure your data never leaves your device.\n\nWe are a self-funded project committed to transparency, privacy, and the preservation of authentic human expression on the internet. We ensure maximum uptime and security for our global users.",
+    "docs": "ScanDeepFake employs a hybrid detection pipeline combining Frequency Domain Analysis (FDA) and Spatial Consistency Checks (SCC)."
+  }
+}

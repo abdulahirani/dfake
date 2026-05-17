@@ -31,6 +31,12 @@ jobs:
 
     - name: Sync Capacitor
       run: |
+        # If android folder exists but is broken (missing gradlew), remove it
+        if [ -d "android" ] && [ ! -f "android/gradlew" ]; then
+          echo "Android folder exists but is missing gradlew. Recreating..."
+          rm -rf android
+        fi
+
         if [ ! -d "android" ]; then
           npx cap add android
         fi
@@ -54,19 +60,19 @@ jobs:
         MANIFEST_PATH="android/app/src/main/AndroidManifest.xml"
         ADMOB_APP_ID="ca-app-pub-5955602053283707~3790849033"
         
-        # 1. Inject AdMob App ID
+        # 1. Inject AdMob App ID if not present
         if ! grep -q "com.google.android.gms.ads.APPLICATION_ID" "$MANIFEST_PATH"; then
           sed -i "/<\/application>/i \        <meta-data android:name=\"com.google.android.gms.ads.APPLICATION_ID\" android:value=\"$ADMOB_APP_ID\"\/>" "$MANIFEST_PATH"
         fi
 
-        # 2. Add Runtime Permissions
+        # 2. Add Runtime Permissions if not present
         for perm in "INTERNET" "ACCESS_NETWORK_STATE" "CAMERA" "READ_EXTERNAL_STORAGE" "WRITE_EXTERNAL_STORAGE" "READ_MEDIA_IMAGES" "READ_MEDIA_VIDEO"; do
           if ! grep -q "android.permission.$perm" "$MANIFEST_PATH"; then
             sed -i "/<manifest/a \    <uses-permission android:name=\"android.permission.$perm\" \/>" "$MANIFEST_PATH"
           fi
         done
 
-        # 3. Enable Hardware Acceleration
+        # 3. Enable Hardware Acceleration if not present
         if ! grep -q "android:hardwareAccelerated" "$MANIFEST_PATH"; then
           sed -i 's/<application/<application android:hardwareAccelerated="true"/' "$MANIFEST_PATH"
         fi
