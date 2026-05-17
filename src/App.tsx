@@ -4,12 +4,15 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
-import { Upload, Shield, Activity, Cpu, CheckCircle2, ChevronRight, Info, FileVideo, FileImage, Loader2, BookOpen, Terminal, Sun, Moon, Settings } from 'lucide-react';
+import { Upload, Shield, Activity, Cpu, CheckCircle2, ChevronRight, Info, FileVideo, FileImage, Loader2, BookOpen, Terminal, Sun, Moon, Settings, WifiOff, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Markdown from 'react-markdown';
 import AdminPanel from './components/AdminPanel';
 import { Capacitor } from '@capacitor/core';
-import { initializeAdMob, showAppOpenAd, showBannerAd, prepareInterstitialAd, showInterstitialAd } from './lib/admob';
+import { App as CapApp } from '@capacitor/app';
+import { Network } from '@capacitor/network';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { initializeAdMob, showAppOpenAd, showBannerAd, prepareInterstitialAd, showInterstitialAd, showRewardedAd, prepareRewardedAd } from './lib/admob';
 import { API_BASE_URL } from './lib/config';
 
 // Forensic Simulation Engine (Local)
@@ -117,6 +120,56 @@ export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [posts, setPosts] = useState<any[]>([]);
   const [config, setConfig] = useState<any>(null);
+
+  const [scansCount, setScansCount] = useState(0);
+  const [isOffline, setIsOffline] = useState(false);
+  const [isAdBlocked, setIsAdBlocked] = useState(false);
+
+  // Native Listeners & Connectivity
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    // Status Bar & Safe Area Handling
+    const initNativeUI = async () => {
+      try {
+        await StatusBar.setStyle({ style: theme === 'dark' ? Style.Dark : Style.Light });
+        await StatusBar.setBackgroundColor({ color: theme === 'dark' ? '#0F172A' : '#F8FAFC' });
+      } catch (e) {
+        console.warn('StatusBar handling failed', e);
+      }
+    };
+    initNativeUI();
+
+    // Connectivity
+    const checkNetwork = async () => {
+      const status = await Network.getStatus();
+      setIsOffline(!status.connected);
+    };
+    checkNetwork();
+    const handler = Network.addListener('networkStatusChange', status => {
+      setIsOffline(!status.connected);
+    });
+
+    // Back Button Handling
+    const backHandler = CapApp.addListener('backButton', ({ canGoBack }) => {
+      if (isAdminOpen) {
+        setIsAdminOpen(false);
+      } else if (currentPost) {
+        setCurrentPost(null);
+      } else if (currentPage !== 'home') {
+        setCurrentPage('home');
+      } else if (currentStep > 1) {
+        setCurrentStep(prev => prev - 1);
+      } else {
+        CapApp.exitApp();
+      }
+    });
+
+    return () => {
+      handler.remove();
+      backHandler.remove();
+    };
+  }, [theme, currentPage, currentStep, currentPost, isAdminOpen]);
 
   // Fetch config and posts
   useEffect(() => {
@@ -428,6 +481,17 @@ export default function App() {
 
   const startAnalysis = async () => {
     if (!selectedFile) return;
+
+    // Second scan requires Rewarded Ad
+    if (scansCount > 0 && Capacitor.isNativePlatform()) {
+      const success = await showRewardedAd();
+      if (!success) {
+        setError("Please watch the rewarded ad to support our free forensic engine.");
+        return;
+      }
+      // Prepare for next time
+      await prepareRewardedAd();
+    }
     
     setCurrentStep(4);
     setIsAnalyzing(true);
@@ -462,11 +526,13 @@ export default function App() {
       setIsAnalyzing(false);
       setResult(analysis);
       setCurrentStep(5);
+      setScansCount(prev => prev + 1);
 
       if (Capacitor.isNativePlatform()) {
         await showInterstitialAd();
         // Background load the next one for future scans
         await prepareInterstitialAd();
+        await prepareRewardedAd();
       }
 
     } catch (err) {
@@ -554,9 +620,34 @@ ${pages.map(page => `  <url>
   }, []);
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 font-sans flex flex-col p-4 md:p-8 overflow-x-hidden selection:bg-[#00F3FF] selection:text-black ${
+    <div className={`min-h-screen transition-colors duration-500 font-sans flex flex-col selection:bg-[#00F3FF] selection:text-black ${
       theme === 'dark' ? 'bg-[#000000] text-[#FFFFFF] dark' : 'bg-[#FFFFFF] text-[#0F172A] light'
     }`}>
+      {/* Offline Barrier */}
+      {isOffline && (
+        <div className="fixed inset-0 z-[1000] bg-black/90 backdrop-blur-xl flex items-center justify-center p-8 text-center">
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="space-y-6">
+            <WifiOff className="w-20 h-20 text-[#FF3E3E] mx-auto animate-pulse" />
+            <h2 className="text-3xl font-black uppercase italic">Connectivity Interrupted</h2>
+            <p className="text-white/70 max-w-sm">ScanDeepFake requires an active neural uplink to perform forensic analysis. Please restore your internet connection.</p>
+            <button onClick={() => window.location.reload()} className="px-8 py-3 bg-white text-black font-black uppercase tracking-widest rounded-xl">Retry Uplink</button>
+          </motion.div>
+        </div>
+      )}
+
+      {/* AdBlock Barrier Placeholder (Native Policy Compliance) */}
+      <AnimatePresence>
+        {isAdBlocked && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[999] bg-black/90 flex items-center justify-center p-8 text-center backdrop-blur-md">
+            <div className="space-y-6 border border-white/10 p-12 rounded-[3rem] bg-white/5">
+              <AlertTriangle className="w-16 h-16 text-[#FF3E3E] mx-auto" />
+              <h3 className="text-2xl font-black uppercase tracking-tight italic">Forensic Integrity Error</h3>
+              <p className="text-white/60">Our free scanner relies on ads to maintain neural server hosting. Please disable ad-blockers to continue.</p>
+              <button onClick={() => window.location.reload()} className="px-10 py-4 bg-[#00F3FF] text-black font-black uppercase rounded-2xl">I've Enabled Ads</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Metadata / Schema */}
       <script type="application/ld+json">
         {JSON.stringify({
@@ -584,15 +675,15 @@ ${pages.map(page => `  <url>
       />
 
       {/* Header */}
-      <header className={`flex flex-col md:flex-row justify-between items-start md:items-end border-b pb-6 mb-8 gap-4 px-2 sticky top-0 backdrop-blur-xl z-50 transition-colors duration-500 ${
+      <header className={`flex flex-col md:flex-row justify-between items-start md:items-end border-b pb-6 mb-8 gap-4 px-6 md:px-8 pt-safe-top sticky top-0 backdrop-blur-xl z-50 transition-colors duration-500 ${
         theme === 'dark' ? 'border-white/10 bg-[#050608]/80' : 'border-black/5 bg-[#F8FAFC]/80'
       }`}>
         <div className="flex flex-col cursor-pointer" onClick={() => setCurrentPage('home')}>
-          <div className="text-xs font-mono tracking-[0.3em] text-[#00F3FF] uppercase mb-1 flex items-center gap-2">
-            <Cpu size={12} className="animate-spin-slow" />
-            {config?.settings?.siteName || 'ScanDeepFake'} Engine {config?.settings?.version || 'v4.2.1'}
+          <div className="text-[10px] font-mono tracking-[0.3em] text-[#00F3FF] uppercase mb-1 flex items-center gap-2">
+            <Cpu size={10} className="animate-spin-slow" />
+            Neural Engine {config?.settings?.version || 'v4.2.1'}
           </div>
-          <div className={`text-4xl md:text-5xl font-black tracking-tighter uppercase leading-none transition-colors duration-500 ${
+          <div className={`text-3xl md:text-5xl font-black tracking-tighter uppercase leading-none transition-colors duration-500 ${
             theme === 'dark' ? 'text-white' : 'text-[#0F172A]'
           }`}>
             {config?.settings?.siteName || 'ScanDeepFake'}
@@ -685,9 +776,20 @@ ${pages.map(page => `  <url>
                           }`}>
                             <Activity size={12} className="animate-pulse" /> System Online - v4.2
                           </div>
-                          <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">
-                            {config?.settings?.siteName || 'ScanDeepFake'}: The World's Most <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Accurate AI Forensic Engine</span>
-                          </h1>
+                          <div className="flex flex-col items-center gap-6">
+                            <div className={`w-32 h-32 md:w-40 md:h-40 rounded-[2.5rem] border flex items-center justify-center p-4 transition-all duration-700 hover:rotate-3 ${
+                              theme === 'dark' ? 'bg-[#00F3FF]/5 border-[#00F3FF]/20' : 'bg-[#1E40AF]/5 border-[#1E40AF]/20'
+                            }`}>
+                              <Shield size={64} className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} />
+                            </div>
+                            <h1 className="text-5xl md:text-8xl font-black uppercase italic tracking-tighter leading-none">
+                              {config?.settings?.siteName || 'ScanDeepFake'}<br/>
+                              <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Forensic Engine</span>
+                            </h1>
+                            <div className={`text-xl md:text-2xl font-black uppercase tracking-widest opacity-60 ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>
+                              Truth matters. Verify everything.
+                            </div>
+                          </div>
                           <p className={`text-lg max-w-2xl mx-auto font-medium transition-opacity ${theme === 'dark' ? 'opacity-80' : 'text-[#0F172A] opacity-90'}`}>
                             Detect <strong>Deepfake Detection Online</strong>, verify <strong>AI Face Swap Checker</strong>, and ensure <strong>Video Authenticity Verification</strong> with our <strong>Free AI Forensic Tool</strong>.
                           </p>
@@ -1051,15 +1153,20 @@ ${pages.map(page => `  <url>
               </div>
 
               {/* Bottom Anchor Ad */}
-              <AdSlot 
-                id="bottom-anchor" 
-                enabled={config?.settings?.adsEnabled} 
-                theme={theme} 
-                config={config}
-                className={`fixed bottom-0 left-0 w-full h-16 backdrop-blur-md border-t z-[100] transition-colors duration-500 ${
-                  theme === 'dark' ? 'bg-black/80 border-white/10' : 'bg-white/80 border-black/10'
-                }`} 
-              />
+              <div className="fixed bottom-0 left-0 w-full z-[100] pb-safe-bottom">
+                <div className={`px-4 py-1 text-[8px] font-black uppercase tracking-widest text-center ${theme === 'dark' ? 'text-white/30' : 'text-black/30'}`}>
+                  — Sponsored —
+                </div>
+                <AdSlot 
+                  id="bottom-anchor" 
+                  enabled={config?.settings?.adsEnabled} 
+                  theme={theme} 
+                  config={config}
+                  className={`w-full h-16 backdrop-blur-md border-t transition-colors duration-500 ${
+                    theme === 'dark' ? 'bg-black/95 border-white/10' : 'bg-white/95 border-black/10'
+                  }`} 
+                />
+              </div>
             </motion.div>
           )}
 
@@ -1281,11 +1388,11 @@ ${pages.map(page => `  <url>
             </motion.div>
           )}
 
-          {currentPage === 'privacy' && <LegalPage key="privacy" title="Privacy Policy" theme={theme} content={config?.legal?.privacy || "Privacy policy content loading..."} />}
+          {currentPage === 'privacy' && <LegalPage key="privacy" title="Privacy Policy" theme={theme} content={config?.legal?.privacy || (config === null ? "Config loading..." : "Privacy policy content not available.")} />}
 
-          {currentPage === 'terms' && <LegalPage key="terms" title="Terms of Service" theme={theme} content={config?.legal?.terms || "Terms content loading..."} />}
+          {currentPage === 'terms' && <LegalPage key="terms" title="Terms of Service" theme={theme} content={config?.legal?.terms || (config === null ? "Config loading..." : "Terms content not available.")} />}
 
-          {currentPage === 'disclaimer' && <LegalPage key="disclaimer" title="Disclaimer" theme={theme} content={config?.legal?.disclaimer || "Disclaimer content loading..."} />}
+          {currentPage === 'disclaimer' && <LegalPage key="disclaimer" title="Disclaimer" theme={theme} content={config?.legal?.disclaimer || (config === null ? "Config loading..." : "Disclaimer content not available.")} />}
         </AnimatePresence>
 
         <AnimatePresence>
@@ -1305,7 +1412,7 @@ ${pages.map(page => `  <url>
       }`}>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           <div className="space-y-4 max-w-sm">
-            <p className={`text-sm font-black uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#0F172A]'}`}>ScanDeepFake</p>
+            <p className={`text-sm font-black uppercase tracking-[0.2em] cursor-help ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#0F172A]'}`} onDoubleClick={() => setIsAdminOpen(true)}>ScanDeepFake</p>
             <p className={`text-sm leading-relaxed ${theme === 'dark' ? 'text-white/90' : 'text-[#0F172A]'}`}>Promoting digital truth through advanced neural forensics. Built for the future of authentic online human interaction.</p>
             <div className="flex gap-4">
               <CheckCircle2 size={16} className="text-[#00FF94]" />
