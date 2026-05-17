@@ -39,6 +39,24 @@ jobs:
         if [ ! -d "android" ]; then
           npx cap add android
         fi
+        
+        # Inject AdMob App ID into AndroidManifest.xml
+        MANIFEST_PATH="android/app/src/main/AndroidManifest.xml"
+        ADMOB_APP_ID="ca-app-pub-5955602053283707~3790849033"
+        
+        # Check if meta-data already exists, if not, inject before </application>
+        if ! grep -q "com.google.android.gms.ads.APPLICATION_ID" "$MANIFEST_PATH"; then
+          sed -i "/<\/application>/i \        <meta-data android:name=\"com.google.android.gms.ads.APPLICATION_ID\" android:value=\"$ADMOB_APP_ID\"\/>" "$MANIFEST_PATH"
+        fi
+
+        # Ensure Internet and Network State permissions
+        if ! grep -q "android.permission.INTERNET" "$MANIFEST_PATH"; then
+          sed -i "/<manifest/a \    <uses-permission android:name=\"android.permission.INTERNET\" \/>" "$MANIFEST_PATH"
+        fi
+        if ! grep -q "android.permission.ACCESS_NETWORK_STATE" "$MANIFEST_PATH"; then
+          sed -i "/<manifest/a \    <uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" \/>" "$MANIFEST_PATH"
+        fi
+
         npx cap sync android
 
     - name: Build with Gradle

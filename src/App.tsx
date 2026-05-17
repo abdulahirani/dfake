@@ -208,16 +208,20 @@ export default function App() {
 
     // Status Bar - Forced Persistent Hide for Immersion
     const initNativeUI = async () => {
+      if (!Capacitor.isNativePlatform()) return;
       try {
-        await StatusBar.setOverlaysWebView({ overlay: true });
-        await StatusBar.hide();
-        await StatusBar.setBackgroundColor({ color: '#000000' });
+        // Safe execution of native UI tweaks
+        try { await StatusBar.setOverlaysWebView({ overlay: true }); } catch(e) {}
+        try { await StatusBar.hide(); } catch(e) {}
+        try { await StatusBar.setBackgroundColor({ color: '#000000' }); } catch(e) {}
+        
         // Ensure it stays hidden even after resume
-        window.addEventListener('focus', () => { StatusBar.hide().catch(() => {}); });
-        CapApp.addListener('appRestoredResult', () => { StatusBar.hide().catch(() => {}); });
-        CapApp.addListener('resume', () => { StatusBar.hide().catch(() => {}); });
+        const hideStatus = () => { StatusBar.hide().catch(() => {}); };
+        window.addEventListener('focus', hideStatus);
+        CapApp.addListener('appRestoredResult', hideStatus);
+        CapApp.addListener('resume', hideStatus);
       } catch (e) {
-        console.warn('StatusBar hide failed', e);
+        console.warn('Native UI setup error', e);
       }
     };
     initNativeUI();
@@ -327,11 +331,14 @@ export default function App() {
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       const setupAds = async () => {
+        // Critical: Delay init to allow platform engine to settle
+        await new Promise(r => setTimeout(r, 2000));
         try {
           await initializeAdMob();
-          await showAppOpenAd(); // Shown on mount (splash)
-          await showBannerAd();  // Locked to bottom center
-          await prepareInterstitialAd(); // Background load
+          // Sequential triggering with individual error boundaries
+          try { await showAppOpenAd(); } catch(e) {}
+          try { await showBannerAd(); } catch(e) {}
+          try { await prepareInterstitialAd(); } catch(e) {}
         } catch (err) {
           console.error("AdMob initialization error:", err);
         }
@@ -1566,14 +1573,14 @@ ${pages.map(page => `  <url>
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }}
               onClick={() => setIsMenuOpen(false)}
-              className="absolute inset-0 bg-black backdrop-blur-none"
+              className="absolute inset-0 bg-black bg-opacity-100"
             />
             <motion.div 
               initial={{ x: '100%' }} 
               animate={{ x: 0 }} 
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className={`absolute top-0 right-0 h-full w-full md:w-[380px] p-8 flex flex-col shadow-2xl transition-colors duration-500 overflow-y-auto ${
+              className={`absolute top-0 right-0 h-full w-full md:w-[380px] p-8 flex flex-col shadow-2xl transition-colors duration-500 overflow-y-auto z-[10000] ${
                 theme === 'dark' ? 'bg-[#000000]' : 'bg-white'
               } border-l ${theme === 'dark' ? 'border-white/20' : 'border-black/20'}`}
             >
