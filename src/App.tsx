@@ -71,7 +71,7 @@ function AdSlot({ id, enabled, className, theme, config, type = 'banner' }: { id
 
   return (
     <div 
-      className={`relative w-full overflow-hidden flex flex-col items-center justify-center border rounded-2xl transition-all hover:border-[#00F3FF]/40 ${
+      className={`relative w-full overflow-hidden flex flex-col items-center justify-center border rounded-2xl transition-all hover:border-[#00F3FF]/40 group ${
         theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'
       } ${getContainerStyle()} ${className || ''}`}
     >
@@ -86,13 +86,25 @@ function AdSlot({ id, enabled, className, theme, config, type = 'banner' }: { id
         />
       ) : (
         <div className="w-full h-full flex flex-col items-center justify-center p-6 space-y-4">
+          {/* Simulated Web Ad for Preview Visibility */}
           <div className={`text-[10px] uppercase font-bold tracking-[0.2em] opacity-30 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
             {type === 'square' ? 'Native Content' : 'Premium Advertisement'}
           </div>
+          
+          {!Capacitor.isNativePlatform() && (
+            <div className="flex flex-col items-center gap-2">
+              <Shield size={24} className={theme === 'dark' ? 'text-[#00F3FF]/40' : 'text-[#1E40AF]/40'} />
+              <div className={`text-[8px] uppercase font-black opacity-20 text-center ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                Ad ID: {id}<br/>
+                Active on Native Version
+              </div>
+            </div>
+          )}
+
           <ins 
             className="adsbygoogle"
-            style={{ display: 'block' }}
-            data-ad-client={id}
+            style={{ display: 'block', width: '100%', height: '100%' }}
+            data-ad-client={config?.settings?.googleAdClient || id}
             data-ad-slot={id}
             data-ad-format={type === 'square' ? 'rectangle' : 'auto'}
             data-full-width-responsive="true"
@@ -198,6 +210,8 @@ export default function App() {
     const initNativeUI = async () => {
       try {
         await StatusBar.hide();
+        // Ensure it stays hidden even after resume
+        window.addEventListener('focus', () => StatusBar.hide());
       } catch (e) {
         console.warn('StatusBar hide failed', e);
       }
@@ -845,8 +859,8 @@ ${pages.map(page => `  <url>
               <motion.div 
                 initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
                 className={`fixed top-0 right-0 h-full w-full md:w-[320px] z-[1000] p-8 flex flex-col shadow-2xl transition-colors duration-500 ${
-                  theme === 'dark' ? 'bg-[#050608] border-l border-white/10' : 'bg-white border-l border-black/10'
-                }`}
+                  theme === 'dark' ? 'bg-[#050608]' : 'bg-white'
+                } border-l ${theme === 'dark' ? 'border-white/10' : 'border-black/10'}`}
               >
                 <div className="flex justify-between items-center mb-12">
                   <div className="flex flex-col">
@@ -1599,7 +1613,7 @@ ${pages.map(page => `  <url>
         theme === 'dark' ? 'bg-[#050608] border-white/10' : 'bg-white border-black/5'
       }`}>
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-8">
             <div className="space-y-6">
               <div className="flex flex-col cursor-pointer" onClick={() => setCurrentPage('home')}>
                 <span className={`text-3xl font-black uppercase italic tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>ScanDeepFake</span>
@@ -1621,42 +1635,18 @@ ${pages.map(page => `  <url>
               { label: 'FAQ', onClick: () => setCurrentPage('faq') }
             ]} />
 
-            <FooterColumn title="Intelligence" theme={theme} links={[
-              { label: 'Security Protocols', onClick: () => setCurrentPage('docs') },
-              { label: 'AI Whitepaper', onClick: () => setCurrentPage('blog') },
-              { label: 'Media Ethics', onClick: () => setCurrentPage('about') },
-              { label: 'Partner Program', onClick: () => setCurrentPage('contact') }
+            <FooterColumn title="Support" theme={theme} links={[
+              { label: 'Contact Us', onClick: () => setCurrentPage('contact') },
+              { label: 'Privacy Policy', onClick: () => setCurrentPage('privacy') },
+              { label: 'Terms of Use', onClick: () => setCurrentPage('terms') },
+              { label: 'Legal Disclaimer', onClick: () => setCurrentPage('disclaimer') }
             ]} />
-
-            <div className="space-y-6">
-              <p className={`text-xs font-mono uppercase tracking-widest font-black ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Terminal Access</p>
-              <p className="text-[10px] opacity-40 leading-relaxed uppercase font-black">Authorized Personnel Only. Biometric verification required for neural control panel.</p>
-              <button 
-                onClick={() => setIsAdminOpen(true)}
-                className={`w-full py-4 rounded-2xl border text-[10px] font-black uppercase tracking-widest transition-all ${
-                  theme === 'dark' ? 'bg-white/5 border-white/10 text-white hover:bg-[#00F3FF] hover:text-black hover:border-[#00F3FF]' : 'bg-black/5 border-black/10 text-black hover:bg-[#1E40AF] hover:text-white'
-                }`}
-              >
-                Access Command Center
-              </button>
-            </div>
           </div>
           
           <div className={`mt-20 pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-6 ${theme === 'dark' ? 'border-white/5' : 'border-black/5'}`}>
-            <p className="text-[9px] font-black uppercase tracking-[0.5em] opacity-20 text-center md:text-left">
+            <p className="text-[9px] font-black uppercase tracking-[0.5em] opacity-20 text-center md:text-left" onDoubleClick={() => setIsAdminOpen(true)}>
               © 2026 SCANDEEPFAKE TECHNOLOGIES. ALL RIGHTS RESERVED. AMAZON APPSTORE CERTIFIED.
             </p>
-            <div className="flex gap-8">
-              {['Privacy', 'Terms', 'Disclaimer', 'Contact'].map(page => (
-                <button 
-                  key={page} 
-                  onClick={() => setCurrentPage(page.toLowerCase() as any)}
-                  className="text-[9px] font-black uppercase tracking-widest opacity-20 hover:opacity-100 transition-all"
-                >
-                  {page}
-                </button>
-              ))}
-            </div>
           </div>
 
           {/* Amazon Appstore Verification Badge (Simulated) */}
