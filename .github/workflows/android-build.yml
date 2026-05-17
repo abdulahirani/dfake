@@ -20,7 +20,7 @@ jobs:
     - name: Set up Node
       uses: actions/setup-node@v4
       with:
-        node-version: 20
+        node-version: 22
         cache: 'npm'
 
     - name: Install dependencies
@@ -32,6 +32,13 @@ jobs:
     - name: Prepare Native Assets
       run: |
         npm run assets:prepare
+        
+        # Clean native resources to prevent merge conflicts
+        if [ -d "android/app/src/main/res" ]; then
+          find android/app/src/main/res -name "ic_launcher*" -delete
+          find android/app/src/main/res -name "splash*" -delete
+        fi
+        
         npm run assets:generate
 
     - name: Sync Capacitor
@@ -43,13 +50,26 @@ jobs:
         MANIFEST_PATH="android/app/src/main/AndroidManifest.xml"
         ADMOB_APP_ID="ca-app-pub-5955602053283707~3790849033"
         
+        # Ensure directory exists for fresh adds
+        mkdir -p $(dirname "$MANIFEST_PATH")
+        
+        # 1. Inject AdMob App ID
+        if [ ! -f "$MANIFEST_PATH" ] || ! grep -q "com.google.android.gms.ads.APPLICATION_ID" "$MANIFEST_PATH"; then
+          # If file doesn't exist, we'll let capacitor sync handle it first or create a skeleton
+          # Actually, we should sync first THEN patch if we want to be safe, or patch the template.
+          # Syncing first is better for consistency.
+          echo "Manifest patching will happen after initial sync if not present."
+        fi
+
+        npx cap sync android
+
+        # Post-sync patch to ensure all requirements are met
         # 1. Inject AdMob App ID
         if ! grep -q "com.google.android.gms.ads.APPLICATION_ID" "$MANIFEST_PATH"; then
           sed -i "/<\/application>/i \        <meta-data android:name=\"com.google.android.gms.ads.APPLICATION_ID\" android:value=\"$ADMOB_APP_ID\"\/>" "$MANIFEST_PATH"
         fi
 
         # 2. Add Runtime Permissions
-        # Remove existing Internet/NetworkState if they exist (standard) then add all to be sure
         for perm in "INTERNET" "ACCESS_NETWORK_STATE" "CAMERA" "READ_EXTERNAL_STORAGE" "WRITE_EXTERNAL_STORAGE" "READ_MEDIA_IMAGES" "READ_MEDIA_VIDEO"; do
           if ! grep -q "android.permission.$perm" "$MANIFEST_PATH"; then
             sed -i "/<manifest/a \    <uses-permission android:name=\"android.permission.$perm\" \/>" "$MANIFEST_PATH"
@@ -61,12 +81,11 @@ jobs:
           sed -i 's/<application/<application android:hardwareAccelerated="true"/' "$MANIFEST_PATH"
         fi
 
-        npx cap sync android
-
     - name: Build with Gradle
       run: |
         cd android
         chmod +x gradlew
+        ./gradlew clean
         ./gradlew assembleDebug
 
     - name: Upload APK
