@@ -37,6 +37,15 @@ jobs:
           npx cap add android || true
           npx cap sync android
 
+      - name: Inject AdMob App ID into AndroidManifest
+        run: |
+          # Ensure the meta-data tag is in AndroidManifest.xml within the <application> tag
+          MANIFEST_PATH="android/app/src/main/AndroidManifest.xml"
+          APP_ID="ca-app-pub-5955602053283707~3790849033"
+          if ! grep -q "com.google.android.gms.ads.APPLICATION_ID" "$MANIFEST_PATH"; then
+            sed -i "/<\/application>/i \        <meta-data android:name=\"com.google.android.gms.ads.APPLICATION_ID\" android:value=\"$APP_ID\"\/>" "$MANIFEST_PATH"
+          fi
+
       - name: Build Android APK
         run: |
           cd android
