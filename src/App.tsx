@@ -209,9 +209,12 @@ export default function App() {
     // Status Bar - Forced Persistent Hide for Immersion
     const initNativeUI = async () => {
       try {
+        await StatusBar.setOverlaysWebView({ overlay: true });
         await StatusBar.hide();
         // Ensure it stays hidden even after resume
         window.addEventListener('focus', () => StatusBar.hide());
+        CapApp.addListener('appRestoredResult', () => StatusBar.hide());
+        CapApp.addListener('resume', () => StatusBar.hide());
       } catch (e) {
         console.warn('StatusBar hide failed', e);
       }
@@ -845,81 +848,6 @@ ${pages.map(page => `  <url>
             {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
-
-        {/* Hamburger Tab Menu */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <>
-              <motion.div 
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                onClick={() => setIsMenuOpen(false)}
-                className="fixed inset-0 bg-black/90 backdrop-blur-md z-[990]"
-              />
-              <motion.div 
-                initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-                className={`fixed top-0 right-0 h-full w-full md:w-[320px] z-[2000] p-8 flex flex-col shadow-2xl transition-colors duration-500 ${
-                  theme === 'dark' ? 'bg-[#050608] bg-opacity-100' : 'bg-white bg-opacity-100'
-                } border-l ${theme === 'dark' ? 'border-white/10' : 'border-black/10'}`}
-              >
-                <div className="flex justify-between items-center mb-12">
-                  <div className="flex flex-col">
-                    <span className={`text-[10px] font-mono font-black uppercase tracking-[0.3em] ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Menu Architecture</span>
-                    <span className="text-[8px] opacity-40 uppercase font-black">Secure Protocol Active</span>
-                  </div>
-                  <button 
-                    onClick={() => setIsMenuOpen(false)} 
-                    className={`p-2 rounded-xl ${theme === 'dark' ? 'hover:bg-white/10' : 'hover:bg-black/5'}`}
-                  >
-                    <X size={24} />
-                  </button>
-                </div>
-
-                <nav className="flex flex-col gap-8 flex-1">
-                  {[
-                    { id: 'home', label: 'Neural Scanner' },
-                    { id: 'blog', label: 'Forensic Blog' },
-                    { id: 'docs', label: 'Documentation' },
-                    { id: 'faq', label: 'Support Center' },
-                    { id: 'about', label: 'Executive Intel' }
-                  ].map((item) => (
-                    <button 
-                      key={item.id}
-                      onClick={() => { setCurrentPage(item.id as any); setCurrentPost(null); setIsMenuOpen(false); }}
-                      className={`text-4xl font-black uppercase tracking-tighter italic text-left transition-all hover:translate-x-2 ${
-                        currentPage === item.id ? (theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]') : (theme === 'dark' ? 'text-white' : 'text-[#0F172A]')
-                      }`}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
-                  
-                  <div className={`h-px w-full my-4 ${theme === 'dark' ? 'bg-white/10' : 'bg-black/10'}`}></div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    {['privacy', 'terms', 'contact', 'disclaimer'].map((page) => (
-                      <button 
-                        key={page}
-                        onClick={() => { setCurrentPage(page as any); setCurrentPost(null); setIsMenuOpen(false); }}
-                        className={`text-[10px] font-black uppercase tracking-widest text-left transition-all hover:opacity-100 ${
-                          currentPage === page ? (theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]') : 'opacity-40'
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    ))}
-                  </div>
-                </nav>
-
-                <div className="pt-8 border-t border-white/5 space-y-6">
-                  <AdSlot id="menu-bottom" enabled={config?.settings?.adsEnabled} theme={theme} config={config} type="square" className="w-full" />
-                  <div className="text-center">
-                    <p className="text-[8px] font-black uppercase tracking-[0.4em] opacity-30">© 2026 SCANDEEPFAKE FORENSICS</p>
-                  </div>
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
       </header>
 
       {/* Main Content */}
@@ -1655,6 +1583,86 @@ ${pages.map(page => `  <url>
           </div>
         </div>
       </footer>
+
+      {/* Hamburger Tab Menu Overlay */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <div className="fixed inset-0 z-[9998]">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMenuOpen(false)}
+              className="absolute inset-0 bg-black/95 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ x: '100%' }} 
+              animate={{ x: 0 }} 
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className={`absolute top-0 right-0 h-full w-full md:w-[380px] p-8 flex flex-col shadow-2xl transition-colors duration-500 overflow-y-auto ${
+                theme === 'dark' ? '!bg-[#050608]' : '!bg-white'
+              } border-l ${theme === 'dark' ? 'border-white/10' : 'border-black/10'}`}
+            >
+              <div className="flex justify-between items-center mb-12">
+                <div className="flex flex-col">
+                  <span className={`text-[10px] font-mono font-black uppercase tracking-[0.3em] ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Menu Architecture</span>
+                  <span className="text-[8px] opacity-40 uppercase font-black">Secure Protocol Active</span>
+                </div>
+                <button 
+                  onClick={() => setIsMenuOpen(false)} 
+                  className={`p-2 rounded-xl transition-colors ${theme === 'dark' ? 'text-white hover:bg-white/10' : 'text-black hover:bg-black/5'}`}
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <nav className="flex flex-col gap-8 flex-1">
+                {[
+                  { id: 'home', label: 'Neural Scanner' },
+                  { id: 'blog', label: 'Forensic Blog' },
+                  { id: 'docs', label: 'Documentation' },
+                  { id: 'faq', label: 'Support Center' },
+                  { id: 'about', label: 'Executive Intel' }
+                ].map((item) => (
+                  <button 
+                    key={item.id}
+                    onClick={() => { setCurrentPage(item.id as any); setCurrentPost(null); setIsMenuOpen(false); }}
+                    className={`text-4xl font-black uppercase tracking-tighter italic text-left transition-all hover:translate-x-2 ${
+                      currentPage === item.id ? (theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]') : (theme === 'dark' ? 'text-white' : 'text-[#0F172A]')
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+                
+                <div className={`h-px w-full my-4 ${theme === 'dark' ? 'bg-white/10' : 'bg-black/10'}`}></div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  {['privacy', 'terms', 'contact', 'disclaimer'].map((page) => (
+                    <button 
+                      key={page}
+                      onClick={() => { setCurrentPage(page as any); setCurrentPost(null); setIsMenuOpen(false); }}
+                      className={`text-[10px] font-black uppercase tracking-widest text-left transition-all hover:opacity-100 ${
+                        currentPage === page ? (theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]') : (theme === 'dark' ? 'text-white/40' : 'text-[#0F172A]/40')
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+              </nav>
+
+              <div className="pt-8 border-t border-white/5 space-y-6">
+                <AdSlot id="menu-bottom" enabled={config?.settings?.adsEnabled} theme={theme} config={config} type="square" className="w-full" />
+                <div className="text-center">
+                  <p className="text-[8px] font-black uppercase tracking-[0.4em] opacity-30">© 2026 SCANDEEPFAKE FORENSICS</p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {isAdminOpen && (
