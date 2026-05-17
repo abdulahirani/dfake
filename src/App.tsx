@@ -12,6 +12,7 @@ import { Capacitor } from '@capacitor/core';
 import { App as CapApp } from '@capacitor/app';
 import { Network } from '@capacitor/network';
 import { StatusBar, Style } from '@capacitor/status-bar';
+import { Camera } from '@capacitor/camera';
 import { initializeAdMob, showAppOpenAd, showBannerAd, prepareInterstitialAd, showInterstitialAd, showRewardedAd, prepareRewardedAd } from './lib/admob';
 import { API_BASE_URL } from './lib/config';
 
@@ -158,6 +159,22 @@ export default function App() {
 
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [analysisType, setAnalysisType] = useState<'image' | 'video' | null>(null);
+
+  // Request Runtime Permissions
+  const requestAppPermissions = async () => {
+    if (!Capacitor.isNativePlatform()) return;
+    
+    try {
+      // 1. Camera & Photos Permissions
+      const cameraStatus = await Camera.checkPermissions();
+      if (cameraStatus.camera !== 'granted' || cameraStatus.photos !== 'granted') {
+        await Camera.requestPermissions();
+      }
+      
+    } catch (e) {
+      console.error('Permission request failed', e);
+    }
+  };
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -182,6 +199,7 @@ export default function App() {
 
   // Security Integrity Check (Anti-Reverse Engineering)
   useEffect(() => {
+    requestAppPermissions();
     const verifyIntegrity = async () => {
       if (!Capacitor.isNativePlatform()) return;
       

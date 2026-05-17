@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.scandeepfake.app',
-  appName: 'ScanDeepFake: AI Forensic Scanner',
+  appName: 'ScanDeepFake',
   webDir: 'dist',
   server: {
     androidScheme: 'https'
@@ -16,12 +16,14 @@ const config: CapacitorConfig = {
       launchShowDuration: 3000,
       launchAutoHide: true,
       backgroundColor: "#0F172A",
-      androidScaleType: "CENTER_CROP",
+      androidScaleType: "FIT_CENTER",
       showSpinner: true,
       androidSpinnerStyle: "large",
       spinnerColor: "#00F3FF",
       splashFullScreen: true,
       splashImmersive: true,
+      layoutName: "launch_screen",
+      useDialog: false
     },
     StatusBar: {
       style: "dark"
