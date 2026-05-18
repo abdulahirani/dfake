@@ -27,7 +27,7 @@ jobs:
       run: npm install
 
     - name: Generate Frontend Assets
-      run: npm run build
+      run: GENERATE_SOURCEMAP=false npm run build
 
     - name: Sync Capacitor
       run: |
@@ -54,6 +54,9 @@ jobs:
         if [ ! -d "android" ]; then
           npx cap add android
         fi
+        
+        # Explicit pre-build cleanup inside android directory before assets are processed
+        cd android && chmod +x gradlew && ./gradlew clean && cd ..
         
         npx cap sync android
 
