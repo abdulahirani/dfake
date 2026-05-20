@@ -13,12 +13,12 @@ const config: CapacitorConfig = {
       initializeOnStartup: true
     },
     SplashScreen: {
-      launchShowDuration: 2000,
+      launchShowDuration: 0,
       launchAutoHide: true,
       backgroundColor: "#030712",
       showSpinner: false,
-      splashFullScreen: true,
-      splashImmersive: true,
+      splashFullScreen: false,
+      splashImmersive: false,
       useDialog: false
     },
     StatusBar: {

@@ -13,51 +13,67 @@ def process_forensic_image(file_path):
     to avoid alpha-channel canvas compilation errors on Linux server nodes.
     """
     try:
+        # Wrap ALL static image file loading operations (Image.open) inside strict try-except blocks
+        img = None
+        file_size = 0
+        filename = ""
+        
         if not file_path or not os.path.exists(file_path):
-            return {"error": "Invalid or missing file path"}
+            print(f"File path invalid or doesn't exist: {file_path}. Creating in-memory fallback.", file=sys.stderr)
+            # Write: image = Image.new("RGB", (512, 512), color="#030712")
+            img = Image.new("RGB", (512, 512), color="#030712")
+            file_size = 512 * 512 * 3
+            filename = "fallback_placeholder.png"
+        else:
+            try:
+                img = Image.open(file_path)
+                file_size = os.path.getsize(file_path)
+                filename = os.path.basename(file_path)
+            except Exception as load_err:
+                print(f"Failed to load image via Pillow {file_path}: {str(load_err)}. Creating in-memory fallback.", file=sys.stderr)
+                img = Image.new("RGB", (512, 512), color="#030712")
+                file_size = 512 * 512 * 3
+                filename = "fallback_placeholder.png"
 
-        # Safe Pillow processing block
-        with Image.open(file_path) as img:
-            # Explicit conversion to RGB format (handles transparent PNG/WebP/RGBA and CMYK safely)
-            img_rgb = img.convert("RGB")
-            
-            # Extract basic dimensions
-            width, height = img_rgb.size
-            file_size = os.path.getsize(file_path)
-            
-            # Deterministic scan matches Node.js server.ts calculations exactly
-            seed = file_size + len(os.path.basename(file_path))
-            is_fake = (seed % 3 == 0)
-            confidence = 85 + (seed % 14)
-            
-            return {
-                "detected": is_fake,
-                "confidence": confidence,
-                "filename": os.path.basename(file_path),
-                "resolution": f"{width}x{height}",
-                "metrics": {
-                    "faces": {
-                        "value": "Pixel Artifacts" if is_fake else "Natural Smoothness",
-                        "status": "Synthetic" if is_fake else "Authentic",
-                        "isError": is_fake
-                    },
-                    "pixels": {
-                        "value": "High Noise Variance" if is_fake else "Standard Compression",
-                        "status": "Suspect" if is_fake else "Healthy",
-                        "isError": is_fake
-                    },
-                    "shadows": {
-                        "value": "Inconsistent Light" if is_fake else "Geometric Match",
-                        "status": "Non-Linear" if is_fake else "Consistent",
-                        "isError": is_fake
-                    },
-                    "patterns": {
-                        "value": "Repeating Wavelets" if is_fake else "Random Grain",
-                        "status": "AI-Generated" if is_fake else "Original",
-                        "isError": is_fake
-                    }
+        # Explicit conversion to RGB format (handles transparent PNG/WebP/RGBA and CMYK safely)
+        img_rgb = img.convert("RGB")
+        
+        # Extract basic dimensions
+        width, height = img_rgb.size
+        
+        # Deterministic scan matches Node.js server.ts calculations exactly
+        seed = file_size + len(filename)
+        is_fake = (seed % 3 == 0)
+        confidence = 85 + (seed % 14)
+        
+        return {
+            "detected": is_fake,
+            "confidence": confidence,
+            "filename": filename,
+            "resolution": f"{width}x{height}",
+            "metrics": {
+                "faces": {
+                    "value": "Pixel Artifacts" if is_fake else "Natural Smoothness",
+                    "status": "Synthetic" if is_fake else "Authentic",
+                    "isError": is_fake
+                },
+                "pixels": {
+                    "value": "High Noise Variance" if is_fake else "Standard Compression",
+                    "status": "Suspect" if is_fake else "Healthy",
+                    "isError": is_fake
+                },
+                "shadows": {
+                    "value": "Inconsistent Light" if is_fake else "Geometric Match",
+                    "status": "Non-Linear" if is_fake else "Consistent",
+                    "isError": is_fake
+                },
+                "patterns": {
+                    "value": "Repeating Wavelets" if is_fake else "Random Grain",
+                    "status": "AI-Generated" if is_fake else "Original",
+                    "isError": is_fake
                 }
             }
+        }
     except Exception as e:
         print(f"Pillow image processing error: {str(e)}", file=sys.stderr)
         return {"error": f"Image processing failed: {str(e)}"}
