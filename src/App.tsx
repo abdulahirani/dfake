@@ -207,7 +207,7 @@ export default function App() {
         // In a real production app, you would check build signatures or package names here.
         // For simulation, we verify against a remote endpoint or specific environment flags.
         const res = await fetch(`${API_BASE_URL}/api/health`, {
-          headers: { 'X-App-ID': 'scandeepfake-original-p77' }
+          headers: { 'X-App-ID': 'deepverify-original-p77' }
         });
         
         if (!res.ok && res.status === 403) {
@@ -449,7 +449,7 @@ export default function App() {
     }
 
     // Dynamic Title & Meta Description for SEO
-    let baseTitle = config?.settings?.siteName || "ScanDeepFake";
+    let baseTitle = config?.settings?.siteName || "DeepVerify";
     let desc = config?.settings?.siteDescription || "Professional AI Deepfake Detection & Forensic Reports";
 
     if (currentPage === 'blog' && post) {
@@ -510,8 +510,8 @@ export default function App() {
 
     const postData = currentPost ? posts.find((p: any) => p.id === currentPost) : null;
     const rawTitle = postData 
-      ? `${postData.title} | ScanDeepFake` 
-      : `ScanDeepFake | #1 AI Forensic Tool & Deepfake Detector`;
+      ? `${postData.title} | DeepVerify` 
+      : `DeepVerify | #1 AI Forensic Tool & Deepfake Detector`;
     
     // Truncate at 60 characters for SEO compliance
     document.title = rawTitle.length > 60 ? rawTitle.slice(0, 57) + "..." : rawTitle;
@@ -643,7 +643,7 @@ export default function App() {
 
   const generateSitemap = () => {
     const pages = ['', 'docs', 'faq', 'about', 'contact', 'privacy', 'terms', 'disclaimer'];
-    const baseUrl = 'https://scandeepfake.web.app';
+    const baseUrl = 'https://deepverify.web.app';
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${pages.map(page => `  <url>
@@ -727,7 +727,7 @@ ${pages.map(page => `  <url>
           <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="space-y-6">
             <WifiOff className="w-20 h-20 text-[#FF3E3E] mx-auto animate-pulse" />
             <h2 className="text-3xl font-black uppercase italic">Connectivity Interrupted</h2>
-            <p className="text-white/70 max-w-sm">ScanDeepFake requires an active neural uplink to perform forensic analysis. Please restore your internet connection.</p>
+            <p className="text-white/70 max-w-sm">DeepVerify requires an active neural uplink to perform forensic analysis. Please restore your internet connection.</p>
             <button onClick={() => window.location.reload()} className="px-8 py-3 bg-white text-black font-black uppercase tracking-widest rounded-xl">Retry Uplink</button>
           </motion.div>
         </div>
@@ -747,12 +747,12 @@ ${pages.map(page => `  <url>
               <div className="space-y-4">
                 <h2 className="text-3xl font-black uppercase italic leading-tight text-white">Authenticity Problem</h2>
                 <p className="text-white/60 text-sm leading-relaxed">
-                  The system has detected that this installation of <span className="text-white font-bold">ScanDeepFake</span> has been modified or tampered with. To ensure your digital security, please install the official version from the Amazon Appstore.
+                  The system has detected that this installation of <span className="text-white font-bold">DeepVerify</span> has been modified or tampered with. To ensure your digital security, please install the official version from the Amazon Appstore.
                 </p>
               </div>
               <div className="space-y-4">
                 <a 
-                  href="https://www.amazon.com/gp/mas/dl/android?p=com.scandeepfake.scanner" 
+                  href="https://www.amazon.com/gp/mas/dl/android?p=com.deepverify.app" 
                   className="block w-full py-5 bg-[#00F3FF] text-black font-black uppercase tracking-widest rounded-2xl shadow-[0_0_30px_rgba(0,243,255,0.4)]"
                 >
                   Download Original App
@@ -818,7 +818,7 @@ ${pages.map(page => `  <url>
         {JSON.stringify({
           "@context": "https://schema.org",
           "@type": "SoftwareApplication",
-          "name": "ScanDeepFake - Forensic Media Detector",
+          "name": "DeepVerify - Forensic Media Detector",
           "operatingSystem": "Web",
           "applicationCategory": "SecurityApplication",
           "offers": {
@@ -851,7 +851,7 @@ ${pages.map(page => `  <url>
           <div className={`text-xl md:text-3xl font-black tracking-tighter uppercase leading-none transition-colors duration-500 ${
             theme === 'dark' ? 'text-white' : 'text-[#0F172A]'
           }`}>
-            {config?.settings?.siteName || 'ScanDeepFake'}
+            {config?.settings?.siteName || 'DeepVerify'}
           </div>
         </div>
 
@@ -920,7 +920,7 @@ ${pages.map(page => `  <url>
                               <Shield size={64} className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'} />
                             </div>
                             <h1 className="text-5xl md:text-8xl font-black uppercase italic tracking-tighter leading-none">
-                              {config?.settings?.siteName || 'ScanDeepFake'}<br/>
+                              {config?.settings?.siteName || 'DeepVerify'}<br/>
                               <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>Forensic Engine</span>
                             </h1>
                             <div 
@@ -1399,7 +1399,7 @@ ${pages.map(page => `  <url>
                   </p>
                   <div className={`p-8 rounded-[2rem] border ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'} space-y-6`}>
                     <p className="leading-relaxed opacity-80">
-                      ScanDeepFake employs a hybrid detection pipeline combining <strong>Frequency Domain Analysis (FDA)</strong> and <strong>Spatial Consistency Checks (SCC)</strong>. 
+                      DeepVerify employs a hybrid detection pipeline combining <strong>Frequency Domain Analysis (FDA)</strong> and <strong>Spatial Consistency Checks (SCC)</strong>. 
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-3">
@@ -1448,7 +1448,7 @@ ${pages.map(page => `  <url>
                   <div className={`p-8 rounded-[2rem] border ${theme === 'dark' ? 'bg-[#00F3FF]/5 border-[#00F3FF]/20' : 'bg-black/5 border-black/10'} space-y-4`}>
                     <p className={`text-sm font-black uppercase ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Zero-Retention Protocol</p>
                     <p className="text-sm leading-relaxed opacity-80">
-                      ScanDeepFake operates on a strictly ephemeral basis. Your media is processed in volatile memory (RAM) within a secure sandbox environment. Once the results are generated, the processing cache is purged, ensuring no permanent records ever exist on our physical disk storage.
+                      DeepVerify operates on a strictly ephemeral basis. Your media is processed in volatile memory (RAM) within a secure sandbox environment. Once the results are generated, the processing cache is purged, ensuring no permanent records ever exist on our physical disk storage.
                     </p>
                   </div>
                 </section>
@@ -1491,7 +1491,7 @@ ${pages.map(page => `  <url>
                 {config?.legal?.about ? (
                   <p className="whitespace-pre-wrap">{config.legal.about}</p>
                 ) : (
-                  <p>Welcome to ScanDeepFake, a platform dedicated to media authenticity.</p>
+                  <p>Welcome to DeepVerify, a platform dedicated to media authenticity.</p>
                 )}
               </div>
             </motion.div>
@@ -1539,7 +1539,7 @@ ${pages.map(page => `  <url>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-8">
             <div className="space-y-6">
               <div className="flex flex-col cursor-pointer" onClick={() => setCurrentPage('home')}>
-                <span className={`text-3xl font-black uppercase italic tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>ScanDeepFake</span>
+                <span className={`text-3xl font-black uppercase italic tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>DeepVerify</span>
                 <span className={`text-[10px] font-mono font-black uppercase tracking-[0.4em] ${theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}`}>Forensic Division</span>
               </div>
               <p className={`text-sm leading-relaxed opacity-50 max-w-sm ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
@@ -1568,7 +1568,7 @@ ${pages.map(page => `  <url>
           
           <div className={`mt-20 pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-6 ${theme === 'dark' ? 'border-white/5' : 'border-black/5'}`}>
             <p className="text-[9px] font-black uppercase tracking-[0.5em] opacity-20 text-center md:text-left">
-              © 2026 SCANDEEPFAKE TECHNOLOGIES. ALL RIGHTS RESERVED.
+              © 2026 DEEPVERIFY TECHNOLOGIES. ALL RIGHTS RESERVED.
             </p>
           </div>
 
@@ -1648,7 +1648,7 @@ ${pages.map(page => `  <url>
               <div className="pt-8 border-t border-white/5 space-y-6">
                 <AdSlot id="menu-bottom" enabled={config?.settings?.adsEnabled} theme={theme} config={config} type="square" className="w-full" />
                 <div className="text-center">
-                  <p className="text-[8px] font-black uppercase tracking-[0.4em] opacity-30">© 2026 SCANDEEPFAKE FORENSICS</p>
+                  <p className="text-[8px] font-black uppercase tracking-[0.4em] opacity-30">© 2026 DEEPVERIFY FORENSICS</p>
                 </div>
               </div>
             </motion.div>
@@ -1805,7 +1805,7 @@ function FooterColumn({ title, links, theme }: { title: string; links: { label: 
 function LegalPage({ title, content, theme }: { title: string; content?: string; theme?: 'dark' | 'light' }) {
   const isDark = theme === 'dark';
   // Use config values directly if content is generic or empty
-  const displayContent = content || "Our legal algorithms are currently synthesizing this policy documentation. ScanDeepFake maintains strict compliance with digital privacy standards. Please contact support@scandeepfake.com if you require immediate assistance.";
+  const displayContent = content || "Our legal algorithms are currently synthesizing this policy documentation. DeepVerify maintains strict compliance with digital privacy standards. Please contact support@deepverify.com if you require immediate assistance.";
   
   return (
     <div className="max-w-4xl mx-auto space-y-12 mb-20 px-4">

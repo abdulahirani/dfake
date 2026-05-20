@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">ScanDeepFake: AI Forensic Scanner</string>
-    <string name="title_activity_main">ScanDeepFake: AI Forensic Scanner</string>
-    <string name="package_name">com.scandeepfake.app</string>
-    <string name="custom_url_scheme">com.scandeepfake.app</string>
+    <string name="app_name">DeepVerify: AI Forensic Scanner</string>
+    <string name="title_activity_main">DeepVerify: AI Forensic Scanner</string>
+    <string name="package_name">com.deepverify.app</string>
+    <string name="custom_url_scheme">com.deepverify.app</string>
 </resources>

@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.scandeepfake.app',
-  appName: 'ScanDeepFake',
+  appId: 'com.deepverify.app',
+  appName: 'DeepVerify',
   webDir: 'dist',
   server: {
     androidScheme: 'https'
