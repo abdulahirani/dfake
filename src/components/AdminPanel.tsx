@@ -218,7 +218,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
         <div className="max-w-md w-full bg-[#0F172A] border border-white/10 p-8 rounded-[32px] space-y-6 shadow-2xl">
           <div className="text-center space-y-2">
             <h2 className="text-3xl font-black uppercase italic text-white">Command <span style={{ color: THEME_BLUE }}>Access</span></h2>
-            <p className="text-white/50 text-xs font-bold tracking-widest uppercase">DeepVerify Digital Identity Vault</p>
+            <p className="text-white/50 text-xs font-bold tracking-widest uppercase">ScanDeepFake Digital Identity Vault</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <input 
@@ -248,7 +248,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
           <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${theme === 'dark' ? 'bg-[#00F3FF]' : 'bg-[#1E40AF]'}`}>
             <Settings size={18} className={theme === 'dark' ? 'text-black' : 'text-white'} />
           </div>
-          <h1 className="text-sm md:text-lg font-black uppercase tracking-tighter italic whitespace-nowrap">DeepVerify <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>CMS</span></h1>
+          <h1 className="text-sm md:text-lg font-black uppercase tracking-tighter italic whitespace-nowrap">ScanDeepFake <span className={theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'}>CMS</span></h1>
           
           <div className="h-6 w-px bg-white/10 mx-2 hidden lg:block" />
           
@@ -501,7 +501,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
                     <label className="text-xs font-black uppercase tracking-widest opacity-40">Website Title</label>
                     <input 
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 outline-none focus:border-[#00F3FF]"
-                      placeholder="DeepVerify"
+                      placeholder="ScanDeepFake"
                       value={config.settings.siteName || ''}
                       onChange={(e) => setConfig({...config, settings: {...config.settings, siteName: e.target.value}})}
                     />
@@ -525,7 +525,7 @@ export default function AdminPanel({ onClose, posts, setPosts }: AdminPanelProps
                     <label className="text-xs font-black uppercase tracking-widest opacity-40">Primary Domain (for Sitemap/SEO)</label>
                     <input 
                       className={`w-full border rounded-xl px-4 py-2 outline-none focus:border-[#00F3FF] ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'}`}
-                      placeholder="https://deepverify.web.app"
+                      placeholder="https://scandeepfake.web.app"
                       value={config.settings.domain || ''}
                       onChange={(e) => setConfig({...config, settings: {...config.settings, domain: e.target.value}})}
                     />

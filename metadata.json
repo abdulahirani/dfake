@@ -1,6 +1,6 @@
 {
-  "name": "DeepVerify: AI Forensic Scanner",
-  "description": "Professional Deepfake Detection & AI Forensic Engine. Protect your digital identity with our world-class neural scanner. Detect AI-generated images, face swaps, and synthetic media across all platforms. DeepVerify provides real-time forensic reports, pixel variance analysis, and synthetic pattern recognition to safeguard truth in the age of AI. Features: Instant Scanner, Forensic Reports, Educational Blog, Privacy-First Scanning, 99% Accuracy Neural Models.",
+  "name": "ScanDeepFake: AI Forensic Scanner",
+  "description": "Professional Deepfake Detection & AI Forensic Engine. Protect your digital identity with our world-class neural scanner. Detect AI-generated images, face swaps, and synthetic media across all platforms. ScanDeepFake provides real-time forensic reports, pixel variance analysis, and synthetic pattern recognition to safeguard truth in the age of AI. Features: Instant Scanner, Forensic Reports, Educational Blog, Privacy-First Scanning, 99% Accuracy Neural Models.",
   "requestFramePermissions": [
     "camera",
     "microphone",

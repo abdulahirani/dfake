@@ -1,5 +1,5 @@
 {
-  "name": "deepverify",
+  "name": "scandeepfake",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^8.3.4",
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.1.14",
     "@types/express": "^5.0.6",
     "@types/fs-extra": "^11.0.4",
@@ -53,9 +54,11 @@
     "eslint": "^10.4.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "^5.7.3",
+    "typescript-eslint": "^8.59.4",
     "vite": "^6.0.11"
   }
 }
