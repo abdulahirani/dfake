@@ -38,7 +38,14 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          git lfs install
           git config --global user.email "gundkatira007@gmail.com"
           git config --global user.name "Gund Katira"
           git remote add hf https://gundkatira:$HF_TOKEN@huggingface.co/spaces/gundkatira/scandeepfake-scanner || git remote set-url hf https://gundkatira:$HF_TOKEN@huggingface.co/spaces/gundkatira/scandeepfake-scanner
-          git push --force hf main
+          git checkout --orphan hf-branch
+          git rm -rf --cached .
+          git lfs track "*.png" "*.jpg" "*.jpeg" "*.gif" "*.mp4" "*.mov" "*.avi"
+          git add .gitattributes
+          git add .
+          git commit -m "Deploy Space with Git LFS assets"
+          git push --force hf hf-branch:main
