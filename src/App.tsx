@@ -145,6 +145,7 @@ function MatrixIllusion({ theme }: { theme: 'dark' | 'light' }) {
 }
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [currentPage, setCurrentPage] = useState<'home' | 'faq' | 'about' | 'contact' | 'privacy' | 'terms' | 'disclaimer' | 'docs' | 'blog'>('home');
   const [currentPost, setCurrentPost] = useState<string | null>(null);
@@ -158,6 +159,14 @@ export default function App() {
   const [tabChangeCount, setTabChangeCount] = useState(0);
 
   const [currentStep, setCurrentStep] = useState<number>(1);
+
+  // Programmatic lightweight splash screen timer
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
   const [analysisType, setAnalysisType] = useState<'image' | 'video' | null>(null);
 
   // Request Runtime Permissions
@@ -721,6 +730,58 @@ ${pages.map(page => `  <url>
     <div className={`min-h-screen transition-colors duration-500 font-sans flex flex-col selection:bg-[#00F3FF] selection:text-black ${
       theme === 'dark' ? 'bg-[#000000] text-[#FFFFFF] dark' : 'bg-[#FFFFFF] text-[#0F172A] light'
     }`}>
+      {/* Programmatic Code-Driven Splash Screen */}
+      <AnimatePresence>
+        {showSplash && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="fixed inset-0 z-[10000] bg-[#030712] flex flex-col items-center justify-center p-6 text-center select-none"
+          >
+            <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+              <div className="flex justify-around w-full h-full">
+                {Array.from({ length: 15 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="text-[8px] font-mono whitespace-nowrap writing-vertical-rl text-[#00F3FF] opacity-30 animate-pulse"
+                    style={{ animationDelay: `${i * 120}ms`, animationDuration: '2.5s' }}
+                  >
+                    0101010101010101010101010101010101
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1, duration: 0.4, ease: "easeOut" }}
+              className="space-y-6 relative z-10"
+            >
+              <div className="w-24 h-24 rounded-[2rem] border border-[#00F3FF]/30 bg-[#00F3FF]/5 flex items-center justify-center mx-auto shadow-[0_0_50px_rgba(0,243,255,0.15)] animate-pulse">
+                <Shield size={44} className="text-[#00F3FF]" />
+              </div>
+              <div className="space-y-2">
+                <h1 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter text-white">
+                  Scan<span className="text-[#00F3FF]">DeepFake</span>
+                </h1>
+                <p className="text-[10px] md:text-xs font-mono font-black uppercase tracking-[0.4em] text-white/50">
+                  AI Forensic Scanner
+                </p>
+              </div>
+            </motion.div>
+
+            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+              <Loader2 className="w-5 h-5 text-[#00F3FF] animate-spin" />
+              <div className="text-[8px] font-mono tracking-[0.2em] text-[#00F3FF]/60 uppercase">
+                Initializing Forensic Core
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Offline Barrier */}
       {isOffline && (
         <div className="fixed inset-0 z-[1000] bg-black/90 backdrop-blur-xl flex items-center justify-center p-8 text-center">

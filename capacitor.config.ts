@@ -13,16 +13,12 @@ const config: CapacitorConfig = {
       initializeOnStartup: true
     },
     SplashScreen: {
-      launchShowDuration: 3000,
+      launchShowDuration: 2000,
       launchAutoHide: true,
-      backgroundColor: "#0F172A",
-      androidScaleType: "FIT_CENTER",
-      showSpinner: true,
-      androidSpinnerStyle: "large",
-      spinnerColor: "#00F3FF",
+      backgroundColor: "#030712",
+      showSpinner: false,
       splashFullScreen: true,
       splashImmersive: true,
-      layoutName: "launch_screen",
       useDialog: false
     },
     StatusBar: {
