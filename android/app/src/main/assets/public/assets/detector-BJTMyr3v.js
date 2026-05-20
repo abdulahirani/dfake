@@ -1,4 +1,0 @@
-import{D as n}from"./index-BkRBQvhY.js";/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */const i=async s=>{try{const r=new FormData;r.append("file",s);const t=await fetch(n,{method:"POST",body:r});if(!t.ok)throw new Error(`Server responded with ${t.status}`);return await t.json()}catch(r){console.error("Forensic API Error:",r);const t=s.size+s.name.length,e=t%3===0,a=85+t%14;return{detected:e,confidence:a,metrics:{faces:{value:e?"Pixel Artifacts":"Natural Smoothness",status:e?"Synthetic":"Authentic",isError:e},pixels:{value:e?"High Noise Variance":"Standard Compression",status:e?"Suspect":"Healthy",isError:e},shadows:{value:e?"Inconsistent Light":"Geometric Match",status:e?"Non-Linear":"Consistent",isError:e},patterns:{value:e?"Repeating Wavelets":"Random Grain",status:e?"AI-Generated":"Original",isError:e}},fallback:!0}}};export{i as runForensicAnalysis};

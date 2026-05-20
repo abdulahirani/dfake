@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Solid dark theme background (0.00MB overhead) -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#030712" />
+        </shape>
+    </item>
+    <!-- Vector shield icon at center -->
+    <item
+        android:drawable="@drawable/ic_launch_shield"
+        android:gravity="center" />
+</layer-list>

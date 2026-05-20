@@ -208,7 +208,6 @@ export default function App() {
 
   // Security Integrity Check (Anti-Reverse Engineering)
   useEffect(() => {
-    requestAppPermissions();
     const verifyIntegrity = async () => {
       if (!Capacitor.isNativePlatform()) return;
       
@@ -581,7 +580,8 @@ export default function App() {
     }
   };
 
-  const triggerFileSelect = () => {
+  const triggerFileSelect = async () => {
+    await requestAppPermissions();
     fileInputRef.current?.click();
   };
 
