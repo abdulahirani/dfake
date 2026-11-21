@@ -1,40 +1,38 @@
-# --- Stage 1: Build React Frontend ---
+# --- Stage 1: Build React Frontend & Server Bundle ---
 FROM node:20-slim AS builder
 WORKDIR /app
+
 COPY package*.json ./
-RUN npm install
+RUN npm install --no-audit --no-fund
+
 COPY . .
 RUN npm run build
 
-# --- Stage 2: Serve Backend & Frontend ---
+# --- Stage 2: Production Runtime ---
 FROM node:20-slim
 WORKDIR /app
 
-# Install system dependencies for any native modules
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Use existing 'node' user (UID 1000)
 RUN chown node:node /app
 USER node
 
-# Copy dependencies and source
 COPY --chown=node package*.json ./
-RUN npm install --production
+RUN npm install --omit=dev --no-audit --no-fund
 
-# Copy built files
+# Copy built frontend, compiled server bundle, and static/data files
 COPY --from=builder --chown=node /app/dist ./dist
-COPY --from=builder --chown=node /app/server.ts .
-COPY --from=builder --chown=node /app/public/posts.json .
-COPY --from=builder --chown=node /app/.env* ./
-
-# Install tsx to run server.ts in production if needed, or follow package.json start
-RUN npm install tsx
+COPY --from=builder --chown=node /app/public ./public
+COPY --from=builder --chown=node /app/posts.json ./posts.json
+COPY --from=builder --chown=node /app/config.json ./config.json
+COPY --from=builder --chown=node /app/robots.txt ./robots.txt
+COPY --from=builder --chown=node /app/ads.txt ./ads.txt
+COPY --from=builder --chown=node /app/sitemap*.xml ./
 
 ENV NODE_ENV=production
 ENV PORT=7860
 EXPOSE 7860
 
-# Run the server
 CMD ["npm", "start"]

@@ -2,7 +2,6 @@ import express from "express";
 import path from "path";
 import fs from "fs-extra";
 import multer from "multer";
-import { createServer as createViteServer } from "vite";
 import exifParser from "exif-parser";
 import dotenv from "dotenv";
 
@@ -257,6 +256,7 @@ app.get("/sitemap-hf.xml", (req, res) => {
 // Vite middleware and static serving
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",

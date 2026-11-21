@@ -24,22 +24,21 @@ jobs:
         cache: 'npm'
 
     - name: Install dependencies
-      run: npm install
+      run: npm install --no-audit --no-fund
 
     - name: Generate Frontend Assets
       run: GENERATE_SOURCEMAP=false npm run build
 
     - name: Sync Capacitor
       run: |
-        # If android folder exists but is broken (missing gradlew or corrupt wrapper jar), remove it
+        # Recreate android folder only if essential files or wrapper jar archive integrity are broken
         if [ -d "android" ]; then
           BROKEN=false
           if [ ! -f "android/gradlew" ]; then BROKEN=true; fi
           if [ ! -f "android/gradle/wrapper/gradle-wrapper.jar" ]; then BROKEN=true; fi
-          
-          # Check jar integrity
+
           if [ "$BROKEN" = "false" ]; then
-            if ! java -jar android/gradle/wrapper/gradle-wrapper.jar --version > /dev/null 2>&1; then
+            if ! unzip -tq android/gradle/wrapper/gradle-wrapper.jar > /dev/null 2>&1; then
               echo "Gradle wrapper jar is corrupt."
               BROKEN=true
             fi
@@ -54,29 +53,30 @@ jobs:
         if [ ! -d "android" ]; then
           npx cap add android
         fi
-        
-        # Explicit pre-build cleanup inside android directory before assets are processed
-        cd android && chmod +x gradlew && ./gradlew clean && cd ..
-        
+
         npx cap sync android
 
     - name: Prepare Native Assets
       run: |
         npm run assets:prepare
-        
-        # Clean native resources to prevent merge conflicts
+
+        # Clean old launcher resources before regenerating icons cleanly
         if [ -d "android/app/src/main/res" ]; then
           find android/app/src/main/res -name "ic_launcher*" -delete
-          find android/app/src/main/res -name "splash*" -delete
         fi
-        
+
         npm run assets:generate
+
+        # Keep splash screen zero-bitmap lightweight (styles.xml uses vector @drawable/launch_splash + #030712)
+        if [ -d "android/app/src/main/res" ]; then
+          find android/app/src/main/res -type f \( -name "splash*.png" -o -name "splash*.webp" \) -delete
+        fi
 
     - name: Patch Android Manifest
       run: |
         MANIFEST_PATH="android/app/src/main/AndroidManifest.xml"
         ADMOB_APP_ID="ca-app-pub-5955602053283707~3790849033"
-        
+
         # 1. Inject AdMob App ID if not present
         if ! grep -q "com.google.android.gms.ads.APPLICATION_ID" "$MANIFEST_PATH"; then
           sed -i "/<\/application>/i \        <meta-data android:name=\"com.google.android.gms.ads.APPLICATION_ID\" android:value=\"$ADMOB_APP_ID\"\/>" "$MANIFEST_PATH"

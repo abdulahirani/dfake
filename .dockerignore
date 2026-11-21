@@ -2,7 +2,8 @@ node_modules
 dist
 .git
 .github
-firebase-applet-config.json
+android
+assets
 firestore.rules
 firebase.json
 .firebaserc
