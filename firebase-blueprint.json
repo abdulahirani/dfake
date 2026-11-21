@@ -2,16 +2,64 @@
   "entities": {
     "Post": {
       "title": "Post",
-      "description": "A blog post or report entry",
+      "description": "A blog post or forensic report entry",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "title": { "type": "string" },
-        "desc": { "type": "string" },
-        "date": { "type": "string" },
-        "imageUrl": { "type": "string" },
-        "alt": { "type": "string" },
-        "content": { "type": "string" }
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "desc": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "date": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "imageUrl": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "alt": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50000
+        },
+        "category": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "metaDesc": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "author": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "published": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
       },
       "required": ["id", "title", "content"]
     },
@@ -20,20 +68,31 @@
       "description": "Global application configuration",
       "type": "object",
       "properties": {
-        "faqs": { "type": "array" },
-        "settings": { "type": "object" },
-        "legal": { "type": "object" }
-      }
+        "faqs": {
+          "type": "array"
+        },
+        "settings": {
+          "type": "object"
+        },
+        "legal": {
+          "type": "object"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["faqs", "settings", "legal"]
     }
   },
   "firestore": {
     "/posts/{postId}": {
       "schema": "Post",
-      "description": "Collection of blog posts"
+      "description": "Collection of forensic blog posts and daily articles"
     },
     "/config/main": {
       "schema": "Config",
-      "description": "Singleton configuration document"
+      "description": "Singleton configuration document for FAQs, site settings, and legal policies"
     }
   }
 }

@@ -73,14 +73,15 @@ async function generateSeoFiles() {
   const posts = await loadPosts();
   const blogPostIds = posts.map((p: any) => p.id);
   
+  const today = new Date().toISOString().split('T')[0];
   let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
   for (const p of pages) {
-    const url = `${domain}${p ? '?p=' + p : ''}`;
-    sitemap += `  <url><loc>${url}</loc><changefreq>weekly</changefreq></url>\n`;
+    const url = p ? `${domain}/?p=${p}` : `${domain}/`;
+    sitemap += `  <url><loc>${url}</loc><lastmod>${today}</lastmod><changefreq>${p === '' || p === 'blog' ? 'daily' : 'weekly'}</changefreq></url>\n`;
   }
   for (const bpId of blogPostIds) {
-    const url = `${domain}?p=blog&amp;post=${bpId}`;
-    sitemap += `  <url><loc>${url}</loc><changefreq>monthly</changefreq></url>\n`;
+    const url = `${domain}/?p=blog&amp;post=${bpId}`;
+    sitemap += `  <url><loc>${url}</loc><lastmod>${today}</lastmod><changefreq>monthly</changefreq></url>\n`;
   }
   sitemap += '</urlset>';
   

@@ -1,7 +1,7 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Default Deny
+    // Global Default Deny
     match /{document=**} {
       allow read, write: if false;
     }
@@ -12,12 +12,13 @@ service cloud.firestore {
 
     function isAdmin() {
       return isSignedIn() && (
-        request.auth.token.email == 'gundkatira007@gmail.com' && request.auth.token.email_verified == true
+        request.auth.token.email == 'gundkatira007@gmail.com' &&
+        request.auth.token.email_verified == true
       );
     }
 
     function isValidId(id) {
-      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
 
     function incoming() {
@@ -28,23 +29,71 @@ service cloud.firestore {
       return resource.data;
     }
 
+    function isValidPost(data) {
+      return data.keys().hasAll(['id', 'title', 'content']) &&
+             data.keys().hasOnly([
+               'id', 'title', 'desc', 'date', 'imageUrl', 'alt',
+               'content', 'category', 'metaDesc', 'author', 'published',
+               'createdAt', 'updatedAt'
+             ]) &&
+             data.id is string && data.id.size() >= 1 && data.id.size() <= 128 && data.id.matches('^[a-zA-Z0-9_\\-]+$') &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 200 &&
+             data.content is string && data.content.size() >= 1 && data.content.size() <= 50000 &&
+             (!('desc' in data) || (data.desc is string && data.desc.size() <= 500)) &&
+             (!('date' in data) || (data.date is string && data.date.size() <= 64)) &&
+             (!('imageUrl' in data) || (data.imageUrl is string && data.imageUrl.size() <= 1000)) &&
+             (!('alt' in data) || (data.alt is string && data.alt.size() <= 300)) &&
+             (!('category' in data) || (data.category is string && data.category.size() <= 64)) &&
+             (!('metaDesc' in data) || (data.metaDesc is string && data.metaDesc.size() <= 300)) &&
+             (!('author' in data) || (data.author is string && data.author.size() <= 120)) &&
+             (!('published' in data) || data.published is bool) &&
+             (!('createdAt' in data) || data.createdAt is timestamp) &&
+             (!('updatedAt' in data) || data.updatedAt is timestamp);
+    }
+
+    function isValidConfig(data) {
+      return data.keys().hasAll(['faqs', 'settings', 'legal']) &&
+             data.keys().hasOnly(['faqs', 'settings', 'legal', 'updatedAt']) &&
+             data.faqs is list && data.faqs.size() <= 100 &&
+             (data.faqs.size() == 0 || (
+               data.faqs[0] is map &&
+               data.faqs[0].keys().hasAll(['q', 'a']) &&
+               data.faqs[0].q is string && data.faqs[0].q.size() <= 500 &&
+               data.faqs[0].a is string && data.faqs[0].a.size() <= 5000
+             )) &&
+             data.settings is map &&
+             data.legal is map &&
+             (!('updatedAt' in data) || data.updatedAt is timestamp);
+    }
+
     match /posts/{postId} {
-      allow read: if true;
-      allow create: if isAdmin() && isValidId(postId) && isValidPost(incoming());
-      allow update: if isAdmin() && isValidPost(incoming()) && incoming().id == existing().id;
-      allow delete: if isAdmin();
+      allow get: if isValidId(postId);
+      allow list: if true;
+      allow create: if isAdmin() &&
+                       isValidId(postId) &&
+                       isValidPost(incoming()) &&
+                       incoming().id == postId &&
+                       incoming().createdAt == request.time &&
+                       incoming().updatedAt == request.time;
+      allow update: if isAdmin() &&
+                       isValidId(postId) &&
+                       isValidPost(incoming()) &&
+                       incoming().id == existing().id &&
+                       (!('createdAt' in existing()) || incoming().createdAt == existing().createdAt) &&
+                       incoming().updatedAt == request.time;
+      allow delete: if isAdmin() && isValidId(postId);
     }
 
     match /config/{configId} {
-      allow read: if true;
-      allow write: if isAdmin() && configId == 'main';
+      allow get: if configId == 'main';
+      allow list: if false;
+      allow create: if isAdmin() && configId == 'main' && isValidConfig(incoming()) && incoming().updatedAt == request.time;
+      allow update: if isAdmin() && configId == 'main' && isValidConfig(incoming()) && incoming().updatedAt == request.time;
+      allow delete: if false;
     }
 
-    function isValidPost(data) {
-      return data.keys().hasAll(['id', 'title', 'content']) &&
-             data.id is string && data.id.size() <= 128 &&
-             data.title is string && data.title.size() <= 200 &&
-             data.content is string && data.content.size() <= 50000;
+    match /test/connection {
+      allow get: if true;
     }
   }
 }
