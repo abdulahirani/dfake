@@ -442,7 +442,46 @@ export default function App() {
       doc(db, 'config', 'main'),
       (docSnap) => {
         if (docSnap.exists()) {
-          setConfig(docSnap.data() as AppConfig);
+          const remote = docSnap.data() as AppConfig;
+          const fallback = starterConfigData as AppConfig;
+          const needsCatalogMerge =
+            remote?.settings?.faqCatalogVersion !== '2026-11';
+
+          let mergedFaqs = Array.isArray(remote?.faqs) ? [...remote.faqs] : [];
+          if (mergedFaqs.length === 0) {
+            mergedFaqs = [...fallback.faqs];
+          } else if (needsCatalogMerge) {
+            const existingQuestions = new Set(
+              mergedFaqs.map((f) => f.q.trim().toLowerCase())
+            );
+            for (const item of fallback.faqs) {
+              if (!existingQuestions.has(item.q.trim().toLowerCase())) {
+                mergedFaqs.push(item);
+              }
+            }
+          }
+
+          const mergedLegal = {
+            ...fallback.legal,
+            ...(remote?.legal || {}),
+          };
+          if (mergedLegal.privacy?.includes('Verified AI partners')) {
+            mergedLegal.privacy = fallback.legal.privacy;
+          }
+          if (mergedLegal.about?.includes('uses local analysis')) {
+            mergedLegal.about = fallback.legal.about;
+          }
+
+          setConfig({
+            ...fallback,
+            ...remote,
+            settings: {
+              ...fallback.settings,
+              ...(remote?.settings || {}),
+            },
+            legal: mergedLegal,
+            faqs: mergedFaqs,
+          });
         }
       },
       (err) => {
@@ -809,7 +848,7 @@ export default function App() {
       }
     } catch (err) {
       console.error('Analysis failed:', err);
-      setError('Analysis failed. Local engine timeout.');
+      setError('Analysis failed. Ephemeral forensic engine timeout.');
       setIsAnalyzing(false);
       setCurrentStep(3);
     }
@@ -820,7 +859,7 @@ export default function App() {
     try {
       localStorage.removeItem(SCAN_HISTORY_KEY);
     } catch {}
-    showToast('Local scan history cleared.');
+    showToast('Browser scan history cleared.');
   };
 
   const downloadForensicReport = () => {
@@ -846,7 +885,7 @@ export default function App() {
       `- Luminance Consistency: ${result.metrics?.shadows?.value} (${result.metrics?.shadows?.status})`,
       `- Temporal Artifacts: ${result.metrics?.patterns?.value} (${result.metrics?.patterns?.status})`,
       '',
-      'Note: Probabilistic forensic estimate generated locally by ScanDeepFake.',
+      'Note: Probabilistic forensic estimate generated in a zero-retention ephemeral environment by ScanDeepFake.',
     ];
     const blob = new Blob([reportLines.join('\n')], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -1348,7 +1387,7 @@ export default function App() {
                           />
                           <StatCard
                             label="Privacy Mode"
-                            value="Local"
+                            value="Zero-Retention"
                             theme={theme}
                           />
                           <StatCard
@@ -1474,8 +1513,9 @@ export default function App() {
                               Secure Forensic Upload
                             </h2>
                             <p className="text-sm max-w-md opacity-75">
-                              Your media is scanned locally in an ephemeral
-                              sandbox. No files are saved to our servers.
+                              Your media is processed in isolated ephemeral cloud
+                              instances and permanently deleted immediately
+                              after analysis. Zero storage, zero AI training.
                             </p>
                           </div>
 
@@ -1502,8 +1542,8 @@ export default function App() {
                                 className="w-5 h-5 rounded cursor-pointer"
                               />
                               <span className="text-xs font-semibold uppercase tracking-wider opacity-85">
-                                I agree to the privacy terms & local encryption
-                                protocol
+                                I agree to the privacy terms & zero-retention
+                                ephemeral protocol
                               </span>
                             </label>
 
@@ -1821,7 +1861,7 @@ export default function App() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#00F3FF]">
                           <History size={15} />
-                          Recent Local Scans (Private to Your Device)
+                          Recent Browser Scans (Private to Your Device)
                         </div>
                         <button
                           onClick={clearScanHistory}
@@ -1916,7 +1956,7 @@ export default function App() {
                     {
                       icon: Lock,
                       title: 'Zero-Retention Sandbox',
-                      desc: 'Runs locally in volatile memory so sensitive photos and videos never stay on disk.',
+                      desc: 'Processed in isolated ephemeral cloud memory and permanently deleted immediately after analysis—never stored, sold, or used to train AI models.',
                     },
                   ].map((item) => (
                     <div
@@ -2724,8 +2764,9 @@ export default function App() {
                     03. Zero-Retention Sandbox Protocol
                   </h2>
                   <p className="leading-relaxed opacity-80 text-sm">
-                    Media is analyzed locally and ephemerally without permanent
-                    server-side storage.
+                    Media is processed only in isolated ephemeral cloud
+                    instances and permanently deleted immediately after
+                    analysis—never stored, sold, or used to train AI models.
                   </p>
                 </section>
               </div>
@@ -3245,14 +3286,14 @@ function FAQItem({
         </span>
         <ChevronRight
           size={18}
-          className={`transition-transform duration-300 ${
+          className={`shrink-0 ml-4 transition-transform duration-300 ${
             isOpen ? 'rotate-90' : 'opacity-40'
           }`}
         />
       </button>
       {isOpen && (
         <div
-          className={`p-6 pt-4 leading-relaxed border-t text-sm ${
+          className={`p-6 pt-4 leading-relaxed border-t text-sm whitespace-pre-line ${
             isDark
               ? 'border-white/5 bg-black/20 text-white/80'
               : 'border-black/10 bg-[#F1F5F9] text-[#0F172A]'

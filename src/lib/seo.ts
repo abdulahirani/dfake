@@ -85,7 +85,7 @@ export const SITE_PAGES: SitePageMeta[] = [
     label: 'Privacy Policy',
     title: 'Privacy Policy | ScanDeepFake',
     description:
-      'Read the ScanDeepFake Privacy Policy detailing zero-retention local processing and ephemeral sandbox security.',
+      'Read the ScanDeepFake Privacy Policy detailing zero-retention ephemeral cloud processing, immediate deletion, and strict no-AI-training guarantees.',
     group: 'legal',
   },
   {

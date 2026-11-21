@@ -126,6 +126,26 @@ export default function AdminPanel({
     message: string;
   } | null>(null);
 
+  const isInIframe = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return window.self !== window.top;
+    } catch {
+      return true;
+    }
+  }, []);
+
+  const standaloneAdminUrl = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return 'https://scandeepfake.web.app/?admin=true';
+    }
+    const { origin, host } = window.location;
+    if (host.includes('hf.space') || host.includes('huggingface.co')) {
+      return 'https://scandeepfake.web.app/?admin=true';
+    }
+    return `${origin}/?admin=true`;
+  }, []);
+
   useEffect(() => {
     if (externalConfig) {
       setConfig(externalConfig);
@@ -195,7 +215,26 @@ export default function AdminPanel({
       }
     } catch (err: any) {
       console.error('Google Sign-In failed:', err);
-      showToast('error', err?.message || 'Google Sign-In failed.');
+      const code = err?.code || '';
+      const rawMsg = err?.message || '';
+      if (code === 'auth/unauthorized-domain') {
+        showToast(
+          'error',
+          `Domain "${window.location.hostname}" is not authorized in Firebase Console → Authentication → Settings → Authorized domains.`
+        );
+      } else if (
+        code === 'auth/popup-blocked' ||
+        code === 'auth/cancelled-popup-request' ||
+        code === 'auth/operation-not-supported-in-this-environment' ||
+        rawMsg.toLowerCase().includes('invalid')
+      ) {
+        showToast(
+          'error',
+          'Browser blocked or invalidated the embedded auth popup. Open Standalone Author Studio below in a full tab to sign in.'
+        );
+      } else {
+        showToast('error', rawMsg || 'Google Sign-In failed.');
+      }
     } finally {
       setAuthLoading(false);
     }
@@ -389,6 +428,30 @@ export default function AdminPanel({
               }`}
             >
               {toast.message}
+            </div>
+          )}
+
+          {(isInIframe || toast?.type === 'error') && (
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-400/25 text-amber-200 text-xs space-y-2.5 leading-relaxed">
+              <div className="font-bold uppercase tracking-wider text-amber-300 text-[11px]">
+                {isInIframe
+                  ? 'Embedded Iframe Detected'
+                  : 'Having trouble with Google Sign-In?'}
+              </div>
+              <p className="opacity-85">
+                Embedded frames (such as Hugging Face Spaces) block Google
+                OAuth popups with <em>"The requested action is invalid"</em>.
+                Sign in directly in a full browser tab instead.
+              </p>
+              <a
+                href={standaloneAdminUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-400/20 border border-amber-300/30 text-amber-100 font-bold uppercase tracking-wider text-[11px] hover:bg-amber-400/30 transition-all"
+              >
+                <ExternalLink size={13} />
+                Open Standalone Author Studio
+              </a>
             </div>
           )}
 

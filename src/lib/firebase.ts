@@ -126,6 +126,7 @@ export interface AppConfig {
     adsEnabled: boolean;
     adsClient: string;
     customAdCode?: string;
+    faqCatalogVersion?: string;
   };
   legal: {
     privacy: string;
@@ -237,7 +238,10 @@ export async function saveConfigToFirestore(config: AppConfig) {
   }));
   const payload = {
     faqs: sanitizedFaqs,
-    settings: config.settings || {},
+    settings: {
+      ...(config.settings || {}),
+      faqCatalogVersion: '2026-11',
+    },
     legal: config.legal || {},
     updatedAt: serverTimestamp(),
   };

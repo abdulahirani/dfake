@@ -19,6 +19,54 @@
     {
       "q": "Can deepfakes be detected with 100% accuracy?",
       "a": "No forensic tool can claim 100% accuracy because generative technology evolves daily. However, by combining multiple forensic layers (Pixel, Frequency, Temporal), we can identify almost all current synthetic media."
+    },
+    {
+      "q": "Does ScanDeepFake work on WhatsApp, Telegram or Instagram videos?",
+      "a": "Yes. You can download the video from WhatsApp, Telegram, or Instagram and upload it directly. We support common mobile formats (MP4, MOV, WebM). For best results, use the original file instead of a heavily compressed screenshot or screen recording."
+    },
+    {
+      "q": "Can it detect face-swap deepfakes in live video calls?",
+      "a": "It can analyze a recorded video of the call. Live real-time detection during an ongoing call is not supported yet. The best protection against live deepfake calls is still to hang up and call back on a known number."
+    },
+    {
+      "q": "Is the result 100% accurate?",
+      "a": "No tool is 100% accurate. ScanDeepFake gives a probability score based on multiple forensic signals (frequency artifacts, facial geometry, lighting consistency, etc.). Treat the result as strong evidence, not absolute proof, and always combine it with source verification."
+    },
+    {
+      "q": "Do you store or use my uploaded photos/videos for AI training?",
+      "a": "No. Media is processed in temporary (ephemeral) cloud instances and permanently deleted immediately after analysis. We never store your files, never sell them, and never use them to train our models."
+    },
+    {
+      "q": "Can it detect AI-generated images from Midjourney, Flux, ChatGPT, or Sora?",
+      "a": "Yes. Our engine is trained against modern diffusion models and face-swap techniques. Accuracy is higher on original files and lower on heavily compressed or screenshotted versions."
+    },
+    {
+      "q": "What file types and size limits do you support?",
+      "a": "We currently support common image formats (JPG, PNG, WebP) and video formats (MP4, MOV, WebM). Maximum recommended size is 50 MB for smooth analysis. Larger files may take longer or fail."
+    },
+    {
+      "q": "Why does a real photo sometimes get flagged as AI?",
+      "a": "False positives can happen with heavily edited, filtered, upscaled, or studio-lit photos. If you believe the result is wrong, try uploading the original unedited file and cross-check with another detector or the original source."
+    },
+    {
+      "q": "Can I check a video by pasting a YouTube or TikTok link?",
+      "a": "Currently we only support direct file upload. Link/URL analysis is planned for a future update. For now, download the video and upload the file."
+    },
+    {
+      "q": "How is ScanDeepFake different from free tools like Hive or AI or Not?",
+      "a": "Most free tools give only a single score. We combine multiple forensic methods (frequency domain, geometry, lighting, and temporal consistency) and focus on zero-retention privacy. We also explain the signals instead of just giving a yes/no."
+    },
+    {
+      "q": "What should I do if the tool says a video is likely a deepfake?",
+      "a": "• Do not share or act on it immediately.\n• Check the original source (verified accounts, news outlets).\n• Reverse-search key frames.\n• If it's a financial or emergency request, hang up and verify through another channel."
+    },
+    {
+      "q": "Does compression or screenshotting reduce detection accuracy?",
+      "a": "Yes. Heavy compression, re-encoding, and screenshots remove many forensic traces. Always try to use the highest quality original file available for better results."
+    },
+    {
+      "q": "Is ScanDeepFake free forever?",
+      "a": "Basic scanning is free and does not require an account. We may introduce optional paid features later (batch analysis, API, detailed reports), but the core free scanner will remain available."
     }
   ],
   "settings": {
@@ -30,10 +78,10 @@
     "customAdCode": ""
   },
   "legal": {
-    "privacy": "Our commitment to your privacy is absolute. Our ScanDeepFake tools are designed with \"Privacy by Design\" principles. \n\n1. Data Integrity: We do not store, upload, or transmit your media to our permanent servers. Processing happens in secure ephemeral cloud instances that are deleted immediately after result generation.\n2. Analytics: We use anonymized usage metrics to improve our detection algorithms. No personally identifiable information (PII) is ever linked to these metrics.\n3. Cookies: We use minimal cookies to maintain session states and for AdSense ad delivery. You can opt-out via your browser settings.\n4. Third Parties: Verified AI partners may receive transient data for processing, strictly governed by zero-retention policies.\n5. Advertising: This site uses Google AdSense. Google's use of advertising cookies enables it and its partners to serve ads based on your visit to this site and/or other sites on the Internet.",
+    "privacy": "Our commitment to your privacy is absolute. ScanDeepFake is built on strict zero-retention principles.\n\n1. Ephemeral Cloud Processing & Immediate Deletion: User photos and videos are processed exclusively in isolated, ephemeral (temporary) cloud instances solely to run forensic analysis. Every file is permanently deleted immediately after your results are generated.\n2. Zero Permanent Storage: We never store your uploaded photos or videos permanently on any server or database.\n3. No Sale of Media: We never sell, rent, or share user photos or videos with third parties.\n4. Never Used for AI Training: We never use your uploaded media to train, fine-tune, or improve our AI models.\n5. Anonymized Usage Metrics: We collect only anonymized usage metrics (containing zero media content or personally identifiable information) to monitor uptime and improve system performance.\n6. Cookies & Advertising: Minimal browser cookies may be used for interface preferences and Google AdSense delivery. You may opt out or clear cookies anytime in your browser settings.",
     "terms": "By accessing ScanDeepFake, you agree to these legal terms:\n\n1. Usage: You are granted a limited license to use our scanner for personal or professional verification.\n2. Prohibitions: You may not use this tool for illegal purposes, harassing individuals, or attempting to reverse-engineer our detection model.\n3. API Access: Automated requests (scripts) are prohibited without an official API key.\n4. Ownership: The detection output belongs to you, but the detection technology remains intellectual property of ScanDeepFake.\n5. Service: We reserve the right to modify or discontinue the service at any time without prior notice.",
     "disclaimer": "While our AI models are among the most advanced in the industry, users must acknowledge:\n1. Probabilistic Results: Detection scores are estimates based on statistical probability. They are NOT definitive legal proof of authenticity or synthetic origin.\n2. False Positives: High-quality real images can sometimes be flagged as AI if they possess unusual lighting or camera artifacts.\n3. Evolution of AI: The technology used to create deepfakes advances daily. A \"Real\" result today does not guarantee that a more advanced AI did not create the image.\n4. No Liability: ScanDeepFake is not responsible for decisions made based on our analysis results. Use this tool as a supporting reference, not a final verdict.",
-    "about": "Welcome to ScanDeepFake, a dedicated platform built to safeguard digital truth in an age of artificial synthesis. Our mission is to provide every individual with the tools needed to verify media authenticity instantly.\n\nIn a world where seeing is no longer necessarily believing, we use the same technology that creates AI to detect it. Our forensic engine uses local analysis to ensure your data never leaves your device.\n\nWe are a self-funded project committed to transparency, privacy, and the preservation of authentic human expression on the internet. We ensure maximum uptime and security for our global users.",
+    "about": "Welcome to ScanDeepFake, a dedicated platform built to safeguard digital truth in an age of artificial synthesis. Our mission is to provide every individual with the tools needed to verify media authenticity instantly.\n\nIn a world where seeing is no longer necessarily believing, we use the same technology that creates AI to detect it. Our forensic engine processes uploaded media strictly within isolated, ephemeral cloud instances and permanently deletes your files immediately after analysis—never storing, selling, or using your media to train AI models.\n\nWe are a self-funded project committed to transparency, privacy, and the preservation of authentic human expression on the internet. We ensure maximum uptime and security for our global users.",
     "docs": "ScanDeepFake employs a hybrid detection pipeline combining Frequency Domain Analysis (FDA) and Spatial Consistency Checks (SCC)."
   }
 }
