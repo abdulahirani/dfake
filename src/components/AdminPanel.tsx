@@ -41,6 +41,7 @@ import {
   slugifyPostId,
 } from '../lib/firebase';
 import { DEFAULT_DOMAIN, generateSitemapXml, getPagePath } from '../lib/seo';
+import { optimizeImageUrl } from '../lib/image';
 
 interface AdminPanelProps {
   onClose: () => void;
@@ -682,8 +683,10 @@ export default function AdminPanel({
                       <div className="flex items-center gap-4 flex-1 w-full overflow-hidden">
                         <div className="w-16 h-16 rounded-2xl overflow-hidden bg-black/40 flex-shrink-0">
                           <img
-                            src={transformDriveUrl(post.imageUrl)}
+                            src={optimizeImageUrl(post.imageUrl, 320)}
                             alt={post.alt}
+                            loading="lazy"
+                            decoding="async"
                             referrerPolicy="no-referrer"
                             className="w-full h-full object-cover"
                           />
@@ -1412,8 +1415,10 @@ export default function AdminPanel({
                     {editingPost?.imageUrl && (
                       <div className="relative aspect-video rounded-xl overflow-hidden bg-black/30 border border-white/10">
                         <img
-                          src={transformDriveUrl(editingPost.imageUrl)}
+                          src={optimizeImageUrl(editingPost.imageUrl, 640)}
                           alt="Preview"
+                          loading="lazy"
+                          decoding="async"
                           referrerPolicy="no-referrer"
                           className="w-full h-full object-cover"
                         />

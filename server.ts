@@ -69,7 +69,7 @@ async function savePosts(posts: any[]) {
 async function generateSeoFiles() {
   const config = await loadConfig();
   const domain = config.settings?.domain || "https://scandeepfake.web.app";
-  const pages = ['', 'docs', 'faq', 'about', 'contact', 'privacy', 'terms', 'disclaimer', 'blog'];
+  const pages = ['', 'blog', 'sitemap', 'docs', 'faq', 'about', 'contact', 'privacy', 'terms', 'disclaimer'];
   const posts = await loadPosts();
   const blogPostIds = posts.map((p: any) => p.id);
   

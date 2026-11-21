@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, {
+  Suspense,
+  lazy,
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+} from 'react';
 import {
   Upload,
   Shield,
@@ -11,6 +18,7 @@ import {
   Cpu,
   CheckCircle2,
   ChevronRight,
+  ChevronLeft,
   Info,
   FileVideo,
   FileImage,
@@ -45,7 +53,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import Markdown from 'react-markdown';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { collection, doc, onSnapshot } from 'firebase/firestore';
-import AdminPanel from './components/AdminPanel';
+import { OptimizedImage } from './components/OptimizedImage';
 import { Capacitor } from '@capacitor/core';
 import { App as CapApp } from '@capacitor/app';
 import { Network } from '@capacitor/network';
@@ -76,6 +84,10 @@ import {
   updateHeadSeo,
   type PageId,
 } from './lib/seo';
+import starterPostsData from '../posts.json';
+import starterConfigData from '../config.json';
+
+const AdminPanel = lazy(() => import('./components/AdminPanel'));
 
 interface ScanHistoryEntry {
   id: string;
@@ -240,13 +252,17 @@ export default function App() {
   >('list');
   const [adminInitialPost, setAdminInitialPost] = useState<Post | null>(null);
 
-  // Content state (Firestore + starter fallback)
-  const [seedPosts, setSeedPosts] = useState<Post[]>([]);
+  // Content state (instant 0ms hydration + live Firestore overlay)
+  const [seedPosts] = useState<Post[]>(() =>
+    Array.isArray(starterPostsData) ? (starterPostsData as Post[]) : []
+  );
   const [firestorePosts, setFirestorePosts] = useState<Post[]>([]);
   const [firestorePostIds, setFirestorePostIds] = useState<Set<string>>(
     new Set()
   );
-  const [config, setConfig] = useState<AppConfig | null>(null);
+  const [config, setConfig] = useState<AppConfig | null>(
+    () => (starterConfigData as AppConfig) || null
+  );
   const [blogSearch, setBlogSearch] = useState('');
   const [blogCategory, setBlogCategory] = useState('All');
   const [faqSearch, setFaqSearch] = useState('');
@@ -402,30 +418,8 @@ export default function App() {
     return () => unsubAuth();
   }, []);
 
-  // Load fallback static JSON + Live Firestore listeners
+  // Live Firestore listeners (instant seedPosts + config already hydrated)
   useEffect(() => {
-    let active = true;
-
-    const loadStaticFallbacks = async () => {
-      try {
-        const [postsRes, configRes] = await Promise.all([
-          fetch('/posts.json'),
-          fetch('/config.json'),
-        ]);
-        if (active && postsRes.ok) {
-          const data = await postsRes.json();
-          if (Array.isArray(data)) setSeedPosts(data);
-        }
-        if (active && configRes.ok) {
-          const cfg = await configRes.json();
-          setConfig((prev) => prev || cfg);
-        }
-      } catch (err) {
-        console.warn('Static fallback fetch failed:', err);
-      }
-    };
-    loadStaticFallbacks();
-
     const unsubPosts = onSnapshot(
       collection(db, 'posts'),
       (snapshot) => {
@@ -457,7 +451,6 @@ export default function App() {
     );
 
     return () => {
-      active = false;
       unsubPosts();
       unsubConfig();
     };
@@ -688,23 +681,6 @@ export default function App() {
       setupAds();
     }
   }, []);
-
-  const transformDriveUrl = (url: string) => {
-    if (!url) return url;
-    const patterns = [
-      /\/file\/d\/([a-zA-Z0-9_-]+)/,
-      /id=([a-zA-Z0-9_-]+)/,
-      /\/open\?id=([a-zA-Z0-9_-]+)/,
-      /\/d\/([a-zA-Z0-9_-]+)/,
-    ];
-    for (const pattern of patterns) {
-      const match = url.match(pattern);
-      if (match && match[1]) {
-        return `https://lh3.googleusercontent.com/d/${match[1]}`;
-      }
-    }
-    return url;
-  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -944,7 +920,7 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen transition-colors duration-500 font-sans flex flex-col selection:bg-[#00F3FF] selection:text-black ${
+      className={`min-h-screen w-full overflow-x-hidden transition-colors duration-300 font-sans flex flex-col selection:bg-[#00F3FF] selection:text-black ${
         theme === 'dark'
           ? 'bg-[#030712] text-[#FFFFFF] dark'
           : 'bg-[#FFFFFF] text-[#0F172A] light'
@@ -1145,27 +1121,29 @@ export default function App() {
 
       {/* Persistent Top Header with Crawlable Navigation */}
       <header
-        className={`border-b px-4 md:px-8 py-4 pt-safe-top sticky top-0 backdrop-blur-xl z-[900] transition-colors duration-500 ${
+        className={`border-b px-3 sm:px-4 md:px-8 py-3.5 md:py-4 pt-safe-top sticky top-0 backdrop-blur-xl z-[900] transition-colors duration-300 ${
           theme === 'dark'
             ? 'border-white/10 bg-[#050608]/90'
             : 'border-black/10 bg-[#F8FAFC]/90'
         }`}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
           <a
             href="/"
             onClick={(e) => {
               e.preventDefault();
               navigateTo('home');
             }}
-            className="flex flex-col text-left"
+            className="flex flex-col text-left min-w-0 shrink"
           >
-            <div className="text-[10px] font-mono tracking-[0.25em] text-[#00F3FF] uppercase mb-0.5 flex items-center gap-1.5">
-              <Cpu size={10} className="animate-spin-slow" />
-              Neural Engine {config?.settings?.version || 'v4.2.1'}
+            <div className="text-[9px] sm:text-[10px] font-mono tracking-[0.2em] sm:tracking-[0.25em] text-[#00F3FF] uppercase mb-0.5 flex items-center gap-1.5 truncate">
+              <Cpu size={10} className="animate-spin-slow shrink-0" />
+              <span className="truncate">
+                Neural Engine {config?.settings?.version || 'v4.2.1'}
+              </span>
             </div>
             <div
-              className={`text-xl md:text-2xl font-black tracking-tighter uppercase leading-none ${
+              className={`text-lg sm:text-xl md:text-2xl font-black tracking-tighter uppercase leading-none truncate ${
                 theme === 'dark' ? 'text-white' : 'text-[#0F172A]'
               }`}
             >
@@ -1185,6 +1163,7 @@ export default function App() {
               { id: 'faq' as PageId, label: 'FAQ' },
               { id: 'about' as PageId, label: 'About' },
               { id: 'contact' as PageId, label: 'Contact' },
+              { id: 'sitemap' as PageId, label: 'Sitemap' },
             ].map((item) => (
               <a
                 key={item.id}
@@ -1193,7 +1172,7 @@ export default function App() {
                   e.preventDefault();
                   navigateTo(item.id);
                 }}
-                className={`px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+                className={`px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap ${
                   currentPage === item.id
                     ? theme === 'dark'
                       ? 'bg-[#00F3FF] text-black'
@@ -1206,34 +1185,30 @@ export default function App() {
                 {item.label}
               </a>
             ))}
-            <a
-              href="/#homepage-sitemap"
-              onClick={(e) => {
-                e.preventDefault();
-                if (currentPage !== 'home') {
-                  navigateTo('home');
-                  setTimeout(() => {
-                    document
-                      .getElementById('homepage-sitemap')
-                      ?.scrollIntoView({ behavior: 'smooth' });
-                  }, 150);
-                } else {
-                  document
-                    .getElementById('homepage-sitemap')
-                    ?.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
-              className={`px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
-                theme === 'dark'
-                  ? 'text-white/75 hover:text-white hover:bg-white/5'
-                  : 'text-[#0F172A]/75 hover:text-[#0F172A] hover:bg-black/5'
-              }`}
-            >
-              Sitemap
-            </a>
           </nav>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 shrink-0">
+            <a
+              href={getPagePath('sitemap')}
+              onClick={(e) => {
+                e.preventDefault();
+                navigateTo('sitemap');
+              }}
+              aria-label="Open Sitemap"
+              className={`md:hidden inline-flex items-center gap-1 px-2.5 py-2 rounded-xl border text-[10px] font-black uppercase tracking-wider transition-all ${
+                currentPage === 'sitemap'
+                  ? theme === 'dark'
+                    ? 'bg-[#00F3FF] text-black border-[#00F3FF]'
+                    : 'bg-[#1E40AF] text-white border-[#1E40AF]'
+                  : theme === 'dark'
+                    ? 'bg-white/10 border-white/15 text-white'
+                    : 'bg-black/5 border-black/10 text-black'
+              }`}
+            >
+              <Globe size={12} />
+              <span>Sitemap</span>
+            </a>
+
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               aria-label="Toggle color theme"
@@ -1262,99 +1237,92 @@ export default function App() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow px-4 md:px-6 pt-6">
-        <AnimatePresence mode="wait">
-          {currentPage === 'home' && (
-            <motion.div
-              key="home"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="max-w-7xl mx-auto space-y-20"
-            >
-              <AdSlot
-                id="header-high"
-                enabled={config?.settings?.adsEnabled}
-                theme={theme}
-                config={config}
-                className="w-full rounded-2xl"
-              />
+      <main className="flex-grow px-3 sm:px-4 md:px-6 pt-5 md:pt-6 w-full max-w-full">
+        {currentPage === 'home' && (
+          <div className="max-w-7xl mx-auto space-y-12 md:space-y-20">
+            <AdSlot
+              id="header-high"
+              enabled={config?.settings?.adsEnabled}
+              theme={theme}
+              config={config}
+              className="w-full rounded-2xl"
+            />
 
-              {/* Scanner Section */}
-              <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-                <aside className="hidden xl:col-span-2 xl:flex flex-col gap-6">
-                  <AdSlot
-                    id="side-top"
-                    enabled={config?.settings?.adsEnabled}
-                    theme={theme}
-                    config={config}
-                    className="w-full h-80 rounded-2xl"
-                  />
-                  <AdSlot
-                    id="side-mid"
-                    enabled={config?.settings?.adsEnabled}
-                    theme={theme}
-                    config={config}
-                    className="w-full h-64 rounded-2xl"
-                  />
-                </aside>
+            {/* Scanner Section */}
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 md:gap-8">
+              <aside className="hidden xl:col-span-2 xl:flex flex-col gap-6">
+                <AdSlot
+                  id="side-top"
+                  enabled={config?.settings?.adsEnabled}
+                  theme={theme}
+                  config={config}
+                  className="w-full h-80 rounded-2xl"
+                />
+                <AdSlot
+                  id="side-mid"
+                  enabled={config?.settings?.adsEnabled}
+                  theme={theme}
+                  config={config}
+                  className="w-full h-64 rounded-2xl"
+                />
+              </aside>
 
-                <div className="col-span-1 xl:col-span-8 space-y-8">
-                  <AnimatePresence mode="wait">
-                    {currentStep === 1 && (
-                      <motion.div
-                        key="step1"
-                        initial={{ opacity: 0, scale: 0.98 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.98 }}
-                        className={`border rounded-[36px] p-8 md:p-14 text-center space-y-8 relative overflow-hidden ${
-                          theme === 'dark'
-                            ? 'bg-white/5 border-white/10'
-                            : 'bg-black/5 border-black/10'
-                        }`}
-                      >
-                        <MatrixIllusion theme={theme} />
-                        <div className="space-y-4 relative z-10">
+              <div className="col-span-1 xl:col-span-8 space-y-6 md:space-y-8 min-w-0">
+                <AnimatePresence mode="wait">
+                  {currentStep === 1 && (
+                    <motion.div
+                      key="step1"
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
+                      className={`border rounded-[28px] md:rounded-[36px] p-5 sm:p-8 md:p-14 text-center space-y-6 md:space-y-8 relative overflow-hidden ${
+                        theme === 'dark'
+                          ? 'bg-white/5 border-white/10'
+                          : 'bg-black/5 border-black/10'
+                      }`}
+                    >
+                      <MatrixIllusion theme={theme} />
+                      <div className="space-y-4 relative z-10">
+                        <div
+                          className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-black uppercase tracking-[0.2em] ${
+                            theme === 'dark'
+                              ? 'bg-[#00F3FF]/10 border-[#00F3FF]/20 text-[#00F3FF]'
+                              : 'bg-[#1E40AF]/10 border-[#1E40AF]/20 text-[#1E40AF]'
+                          }`}
+                        >
+                          <Activity size={12} className="animate-pulse" />{' '}
+                          System Online - v4.2
+                        </div>
+                        <div className="flex flex-col items-center gap-4 md:gap-5">
                           <div
-                            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-black uppercase tracking-[0.2em] ${
+                            className={`w-24 h-24 md:w-32 md:h-32 rounded-[2rem] border flex items-center justify-center p-4 ${
                               theme === 'dark'
-                                ? 'bg-[#00F3FF]/10 border-[#00F3FF]/20 text-[#00F3FF]'
-                                : 'bg-[#1E40AF]/10 border-[#1E40AF]/20 text-[#1E40AF]'
+                                ? 'bg-[#00F3FF]/5 border-[#00F3FF]/20'
+                                : 'bg-[#1E40AF]/5 border-[#1E40AF]/20'
                             }`}
                           >
-                            <Activity size={12} className="animate-pulse" />{' '}
-                            System Online - v4.2
-                          </div>
-                          <div className="flex flex-col items-center gap-5">
-                            <div
-                              className={`w-28 h-28 md:w-32 md:h-32 rounded-[2rem] border flex items-center justify-center p-4 ${
+                            <Shield
+                              size={52}
+                              className={
                                 theme === 'dark'
-                                  ? 'bg-[#00F3FF]/5 border-[#00F3FF]/20'
-                                  : 'bg-[#1E40AF]/5 border-[#1E40AF]/20'
-                              }`}
+                                  ? 'text-[#00F3FF]'
+                                  : 'text-[#1E40AF]'
+                              }
+                            />
+                          </div>
+                          <h1 className="text-3xl sm:text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">
+                            {config?.settings?.siteName || 'ScanDeepFake'}
+                            <br />
+                            <span
+                              className={
+                                theme === 'dark'
+                                  ? 'text-[#00F3FF]'
+                                  : 'text-[#1E40AF]'
+                              }
                             >
-                              <Shield
-                                size={56}
-                                className={
-                                  theme === 'dark'
-                                    ? 'text-[#00F3FF]'
-                                    : 'text-[#1E40AF]'
-                                }
-                              />
-                            </div>
-                            <h1 className="text-4xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">
-                              {config?.settings?.siteName || 'ScanDeepFake'}
-                              <br />
-                              <span
-                                className={
-                                  theme === 'dark'
-                                    ? 'text-[#00F3FF]'
-                                    : 'text-[#1E40AF]'
-                                }
-                              >
-                                Forensic Engine
-                              </span>
-                            </h1>
+                              Forensic Engine
+                            </span>
+                          </h1>
                             <div className="text-base md:text-xl font-black uppercase tracking-widest opacity-70">
                               Truth matters. Verify everything.
                             </div>
@@ -2104,12 +2072,12 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Crawlable Article Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Crawlable Article Grid (Fast Lazy-Loaded WebP) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
                   {filteredBlogPosts.slice(0, 6).map((post) => (
                     <article
                       key={post.id}
-                      className={`rounded-[28px] border overflow-hidden flex flex-col justify-between group transition-all ${
+                      className={`cv-auto rounded-[24px] md:rounded-[28px] border overflow-hidden flex flex-col justify-between group transition-colors ${
                         theme === 'dark'
                           ? 'bg-white/[0.04] border-white/10 hover:border-[#00F3FF]/50'
                           : 'bg-white border-black/10 hover:border-[#1E40AF]/50 shadow-sm'
@@ -2124,17 +2092,17 @@ export default function App() {
                         className="block flex-1"
                       >
                         <div className="aspect-video bg-black/30 overflow-hidden relative">
-                          <img
-                            src={transformDriveUrl(post.imageUrl)}
+                          <OptimizedImage
+                            src={post.imageUrl}
                             alt={post.alt || post.title}
-                            referrerPolicy="no-referrer"
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            width={640}
+                            className="group-hover:scale-105 transition-transform duration-300"
                           />
                           <span className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/75 text-[#00F3FF] text-[10px] font-black uppercase tracking-wider">
                             {post.category || 'Forensics'}
                           </span>
                         </div>
-                        <div className="p-6 space-y-3">
+                        <div className="p-5 sm:p-6 space-y-3">
                           <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider opacity-60">
                             <span>{post.date}</span>
                             <span className="inline-flex items-center gap-1">
@@ -2142,7 +2110,7 @@ export default function App() {
                               {estimateReadTime(post.content)}
                             </span>
                           </div>
-                          <h3 className="text-lg font-black uppercase tracking-tight leading-snug group-hover:text-[#00F3FF] transition-colors">
+                          <h3 className="text-base sm:text-lg font-black uppercase tracking-tight leading-snug group-hover:text-[#00F3FF] transition-colors">
                             {post.title}
                           </h3>
                           <p className="text-sm opacity-75 line-clamp-3">
@@ -2151,7 +2119,7 @@ export default function App() {
                         </div>
                       </a>
 
-                      <div className="px-6 pb-5 pt-2 flex items-center justify-between border-t border-white/5">
+                      <div className="px-5 sm:px-6 pb-5 pt-2 flex items-center justify-between border-t border-white/5">
                         <a
                           href={getPagePath('blog', post.id)}
                           onClick={(e) => {
@@ -2181,186 +2149,14 @@ export default function App() {
                   ))}
                 </div>
               </section>
-
-              {/* ============================================================
-                  HOMEPAGE SITEMAP & INDEX DIRECTORY
-                  ============================================================ */}
-              <section
-                id="homepage-sitemap"
-                aria-labelledby="homepage-sitemap-heading"
-                className={`border rounded-[36px] p-6 md:p-10 space-y-8 ${
-                  theme === 'dark'
-                    ? 'bg-white/[0.02] border-white/10'
-                    : 'bg-black/[0.02] border-black/10'
-                }`}
-              >
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6">
-                  <div className="space-y-1.5">
-                    <div
-                      className={`text-xs font-mono font-black uppercase tracking-[0.3em] flex items-center gap-2 ${
-                        theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'
-                      }`}
-                    >
-                      <Globe size={14} /> Crawlable Webapp Index
-                    </div>
-                    <h2
-                      id="homepage-sitemap-heading"
-                      className="text-2xl md:text-4xl font-black uppercase italic tracking-tighter"
-                    >
-                      ScanDeepFake{' '}
-                      <span
-                        className={
-                          theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'
-                        }
-                      >
-                        Sitemap
-                      </span>
-                    </h2>
-                    <p className="text-xs opacity-70">
-                      Complete directory of all webapp pages and forensic blog
-                      articles.
-                    </p>
-                  </div>
-
-                  <a
-                    href="/sitemap.xml"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-white/15 text-xs font-black uppercase tracking-wider hover:border-[#00F3FF] self-start md:self-auto"
-                  >
-                    <ExternalLink size={13} />
-                    sitemap.xml
-                  </a>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div className="space-y-4">
-                    <h3
-                      className={`text-xs font-mono font-black uppercase tracking-[0.25em] ${
-                        theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'
-                      }`}
-                    >
-                      Core Webapp Pages
-                    </h3>
-                    <ul className="space-y-2.5">
-                      {SITE_PAGES.filter((p) => p.group === 'core').map(
-                        (page) => (
-                          <li key={page.id}>
-                            <a
-                              href={getPagePath(page.id)}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                navigateTo(page.id);
-                              }}
-                              className="group flex items-center justify-between p-2.5 rounded-xl border border-white/5 hover:border-[#00F3FF]/40 hover:bg-white/5 transition-all"
-                            >
-                              <span className="text-sm font-bold group-hover:text-[#00F3FF] transition-colors">
-                                {page.label}
-                              </span>
-                              <span className="text-[11px] font-mono opacity-40">
-                                {getPagePath(page.id)}
-                              </span>
-                            </a>
-                          </li>
-                        )
-                      )}
-                    </ul>
-                  </div>
-
-                  <div className="space-y-4 md:col-span-1">
-                    <h3
-                      className={`text-xs font-mono font-black uppercase tracking-[0.25em] ${
-                        theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'
-                      }`}
-                    >
-                      Indexed Blog Articles ({posts.length})
-                    </h3>
-                    <ul className="space-y-2 max-h-80 overflow-y-auto pr-1">
-                      {posts.map((post) => (
-                        <li key={post.id}>
-                          <a
-                            href={getPagePath('blog', post.id)}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              navigateTo('blog', post.id);
-                            }}
-                            className="group flex flex-col p-2.5 rounded-xl border border-white/5 hover:border-[#00F3FF]/40 hover:bg-white/5 transition-all"
-                          >
-                            <span className="text-xs font-bold leading-snug group-hover:text-[#00F3FF] transition-colors">
-                              {post.title}
-                            </span>
-                            <span className="text-[10px] font-mono opacity-45 mt-1">
-                              {post.date} · {getPagePath('blog', post.id)}
-                            </span>
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h3
-                      className={`text-xs font-mono font-black uppercase tracking-[0.25em] ${
-                        theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'
-                      }`}
-                    >
-                      Legal & Crawler Resources
-                    </h3>
-                    <ul className="space-y-2.5">
-                      {SITE_PAGES.filter((p) => p.group === 'legal').map(
-                        (page) => (
-                          <li key={page.id}>
-                            <a
-                              href={getPagePath(page.id)}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                navigateTo(page.id);
-                              }}
-                              className="group flex items-center justify-between p-2.5 rounded-xl border border-white/5 hover:border-[#00F3FF]/40 hover:bg-white/5 transition-all"
-                            >
-                              <span className="text-sm font-bold group-hover:text-[#00F3FF] transition-colors">
-                                {page.label}
-                              </span>
-                              <span className="text-[11px] font-mono opacity-40">
-                                {getPagePath(page.id)}
-                              </span>
-                            </a>
-                          </li>
-                        )
-                      )}
-                      <li>
-                        <a
-                          href="/robots.txt"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="group flex items-center justify-between p-2.5 rounded-xl border border-white/5 hover:border-[#00F3FF]/40 hover:bg-white/5 transition-all"
-                        >
-                          <span className="text-sm font-bold group-hover:text-[#00F3FF]">
-                            Robots.txt Directive
-                          </span>
-                          <span className="text-[11px] font-mono opacity-40">
-                            /robots.txt
-                          </span>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </section>
-            </motion.div>
+            </div>
           )}
 
           {/* ============================================================
               DEDICATED BLOG PAGE & SINGLE ARTICLE READER (?p=blog)
               ============================================================ */}
           {currentPage === 'blog' && (
-            <motion.div
-              key="blog"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="max-w-6xl mx-auto space-y-10 mb-20"
-            >
+            <div className="max-w-6xl mx-auto space-y-8 md:space-y-10 mb-16 md:mb-20">
               {!activeArticle ? (
                 <>
                   <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mt-4">
@@ -2440,11 +2236,11 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                     {filteredBlogPosts.map((post, idx) => (
                       <React.Fragment key={post.id}>
                         <article
-                          className={`rounded-[2rem] border overflow-hidden flex flex-col justify-between group transition-all ${
+                          className={`cv-auto rounded-[24px] md:rounded-[2rem] border overflow-hidden flex flex-col justify-between group transition-colors ${
                             theme === 'dark'
                               ? 'bg-white/5 border-white/10 hover:border-[#00F3FF]/50'
                               : 'bg-[#F1F5F9] border-black/10 hover:border-[#1E40AF]/50 shadow-sm'
@@ -2459,17 +2255,17 @@ export default function App() {
                             className="block flex-1"
                           >
                             <div className="aspect-video bg-black/20 overflow-hidden relative">
-                              <img
-                                src={transformDriveUrl(post.imageUrl)}
+                              <OptimizedImage
+                                src={post.imageUrl}
                                 alt={post.alt || post.title}
-                                referrerPolicy="no-referrer"
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                width={640}
+                                className="group-hover:scale-105 transition-transform duration-300"
                               />
                               <span className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/75 text-[#00F3FF] text-[10px] font-black uppercase tracking-wider">
                                 {post.category || 'Forensics'}
                               </span>
                             </div>
-                            <div className="p-7 space-y-3">
+                            <div className="p-5 sm:p-7 space-y-3">
                               <div className="flex items-center justify-between text-xs font-mono uppercase tracking-wider font-bold text-[#00F3FF]/80">
                                 <span>{post.date}</span>
                                 <span className="opacity-70">
@@ -2588,12 +2384,13 @@ export default function App() {
                       </h1>
                     </div>
 
-                    <div className="aspect-video rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border border-white/10">
-                      <img
-                        src={transformDriveUrl(activeArticle.imageUrl)}
+                    <div className="aspect-video rounded-[1.25rem] md:rounded-[2.5rem] overflow-hidden border border-white/10">
+                      <OptimizedImage
+                        src={activeArticle.imageUrl}
                         alt={activeArticle.alt || activeArticle.title}
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover"
+                        width={1200}
+                        sizes="(max-width: 768px) 100vw, 800px"
+                        priority={true}
                       />
                     </div>
 
@@ -2698,19 +2495,192 @@ export default function App() {
                   </article>
                 </div>
               )}
-            </motion.div>
+            </div>
+          )}
+
+          {/* ============================================================
+              ON-DEMAND SITEMAP DIRECTORY (ONLY APPEARS ON BUTTON PRESS)
+              ============================================================ */}
+          {currentPage === 'sitemap' && (
+            <section
+              id="sitemap-directory"
+              aria-labelledby="sitemap-directory-heading"
+              className="max-w-7xl mx-auto mb-16 md:mb-20 space-y-6"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <button
+                  onClick={() => navigateTo('home')}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-white/15 text-xs font-black uppercase tracking-wider hover:border-[#00F3FF]"
+                >
+                  <ChevronLeft size={14} />
+                  Back to Scanner
+                </button>
+                <a
+                  href="/sitemap.xml"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[#00F3FF]/30 text-[#00F3FF] text-xs font-black uppercase tracking-wider hover:bg-[#00F3FF] hover:text-black transition-all"
+                >
+                  <ExternalLink size={13} />
+                  Open XML Sitemap
+                </a>
+              </div>
+
+              <div
+                className={`border rounded-[28px] md:rounded-[36px] p-5 sm:p-8 md:p-10 space-y-8 ${
+                  theme === 'dark'
+                    ? 'bg-white/[0.03] border-white/10'
+                    : 'bg-[#F8FAFC] border-black/10'
+                }`}
+              >
+                <div className="space-y-2 border-b border-white/10 pb-6">
+                  <div
+                    className={`text-xs font-mono font-black uppercase tracking-[0.3em] flex items-center gap-2 ${
+                      theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'
+                    }`}
+                  >
+                    <Globe size={14} /> Crawlable Webapp Index
+                  </div>
+                  <h1
+                    id="sitemap-directory-heading"
+                    className="text-3xl sm:text-4xl md:text-5xl font-black uppercase italic tracking-tighter"
+                  >
+                    ScanDeepFake{' '}
+                    <span
+                      className={
+                        theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'
+                      }
+                    >
+                      Sitemap
+                    </span>
+                  </h1>
+                  <p className="text-sm opacity-75">
+                    Complete index of every core tool page, published forensic
+                    blog report, and legal policy.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                  <div className="space-y-4">
+                    <h2
+                      className={`text-xs font-mono font-black uppercase tracking-[0.25em] ${
+                        theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'
+                      }`}
+                    >
+                      Core Webapp Pages
+                    </h2>
+                    <ul className="space-y-2.5">
+                      {SITE_PAGES.filter((p) => p.group === 'core').map(
+                        (page) => (
+                          <li key={page.id}>
+                            <a
+                              href={getPagePath(page.id)}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                navigateTo(page.id);
+                              }}
+                              className="group flex items-center justify-between gap-2 p-3 rounded-xl border border-white/10 hover:border-[#00F3FF]/50 hover:bg-white/5 transition-all"
+                            >
+                              <span className="text-sm font-bold group-hover:text-[#00F3FF] transition-colors">
+                                {page.label}
+                              </span>
+                              <span className="text-[11px] font-mono opacity-45 shrink-0">
+                                {getPagePath(page.id)}
+                              </span>
+                            </a>
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h2
+                      className={`text-xs font-mono font-black uppercase tracking-[0.25em] ${
+                        theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'
+                      }`}
+                    >
+                      Indexed Blog Articles ({posts.length})
+                    </h2>
+                    <ul className="space-y-2 max-h-96 overflow-y-auto pr-1">
+                      {posts.map((post) => (
+                        <li key={post.id}>
+                          <a
+                            href={getPagePath('blog', post.id)}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              navigateTo('blog', post.id);
+                            }}
+                            className="group flex flex-col p-3 rounded-xl border border-white/10 hover:border-[#00F3FF]/50 hover:bg-white/5 transition-all"
+                          >
+                            <span className="text-xs sm:text-sm font-bold leading-snug group-hover:text-[#00F3FF] transition-colors">
+                              {post.title}
+                            </span>
+                            <span className="text-[10px] font-mono opacity-45 mt-1 break-all">
+                              {post.date} · {getPagePath('blog', post.id)}
+                            </span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h2
+                      className={`text-xs font-mono font-black uppercase tracking-[0.25em] ${
+                        theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'
+                      }`}
+                    >
+                      Legal & Crawler Resources
+                    </h2>
+                    <ul className="space-y-2.5">
+                      {SITE_PAGES.filter((p) => p.group === 'legal').map(
+                        (page) => (
+                          <li key={page.id}>
+                            <a
+                              href={getPagePath(page.id)}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                navigateTo(page.id);
+                              }}
+                              className="group flex items-center justify-between gap-2 p-3 rounded-xl border border-white/10 hover:border-[#00F3FF]/50 hover:bg-white/5 transition-all"
+                            >
+                              <span className="text-sm font-bold group-hover:text-[#00F3FF] transition-colors">
+                                {page.label}
+                              </span>
+                              <span className="text-[11px] font-mono opacity-45 shrink-0">
+                                {getPagePath(page.id)}
+                              </span>
+                            </a>
+                          </li>
+                        )
+                      )}
+                      <li>
+                        <a
+                          href="/robots.txt"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group flex items-center justify-between gap-2 p-3 rounded-xl border border-white/10 hover:border-[#00F3FF]/50 hover:bg-white/5 transition-all"
+                        >
+                          <span className="text-sm font-bold group-hover:text-[#00F3FF]">
+                            Robots.txt Directive
+                          </span>
+                          <span className="text-[11px] font-mono opacity-45 shrink-0">
+                            /robots.txt
+                          </span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </section>
           )}
 
           {currentPage === 'docs' && (
-            <motion.div
-              key="docs"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="max-w-4xl mx-auto space-y-10 mb-20"
-            >
+            <div className="max-w-4xl mx-auto space-y-10 mb-20">
               <div className="text-center mt-4">
-                <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic">
+                <h1 className="text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter italic">
                   Forensic{' '}
                   <span
                     className={
@@ -2725,8 +2695,8 @@ export default function App() {
                 </p>
               </div>
 
-              <div className="space-y-8">
-                <section className="p-8 rounded-[2rem] border border-white/10 bg-white/5 space-y-4">
+              <div className="space-y-6 md:space-y-8">
+                <section className="p-6 sm:p-8 rounded-[2rem] border border-white/10 bg-white/5 space-y-4">
                   <h2 className="text-xl font-black uppercase">
                     01. Core Methodology
                   </h2>
@@ -2738,7 +2708,7 @@ export default function App() {
                   </p>
                 </section>
 
-                <section className="p-8 rounded-[2rem] border border-white/10 bg-white/5 space-y-4">
+                <section className="p-6 sm:p-8 rounded-[2rem] border border-white/10 bg-white/5 space-y-4">
                   <h2 className="text-xl font-black uppercase">
                     02. Neural Architecture
                   </h2>
@@ -2749,7 +2719,7 @@ export default function App() {
                   </p>
                 </section>
 
-                <section className="p-8 rounded-[2rem] border border-[#00F3FF]/20 bg-[#00F3FF]/5 space-y-4">
+                <section className="p-6 sm:p-8 rounded-[2rem] border border-[#00F3FF]/20 bg-[#00F3FF]/5 space-y-4">
                   <h2 className="text-xl font-black uppercase text-[#00F3FF]">
                     03. Zero-Retention Sandbox Protocol
                   </h2>
@@ -2759,19 +2729,13 @@ export default function App() {
                   </p>
                 </section>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {currentPage === 'faq' && (
-            <motion.div
-              key="faq"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="max-w-4xl mx-auto space-y-8 mb-20"
-            >
+            <div className="max-w-4xl mx-auto space-y-8 mb-20">
               <div className="text-center mt-4 space-y-4">
-                <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic">
+                <h1 className="text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter italic">
                   Help &{' '}
                   <span
                     className={
@@ -2801,18 +2765,12 @@ export default function App() {
                   <FAQItem key={idx} q={faq.q} a={faq.a} theme={theme} />
                 ))}
               </div>
-            </motion.div>
+            </div>
           )}
 
           {currentPage === 'about' && (
-            <motion.div
-              key="about"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="max-w-3xl mx-auto space-y-8 mb-20 mt-4"
-            >
-              <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic text-center">
+            <div className="max-w-3xl mx-auto space-y-8 mb-20 mt-4">
+              <h1 className="text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter italic text-center">
                 About Digital{' '}
                 <span
                   className={
@@ -2822,23 +2780,17 @@ export default function App() {
                   Integrity
                 </span>
               </h1>
-              <div className="p-8 rounded-[32px] border border-white/10 bg-white/5 text-base leading-relaxed whitespace-pre-wrap opacity-85">
+              <div className="p-6 sm:p-8 rounded-[32px] border border-white/10 bg-white/5 text-base leading-relaxed whitespace-pre-wrap opacity-85">
                 {config?.legal?.about ||
                   'Welcome to ScanDeepFake, a platform dedicated to media authenticity and digital truth.'}
               </div>
-            </motion.div>
+            </div>
           )}
 
           {currentPage === 'contact' && (
-            <motion.div
-              key="contact"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="max-w-2xl mx-auto space-y-8 mt-4 mb-20"
-            >
+            <div className="max-w-2xl mx-auto space-y-8 mt-4 mb-20">
               <div className="text-center">
-                <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter italic">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tighter italic">
                   Contact Us
                 </h1>
                 <p className="opacity-70 font-mono text-xs uppercase mt-2">
@@ -2846,7 +2798,7 @@ export default function App() {
                 </p>
               </div>
               {contactSubmitted ? (
-                <div className="p-8 rounded-3xl border border-emerald-400/30 bg-emerald-500/10 text-center space-y-3">
+                <div className="p-6 sm:p-8 rounded-3xl border border-emerald-400/30 bg-emerald-500/10 text-center space-y-3">
                   <CheckCircle2
                     size={36}
                     className="text-emerald-400 mx-auto"
@@ -2927,7 +2879,7 @@ export default function App() {
                   </button>
                 </form>
               )}
-            </motion.div>
+            </div>
           )}
 
           {currentPage === 'privacy' && (
@@ -2956,7 +2908,6 @@ export default function App() {
               content={config?.legal?.disclaimer}
             />
           )}
-        </AnimatePresence>
       </main>
 
       {/* Footer with Crawlable Anchor Links (No Admin Buttons Exposed to Visitors) */}
@@ -3045,6 +2996,11 @@ export default function App() {
                   label: 'Legal Disclaimer',
                   href: getPagePath('disclaimer'),
                   onClick: () => navigateTo('disclaimer'),
+                },
+                {
+                  label: 'Sitemap Directory',
+                  href: getPagePath('sitemap'),
+                  onClick: () => navigateTo('sitemap'),
                 },
                 {
                   label: 'XML Sitemap',
@@ -3175,32 +3131,21 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Admin-Only Studio Modal (Opened via /?admin=true, /admin, Ctrl+Shift+A, or Admin Bar) */}
+      {/* Admin-Only Studio Modal (Lazy-loaded only when opened via /?admin=true, /admin, Ctrl+Shift+A, or Admin Bar) */}
       {isAdminOpen && (
-        <AdminPanel
-          posts={posts}
-          firestorePostIds={firestorePostIds}
-          config={config}
-          user={user}
-          initialMode={adminInitialMode}
-          initialPost={adminInitialPost}
-          onNavigate={(page, postId) => navigateTo(page, postId || null)}
-          onClose={() => setIsAdminOpen(false)}
-        />
+        <Suspense fallback={null}>
+          <AdminPanel
+            posts={posts}
+            firestorePostIds={firestorePostIds}
+            config={config}
+            user={user}
+            initialMode={adminInitialMode}
+            initialPost={adminInitialPost}
+            onNavigate={(page, postId) => navigateTo(page, postId || null)}
+            onClose={() => setIsAdminOpen(false)}
+          />
+        </Suspense>
       )}
-
-      <style>{`
-        .animate-spin-slow {
-          animation: spin 15s linear infinite;
-        }
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .writing-vertical-rl {
-          writing-mode: vertical-rl;
-        }
-      `}</style>
     </div>
   );
 }

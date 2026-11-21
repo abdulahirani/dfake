@@ -11,13 +11,16 @@
   color-scheme: dark;
 }
 
+html,
 body {
   margin: 0;
+  padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #050608;
+  background-color: #030712;
   overflow-x: hidden;
   width: 100%;
+  max-width: 100vw;
 }
 
 .pt-safe-top {
@@ -26,4 +29,26 @@ body {
 
 .pb-safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 360px;
+}
+
+.animate-spin-slow {
+  animation: spin 15s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.writing-vertical-rl {
+  writing-mode: vertical-rl;
 }

@@ -1,8 +1,10 @@
 import type { AppConfig, Post } from './firebase';
+import { optimizeImageUrl } from './image';
 
 export type PageId =
   | 'home'
   | 'blog'
+  | 'sitemap'
   | 'docs'
   | 'faq'
   | 'about'
@@ -36,6 +38,14 @@ export const SITE_PAGES: SitePageMeta[] = [
     title: 'Forensic Blog & Daily AI Reports | ScanDeepFake',
     description:
       'Read daily deepfake detection guides, neural artifact analysis, and digital forensic reports on ScanDeepFake.',
+    group: 'core',
+  },
+  {
+    id: 'sitemap',
+    label: 'Sitemap Directory',
+    title: 'Sitemap & Full Directory | ScanDeepFake',
+    description:
+      'Browse the complete ScanDeepFake directory of deepfake detection tools, forensic reports, guides, and policies.',
     group: 'core',
   },
   {
@@ -131,6 +141,7 @@ export function parseRouteFromLocation(): {
   const validPages: PageId[] = [
     'home',
     'blog',
+    'sitemap',
     'docs',
     'faq',
     'about',
@@ -147,7 +158,7 @@ export function parseRouteFromLocation(): {
     return { page: 'blog', postId: queryPost };
   }
 
-  // Also support clean pathname routes like /blog, /blog/slug, /docs, etc.
+  // Also support clean pathname routes like /blog, /blog/slug, /sitemap, /docs, etc.
   const segments = window.location.pathname
     .replace(/^\/+|\/+$/g, '')
     .split('/')
@@ -176,9 +187,17 @@ export function generateSitemapXml(
     const loc =
       page.id === 'home' ? `${cleanBase}/` : `${cleanBase}/?p=${page.id}`;
     const priority =
-      page.id === 'home' ? '1.0' : page.id === 'blog' ? '0.9' : '0.7';
+      page.id === 'home'
+        ? '1.0'
+        : page.id === 'blog'
+          ? '0.9'
+          : page.id === 'sitemap'
+            ? '0.8'
+            : '0.7';
     const changefreq =
-      page.id === 'home' || page.id === 'blog' ? 'daily' : 'weekly';
+      page.id === 'home' || page.id === 'blog' || page.id === 'sitemap'
+        ? 'daily'
+        : 'weekly';
     return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
   });
 
@@ -257,6 +276,10 @@ export function updateHeadSeo({
     activePost ? activePost.id : null,
     domain
   );
+  const ogImage = optimizeImageUrl(
+    activePost?.imageUrl || posts[0]?.imageUrl,
+    1200
+  );
 
   document.title = finalTitle;
   upsertMetaTag('name', 'description', finalDesc);
@@ -265,9 +288,11 @@ export function updateHeadSeo({
   upsertMetaTag('property', 'og:description', finalDesc);
   upsertMetaTag('property', 'og:url', canonicalUrl);
   upsertMetaTag('property', 'og:site_name', siteName);
+  upsertMetaTag('property', 'og:image', ogImage);
   upsertMetaTag('name', 'twitter:card', 'summary_large_image');
   upsertMetaTag('name', 'twitter:title', finalTitle);
   upsertMetaTag('name', 'twitter:description', finalDesc);
+  upsertMetaTag('name', 'twitter:image', ogImage);
 
   let canonicalLink = document.querySelector('link[rel="canonical"]');
   if (!canonicalLink) {
@@ -289,20 +314,47 @@ export function updateHeadSeo({
   const schemaObj = activePost
     ? {
         '@context': 'https://schema.org',
-        '@type': 'BlogPosting',
-        headline: activePost.title,
-        description: finalDesc,
-        datePublished: activePost.date,
-        author: {
-          '@type': 'Person',
-          name: activePost.author || 'ScanDeepFake Editorial',
-        },
-        publisher: {
-          '@type': 'Organization',
-          name: siteName,
-        },
-        mainEntityOfPage: canonicalUrl,
-        image: activePost.imageUrl,
+        '@graph': [
+          {
+            '@type': 'BlogPosting',
+            headline: activePost.title,
+            description: finalDesc,
+            datePublished: activePost.date,
+            author: {
+              '@type': 'Person',
+              name: activePost.author || 'ScanDeepFake Editorial',
+            },
+            publisher: {
+              '@type': 'Organization',
+              name: siteName,
+            },
+            mainEntityOfPage: canonicalUrl,
+            image: ogImage,
+          },
+          {
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: getCanonicalUrl('home', null, domain),
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Blog',
+                item: getCanonicalUrl('blog', null, domain),
+              },
+              {
+                '@type': 'ListItem',
+                position: 3,
+                name: activePost.title,
+                item: canonicalUrl,
+              },
+            ],
+          },
+        ],
       }
     : page === 'blog'
       ? {
@@ -316,22 +368,44 @@ export function updateHeadSeo({
             headline: p.title,
             url: getCanonicalUrl('blog', p.id, domain),
             datePublished: p.date,
+            image: optimizeImageUrl(p.imageUrl, 640),
           })),
         }
-      : {
-          '@context': 'https://schema.org',
-          '@type': 'WebApplication',
-          name: siteName,
-          url: canonicalUrl,
-          applicationCategory: 'SecurityApplication',
-          operatingSystem: 'All',
-          description: finalDesc,
-          offers: {
-            '@type': 'Offer',
-            price: '0',
-            priceCurrency: 'USD',
-          },
-        };
+      : page === 'faq' && config?.faqs?.length
+        ? {
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: config.faqs.map((f) => ({
+              '@type': 'Question',
+              name: f.q,
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: f.a,
+              },
+            })),
+          }
+        : page === 'sitemap'
+          ? {
+              '@context': 'https://schema.org',
+              '@type': 'CollectionPage',
+              name: `${siteName} Sitemap`,
+              description: finalDesc,
+              url: canonicalUrl,
+            }
+          : {
+              '@context': 'https://schema.org',
+              '@type': 'WebApplication',
+              name: siteName,
+              url: canonicalUrl,
+              applicationCategory: 'SecurityApplication',
+              operatingSystem: 'All',
+              description: finalDesc,
+              offers: {
+                '@type': 'Offer',
+                price: '0',
+                priceCurrency: 'USD',
+              },
+            };
 
   jsonLdScript.textContent = JSON.stringify(schemaObj);
 }
