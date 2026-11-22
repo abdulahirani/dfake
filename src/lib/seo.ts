@@ -26,18 +26,18 @@ export const DEFAULT_DOMAIN = 'https://scandeepfake.web.app';
 export const SITE_PAGES: SitePageMeta[] = [
   {
     id: 'home',
-    label: 'Neural Scanner',
-    title: 'ScanDeepFake | AI Forensic & Deepfake Detector',
+    label: 'Home & Scanner',
+    title: 'ScanDeepFake | Heuristic Media Inspection & Education Hub',
     description:
-      'Detect AI-generated images, face swaps, and synthetic videos instantly with ScanDeepFake neural forensic tools.',
+      'Client-side & heuristic media inspection tool for images and videos, paired with digital forensics guides and anti-deepfake education.',
     group: 'core',
   },
   {
     id: 'blog',
-    label: 'Forensic Blog & Articles',
-    title: 'Forensic Blog & Daily AI Reports | ScanDeepFake',
+    label: 'Education Hub',
+    title: 'Education Hub & Forensic Guides | ScanDeepFake',
     description:
-      'Read daily deepfake detection guides, neural artifact analysis, and digital forensic reports on ScanDeepFake.',
+      'Learn how to spot deepfake videos, inspect EXIF metadata, detect voice cloning, and protect against synthetic media scams.',
     group: 'core',
   },
   {
@@ -45,15 +45,15 @@ export const SITE_PAGES: SitePageMeta[] = [
     label: 'Sitemap Directory',
     title: 'Sitemap & Full Directory | ScanDeepFake',
     description:
-      'Browse the complete ScanDeepFake directory of deepfake detection tools, forensic reports, guides, and policies.',
+      'Browse the complete ScanDeepFake directory of media inspection tools, Education Hub guides, documentation, and legal policies.',
     group: 'core',
   },
   {
     id: 'docs',
-    label: 'Forensic Manual & Docs',
-    title: 'Forensic Manual & Neural Docs | ScanDeepFake',
+    label: 'Documentation',
+    title: 'Technical Documentation & Methodology | ScanDeepFake',
     description:
-      'Explore ScanDeepFake frequency domain analysis, Vision Transformer architecture, and zero-retention sandbox docs.',
+      'Explore how ScanDeepFake performs structural metadata inspection, compression density checks, and zero-retention heuristic verification.',
     group: 'core',
   },
   {
@@ -61,15 +61,15 @@ export const SITE_PAGES: SitePageMeta[] = [
     label: 'Help & FAQ',
     title: 'Deepfake Detection FAQ & Help | ScanDeepFake',
     description:
-      'Answers to common questions about spotting deepfake videos, AI face swaps, and media authenticity checks.',
+      'Answers to common questions about spotting deepfake videos, AI face swaps, file formats, and privacy guarantees.',
     group: 'core',
   },
   {
     id: 'about',
-    label: 'About Forensic Lab',
-    title: 'About ScanDeepFake Forensic Lab | ScanDeepFake',
+    label: 'About Us',
+    title: 'About ScanDeepFake Vision & Mission | ScanDeepFake',
     description:
-      'Learn about ScanDeepFake, our privacy-first forensic mission, and how we protect digital truth online.',
+      'Learn about ScanDeepFake, our vision to fight digital misinformation and AI scams, and our transparent inspection methodology.',
     group: 'core',
   },
   {
@@ -77,7 +77,7 @@ export const SITE_PAGES: SitePageMeta[] = [
     label: 'Contact Us',
     title: 'Contact ScanDeepFake Support | ScanDeepFake',
     description:
-      'Get in touch with the ScanDeepFake forensic team for support, feedback, or media verification inquiries.',
+      'Get in touch with the ScanDeepFake team for support, feedback, or media literacy inquiries.',
     group: 'legal',
   },
   {
@@ -85,7 +85,7 @@ export const SITE_PAGES: SitePageMeta[] = [
     label: 'Privacy Policy',
     title: 'Privacy Policy | ScanDeepFake',
     description:
-      'Read the ScanDeepFake Privacy Policy detailing zero-retention ephemeral cloud processing, immediate deletion, and strict no-AI-training guarantees.',
+      'Read the ScanDeepFake Privacy Policy detailing browser/ephemeral processing, zero retention, no AI training, and Google AdSense DART cookies.',
     group: 'legal',
   },
   {
@@ -93,7 +93,7 @@ export const SITE_PAGES: SitePageMeta[] = [
     label: 'Terms of Service',
     title: 'Terms of Service | ScanDeepFake',
     description:
-      'Review the ScanDeepFake Terms of Service for personal and professional media verification usage.',
+      'Review the ScanDeepFake Terms of Service for educational and informational media inspection usage.',
     group: 'legal',
   },
   {
@@ -101,7 +101,7 @@ export const SITE_PAGES: SitePageMeta[] = [
     label: 'Legal Disclaimer',
     title: 'Legal Disclaimer | ScanDeepFake',
     description:
-      'Read the probabilistic detection disclaimer and forensic verification guidelines for ScanDeepFake.',
+      'Read the educational & informational disclaimer explaining why probabilistic heuristic results are not legal or court evidence.',
     group: 'legal',
   },
 ];

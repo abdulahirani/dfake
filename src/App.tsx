@@ -19,7 +19,6 @@ import {
   CheckCircle2,
   ChevronRight,
   ChevronLeft,
-  Info,
   FileVideo,
   FileImage,
   Loader2,
@@ -58,6 +57,7 @@ import { Capacitor } from '@capacitor/core';
 import { App as CapApp } from '@capacitor/app';
 import { Network } from '@capacitor/network';
 import { StatusBar } from '@capacitor/status-bar';
+import type { ForensicResult } from './lib/detector';
 import { Camera } from '@capacitor/camera';
 import {
   initializeAdMob,
@@ -129,6 +129,14 @@ function AdSlot({
   }
 
   const customCode = config?.settings?.customAdCode;
+  const adsClient = config?.settings?.adsClient;
+  const hasRealAdClient = Boolean(
+    adsClient && !adsClient.includes('0000000000')
+  );
+
+  if (!customCode && !hasRealAdClient) {
+    return null;
+  }
 
   const getContainerStyle = () => {
     switch (type) {
@@ -143,62 +151,24 @@ function AdSlot({
 
   return (
     <div
-      className={`relative w-full overflow-hidden flex flex-col items-center justify-center border rounded-2xl transition-all hover:border-[#00F3FF]/40 group ${
-        theme === 'dark'
-          ? 'bg-white/5 border-white/10'
-          : 'bg-black/5 border-black/10'
+      className={`relative w-full overflow-hidden flex flex-col items-center justify-center rounded-2xl ${
+        theme === 'dark' ? 'bg-white/[0.02]' : 'bg-black/[0.02]'
       } ${getContainerStyle()} ${className || ''}`}
     >
-      <div
-        className={`absolute top-1 right-2 text-[8px] font-black tracking-widest opacity-40 flex items-center gap-1 ${
-          theme === 'dark' ? 'text-white' : 'text-black'
-        }`}
-      >
-        <Info size={8} /> SPONSORED
-      </div>
-
       {customCode ? (
         <div
-          className="w-full flex justify-center p-4"
+          className="w-full flex justify-center p-2"
           dangerouslySetInnerHTML={{ __html: customCode }}
         />
       ) : (
-        <div className="w-full h-full flex flex-col items-center justify-center p-6 space-y-4">
-          <div
-            className={`text-[10px] uppercase font-bold tracking-[0.2em] opacity-30 ${
-              theme === 'dark' ? 'text-white' : 'text-black'
-            }`}
-          >
-            {type === 'square' ? 'Native Content' : 'Premium Advertisement'}
-          </div>
-
-          {!Capacitor.isNativePlatform() && (
-            <div className="flex flex-col items-center gap-2">
-              <Shield
-                size={24}
-                className={
-                  theme === 'dark' ? 'text-[#00F3FF]/40' : 'text-[#1E40AF]/40'
-                }
-              />
-              <div
-                className={`text-[8px] uppercase font-black opacity-20 text-center ${
-                  theme === 'dark' ? 'text-white' : 'text-black'
-                }`}
-              >
-                Ad ID: {id}
-              </div>
-            </div>
-          )}
-
-          <ins
-            className="adsbygoogle"
-            style={{ display: 'block', width: '100%', height: '100%' }}
-            data-ad-client={config?.settings?.adsClient || id}
-            data-ad-slot={id}
-            data-ad-format={type === 'square' ? 'rectangle' : 'auto'}
-            data-full-width-responsive="true"
-          />
-        </div>
+        <ins
+          className="adsbygoogle"
+          style={{ display: 'block', width: '100%', height: '100%' }}
+          data-ad-client={adsClient}
+          data-ad-slot={id}
+          data-ad-format={type === 'square' ? 'rectangle' : 'auto'}
+          data-full-width-responsive="true"
+        />
       )}
     </div>
   );
@@ -287,13 +257,7 @@ export default function App() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [progressText, setProgressText] = useState('');
-  const [result, setResult] = useState<{
-    detected: boolean;
-    confidence: number;
-    metrics: {
-      [key: string]: { value: string; status: string; isError: boolean };
-    };
-  } | null>(null);
+  const [result, setResult] = useState<ForensicResult | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -445,12 +409,18 @@ export default function App() {
           const remote = docSnap.data() as AppConfig;
           const fallback = starterConfigData as AppConfig;
           const needsCatalogMerge =
-            remote?.settings?.faqCatalogVersion !== '2026-11';
+            remote?.settings?.faqCatalogVersion !== '2026-11-adsense';
 
           let mergedFaqs = Array.isArray(remote?.faqs) ? [...remote.faqs] : [];
           if (mergedFaqs.length === 0) {
             mergedFaqs = [...fallback.faqs];
           } else if (needsCatalogMerge) {
+            // Upgrade outdated FAQ #2 99.8% wording if still unmodified from earlier template
+            mergedFaqs = mergedFaqs.map((f) =>
+              f.a.includes('99.8% precision score')
+                ? fallback.faqs.find((bf) => bf.q === f.q) || f
+                : f
+            );
             const existingQuestions = new Set(
               mergedFaqs.map((f) => f.q.trim().toLowerCase())
             );
@@ -465,11 +435,20 @@ export default function App() {
             ...fallback.legal,
             ...(remote?.legal || {}),
           };
-          if (mergedLegal.privacy?.includes('Verified AI partners')) {
+          if (
+            mergedLegal.privacy?.includes('Verified AI partners') ||
+            !mergedLegal.privacy?.includes('DoubleClick DART')
+          ) {
             mergedLegal.privacy = fallback.legal.privacy;
           }
-          if (mergedLegal.about?.includes('uses local analysis')) {
+          if (
+            mergedLegal.about?.includes('uses local analysis') ||
+            !mergedLegal.about?.includes('Education Hub')
+          ) {
             mergedLegal.about = fallback.legal.about;
+          }
+          if (!mergedLegal.disclaimer?.includes('court evidence')) {
+            mergedLegal.disclaimer = fallback.legal.disclaimer;
           }
 
           setConfig({
@@ -864,28 +843,36 @@ export default function App() {
 
   const downloadForensicReport = () => {
     if (!result || !selectedFile) return;
+    const tech = result.technical;
     const reportLines = [
-      'SCANDEEPFAKE FORENSIC VERIFICATION REPORT',
-      '=========================================',
+      'SCANDEEPFAKE TECHNICAL MEDIA INSPECTION REPORT',
+      '==============================================',
       `Timestamp: ${new Date().toISOString()}`,
       `File Name: ${selectedFile.name}`,
-      `File Size: ${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`,
-      `Media Type: ${selectedFile.type || 'Unknown'}`,
-      `Dimensions: ${
-        dimensions ? `${dimensions.width}x${dimensions.height}` : 'N/A'
+      `File Size: ${tech?.fileSizeFormatted || `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`}`,
+      `Format: ${tech?.format || selectedFile.type || 'Unknown'}`,
+      `Resolution: ${
+        tech?.resolution ||
+        (dimensions ? `${dimensions.width}x${dimensions.height}` : 'N/A')
       }`,
+      `Aspect Ratio: ${tech?.aspectRatio || 'N/A'}`,
+      `Compression: ${tech?.compressionAssessment || 'Inspected'}${tech?.bitsPerPixel ? ` (${tech.bitsPerPixel})` : ''}`,
+      `EXIF & Metadata: ${tech?.metadataStatus || 'Checked'}`,
       '',
-      `VERDICT: ${result.detected ? 'AI GENERATED / SYNTHETIC' : 'AUTHENTIC MEDIA'}`,
-      `NEURAL CONFIDENCE: ${result.confidence}%`,
-      `RISK LEVEL: ${result.detected ? 'CRITICAL' : 'MINIMAL'}`,
+      `INDICATION: ${result.detected ? 'ELEVATED SYNTHETIC RISK' : 'CONSISTENT WITH NATURAL MEDIA'}`,
+      `HEURISTIC SCORE: ${result.confidence}%`,
+      `RISK LEVEL: ${result.detected ? 'ELEVATED' : 'LOW'}`,
       '',
-      'FORENSIC BREAKDOWN:',
-      `- Orbital Integrity: ${result.metrics?.faces?.value} (${result.metrics?.faces?.status})`,
-      `- Pixel Frequency: ${result.metrics?.pixels?.value} (${result.metrics?.pixels?.status})`,
+      'SIGNAL BREAKDOWN:',
+      `- Boundary & Facial Contours: ${result.metrics?.faces?.value} (${result.metrics?.faces?.status})`,
+      `- Compression & Pixel Noise: ${result.metrics?.pixels?.value} (${result.metrics?.pixels?.status})`,
       `- Luminance Consistency: ${result.metrics?.shadows?.value} (${result.metrics?.shadows?.status})`,
-      `- Temporal Artifacts: ${result.metrics?.patterns?.value} (${result.metrics?.patterns?.status})`,
+      `- Structural & Header Pattern: ${result.metrics?.patterns?.value} (${result.metrics?.patterns?.status})`,
+      ...(tech?.explanations?.length
+        ? ['', 'RISK SCORE EXPLANATION:', ...tech.explanations.map((e) => `- ${e}`)]
+        : []),
       '',
-      'Note: Probabilistic forensic estimate generated in a zero-retention ephemeral environment by ScanDeepFake.',
+      'Educational & Informational Disclaimer: Automated probability scores are heuristic estimates and cannot be used as definitive legal or court evidence.',
     ];
     const blob = new Blob([reportLines.join('\n')], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -1196,34 +1183,44 @@ export default function App() {
             className="hidden md:flex items-center gap-1"
           >
             {[
-              { id: 'home' as PageId, label: 'Scanner' },
-              { id: 'blog' as PageId, label: `Blog (${posts.length})` },
-              { id: 'docs' as PageId, label: 'Manual' },
-              { id: 'faq' as PageId, label: 'FAQ' },
+              { id: 'home' as PageId, label: 'Home', step: 1 },
+              { id: 'home' as PageId, label: 'Scanner', step: 2 },
+              { id: 'blog' as PageId, label: 'Education Hub' },
+              { id: 'docs' as PageId, label: 'Documentation' },
               { id: 'about' as PageId, label: 'About' },
               { id: 'contact' as PageId, label: 'Contact' },
-              { id: 'sitemap' as PageId, label: 'Sitemap' },
-            ].map((item) => (
-              <a
-                key={item.id}
-                href={getPagePath(item.id)}
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigateTo(item.id);
-                }}
-                className={`px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                  currentPage === item.id
-                    ? theme === 'dark'
-                      ? 'bg-[#00F3FF] text-black'
-                      : 'bg-[#1E40AF] text-white'
-                    : theme === 'dark'
-                      ? 'text-white/75 hover:text-white hover:bg-white/5'
-                      : 'text-[#0F172A]/75 hover:text-[#0F172A] hover:bg-black/5'
-                }`}
-              >
-                {item.label}
-              </a>
-            ))}
+            ].map((item) => {
+              const isActive =
+                item.step === 2
+                  ? currentPage === 'home' && currentStep >= 2
+                  : item.step === 1
+                    ? currentPage === 'home' && currentStep === 1
+                    : currentPage === item.id;
+              return (
+                <a
+                  key={item.label}
+                  href={getPagePath(item.id)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (item.step) {
+                      setCurrentStep(item.step);
+                    }
+                    navigateTo(item.id);
+                  }}
+                  className={`px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap ${
+                    isActive
+                      ? theme === 'dark'
+                        ? 'bg-[#00F3FF] text-black'
+                        : 'bg-[#1E40AF] text-white'
+                      : theme === 'dark'
+                        ? 'text-white/75 hover:text-white hover:bg-white/5'
+                        : 'text-[#0F172A]/75 hover:text-[#0F172A] hover:bg-black/5'
+                  }`}
+                >
+                  {item.label}
+                </a>
+              );
+            })}
           </nav>
 
           <div className="flex items-center gap-2 shrink-0">
@@ -1234,14 +1231,14 @@ export default function App() {
                 navigateTo('sitemap');
               }}
               aria-label="Open Sitemap"
-              className={`md:hidden inline-flex items-center gap-1 px-2.5 py-2 rounded-xl border text-[10px] font-black uppercase tracking-wider transition-all ${
+              className={`inline-flex items-center gap-1 px-2.5 py-2 rounded-xl border text-[10px] font-black uppercase tracking-wider transition-all ${
                 currentPage === 'sitemap'
                   ? theme === 'dark'
                     ? 'bg-[#00F3FF] text-black border-[#00F3FF]'
                     : 'bg-[#1E40AF] text-white border-[#1E40AF]'
                   : theme === 'dark'
-                    ? 'bg-white/10 border-white/15 text-white'
-                    : 'bg-black/5 border-black/10 text-black'
+                    ? 'bg-white/10 border-white/15 text-white hover:border-[#00F3FF]/50'
+                    : 'bg-black/5 border-black/10 text-black hover:border-[#1E40AF]/50'
               }`}
             >
               <Globe size={12} />
@@ -1367,22 +1364,23 @@ export default function App() {
                             </div>
                           </div>
                           <p className="text-base md:text-lg max-w-2xl mx-auto opacity-80">
-                            Detect <strong>AI-Generated Images</strong>,{' '}
+                            Client-Side & Heuristic Media Inspection Tool for{' '}
+                            <strong>Images</strong>,{' '}
                             <strong>Face Swaps</strong>, and{' '}
-                            <strong>Synthetic Video</strong> with our free
-                            zero-retention neural forensic scanner.
+                            <strong>Synthetic Video</strong>—paired with an open
+                            digital forensics <strong>Education Hub</strong>.
                           </p>
                         </div>
 
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
                           <StatCard
-                            label="Analysis per day"
-                            value="245k+"
+                            label="Inspection Type"
+                            value="Heuristic"
                             theme={theme}
                           />
                           <StatCard
-                            label="Detection accuracy"
-                            value="99.8%"
+                            label="Forensic Engine"
+                            value="Client + Cloud"
                             theme={theme}
                           />
                           <StatCard
@@ -1391,8 +1389,8 @@ export default function App() {
                             theme={theme}
                           />
                           <StatCard
-                            label="Forensic Reports"
-                            value={`${posts.length}`}
+                            label="Education Hub"
+                            value={`${posts.length} Guides`}
                             color="text-[#00F3FF]"
                             theme={theme}
                           />
@@ -1422,7 +1420,7 @@ export default function App() {
                             }`}
                           >
                             <BookOpen size={16} />
-                            Read Forensic Blog
+                            Explore Education Hub
                           </a>
                         </div>
                       </motion.div>
@@ -1750,7 +1748,7 @@ export default function App() {
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                          <div className="lg:col-span-8 bg-white/5 border border-white/10 rounded-[32px] p-8">
+                          <div className="lg:col-span-7 bg-white/5 border border-white/10 rounded-[32px] p-8">
                             <h3 className="text-xs font-mono uppercase mb-8 tracking-[0.3em] text-[#00F3FF] font-black">
                               Forensic Breakdown
                             </h3>
@@ -1807,37 +1805,72 @@ export default function App() {
                             </div>
                           </div>
 
-                          <div className="lg:col-span-4 bg-white/5 border border-white/10 rounded-[32px] p-8 space-y-5">
+                          <div className="lg:col-span-5 bg-white/5 border border-white/10 rounded-[32px] p-8 space-y-5">
                             <h3 className="text-xs font-mono uppercase tracking-[0.3em] text-[#00F3FF] font-black">
-                              Technical Properties
+                              Technical Properties & Metadata
                             </h3>
                             {selectedFile && (
                               <div className="space-y-3">
                                 <MetadataItem
-                                  label="Name"
+                                  label="File Name"
                                   value={selectedFile.name}
                                   theme={theme}
                                 />
                                 <MetadataItem
-                                  label="Size"
-                                  value={`${(
-                                    selectedFile.size /
-                                    1024 /
-                                    1024
-                                  ).toFixed(2)} MB`}
-                                  theme={theme}
-                                />
-                                <MetadataItem
-                                  label="Type"
-                                  value={selectedFile.type.toUpperCase()}
-                                  theme={theme}
-                                />
-                                <MetadataItem
-                                  label="Dimensions"
+                                  label="Format"
                                   value={
-                                    dimensions
-                                      ? `${dimensions.width}x${dimensions.height}`
-                                      : 'Calculating...'
+                                    result?.technical?.format ||
+                                    selectedFile.type.toUpperCase() ||
+                                    'UNKNOWN'
+                                  }
+                                  theme={theme}
+                                />
+                                <MetadataItem
+                                  label="File Size"
+                                  value={
+                                    result?.technical?.fileSizeFormatted ||
+                                    `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`
+                                  }
+                                  theme={theme}
+                                />
+                                <MetadataItem
+                                  label="Resolution"
+                                  value={
+                                    result?.technical?.resolution ||
+                                    (dimensions
+                                      ? `${dimensions.width} × ${dimensions.height} px`
+                                      : 'Calculating...')
+                                  }
+                                  theme={theme}
+                                />
+                                <MetadataItem
+                                  label="Aspect Ratio"
+                                  value={result?.technical?.aspectRatio || 'N/A'}
+                                  theme={theme}
+                                />
+                                <MetadataItem
+                                  label="Compression"
+                                  value={
+                                    result?.technical?.bitsPerPixel
+                                      ? `${result.technical.compressionAssessment} (${result.technical.bitsPerPixel})`
+                                      : result?.technical?.compressionAssessment ||
+                                        'Inspected'
+                                  }
+                                  theme={theme}
+                                />
+                                <MetadataItem
+                                  label="EXIF Check"
+                                  value={
+                                    result?.technical?.metadataStatus ||
+                                    'Checked'
+                                  }
+                                  theme={theme}
+                                />
+                                <MetadataItem
+                                  label="Inspection"
+                                  value={
+                                    result?.technical?.inspectionSource ||
+                                    'Client-Side Browser Check'
                                   }
                                   theme={theme}
                                 />
@@ -1845,6 +1878,37 @@ export default function App() {
                             )}
                           </div>
                         </div>
+
+                        {/* Risk Score Explanation & Technical Context */}
+                        {result?.technical?.explanations?.length ? (
+                          <div
+                            className={`border rounded-[32px] p-8 space-y-4 ${
+                              theme === 'dark'
+                                ? 'bg-white/[0.03] border-white/10'
+                                : 'bg-[#F8FAFC] border-black/10'
+                            }`}
+                          >
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <h3 className="text-xs font-mono uppercase tracking-[0.3em] text-[#00F3FF] font-black">
+                                Risk Score & Metadata Explanation
+                              </h3>
+                              <span className="text-[11px] font-mono opacity-60">
+                                Educational & Heuristic Summary
+                              </span>
+                            </div>
+                            <ul className="space-y-2.5 text-sm leading-relaxed opacity-85 list-disc pl-5">
+                              {result.technical.explanations.map((note, idx) => (
+                                <li key={idx}>{note}</li>
+                              ))}
+                              {result.technical.metadataDetails.map((detail, idx) => (
+                                <li key={`meta-${idx}`}>{detail}</li>
+                              ))}
+                            </ul>
+                            <p className="text-xs opacity-60 pt-2 border-t border-white/10">
+                              Disclaimer: Heuristic scores are informational indicators and should not be used as legal or court evidence.
+                            </p>
+                          </div>
+                        ) : null}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -2006,25 +2070,25 @@ export default function App() {
                         theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'
                       }`}
                     >
-                      Forensic Intelligence & Daily Dispatches
+                      Digital Media Literacy Library
                     </div>
                     <h2
                       id="homepage-blog-heading"
                       className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter"
                     >
-                      Forensic{' '}
+                      Education{' '}
                       <span
                         className={
                           theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'
                         }
                       >
-                        Blog
+                        Hub
                       </span>{' '}
-                      & Daily Articles
+                      & Forensic Guides
                     </h2>
                     <p className="text-sm opacity-75 max-w-2xl">
-                      Deepfake detection guides, scam breakdowns, and daily AI
-                      forensic research reports.
+                      Practical deepfake detection tutorials, EXIF metadata
+                      guides, voice-cloning checks, and anti-fraud education.
                     </p>
                   </div>
 
@@ -2202,10 +2266,10 @@ export default function App() {
                   <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mt-4">
                     <div>
                       <div className="text-xs font-mono uppercase tracking-[0.3em] text-[#00F3FF] font-black mb-2">
-                        Forensic Knowledge Base
+                        Digital Media Literacy & Guides
                       </div>
                       <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic">
-                        Forensic{' '}
+                        Education{' '}
                         <span
                           className={
                             theme === 'dark'
@@ -2213,12 +2277,11 @@ export default function App() {
                               : 'text-[#1E40AF]'
                           }
                         >
-                          Blog
+                          Hub
                         </span>
                       </h1>
                       <p className="opacity-70 text-sm mt-2">
-                        Expert deepfake detection guides, daily reports, and AI
-                        verification case studies.
+                        Actionable deepfake detection guides, EXIF metadata tutorials, and synthetic media safety articles.
                       </p>
                     </div>
                     {isAdmin && (
@@ -2721,17 +2784,17 @@ export default function App() {
             <div className="max-w-4xl mx-auto space-y-10 mb-20">
               <div className="text-center mt-4">
                 <h1 className="text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter italic">
-                  Forensic{' '}
+                  Technical{' '}
                   <span
                     className={
                       theme === 'dark' ? 'text-[#00F3FF]' : 'text-[#1E40AF]'
                     }
                   >
-                    Manual
+                    Documentation
                   </span>
                 </h1>
                 <p className="font-mono text-xs uppercase tracking-[0.4em] mt-2 text-[#00F3FF]">
-                  Neural Analysis Documentation v4.2
+                  Media Inspection & Verification Methodology
                 </p>
               </div>
 
@@ -2992,12 +3055,12 @@ export default function App() {
               theme={theme}
               links={[
                 {
-                  label: 'Neural Scanner',
+                  label: 'Home & Scanner',
                   href: '/',
                   onClick: () => navigateTo('home'),
                 },
                 {
-                  label: 'Forensic Blog',
+                  label: 'Education Hub',
                   href: getPagePath('blog'),
                   onClick: () => navigateTo('blog'),
                 },
@@ -3007,7 +3070,12 @@ export default function App() {
                   onClick: () => navigateTo('docs'),
                 },
                 {
-                  label: 'FAQ',
+                  label: 'About Us',
+                  href: getPagePath('about'),
+                  onClick: () => navigateTo('about'),
+                },
+                {
+                  label: 'Help & FAQ',
                   href: getPagePath('faq'),
                   onClick: () => navigateTo('faq'),
                 },

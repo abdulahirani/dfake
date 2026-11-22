@@ -240,7 +240,7 @@ export async function saveConfigToFirestore(config: AppConfig) {
     faqs: sanitizedFaqs,
     settings: {
       ...(config.settings || {}),
-      faqCatalogVersion: '2026-11',
+      faqCatalogVersion: '2026-11-adsense',
     },
     legal: config.legal || {},
     updatedAt: serverTimestamp(),
